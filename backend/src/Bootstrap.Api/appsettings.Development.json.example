@@ -1,0 +1,15 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Information"
+    }
+  },
+  "ConnectionStrings": {
+    "Postgres": ""
+  },
+  "Cors": {
+    "Name": "",
+    "AllowedHost": ""
+  }
+}

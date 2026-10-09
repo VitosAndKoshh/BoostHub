@@ -1,0 +1,40 @@
+services:
+  db:
+    container_name: bust-platform_postgres_db
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - bust_platform_postgres_db_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - bust_platform
+
+  backend:
+    container_name: bust-platform-backend
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "8001:8081"
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8081
+    env_file:
+      - .env
+    networks:
+      - bust_platform
+
+volumes:
+  bust_platform_postgres_db_data:
+
+networks:
+  bust_platform:
+    external: true

@@ -1,9 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <ItemGroup>
-      <ProjectReference Include="..\Adapters.Inbound.Http\Adapters.Inbound.Http.csproj" />
-      <ProjectReference Include="..\Core.Application\Core.Application.csproj" />
-      <ProjectReference Include="..\Core.Domain\Core.Domain.csproj" />
-    </ItemGroup>
-
-</Project>

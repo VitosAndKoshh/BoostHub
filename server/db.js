@@ -1,11 +1,23 @@
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const Database = require('better-sqlite3');
 
-const DB_FILE = path.join(__dirname, 'data.json');
+const DB_SQLITE_FILE = path.join(__dirname, 'cyberboost.db');
+const DB_JSON_BACKUP_FILE = path.join(__dirname, 'data.json');
 
-// Default Seed Data
-const createInitialData = () => {
+// Helper to safely parse JSON
+function safeJsonParse(str, fallback) {
+  if (!str) return fallback;
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return fallback;
+  }
+}
+
+// Default Seed Data Generator (used if both sqlite & data.json are empty)
+const createInitialSeedData = () => {
   const salt = bcrypt.genSaltSync(10);
 
   const users = [
@@ -15,6 +27,8 @@ const createInitialData = () => {
       passwordHash: bcrypt.hashSync('admin123', salt),
       name: 'CyberAdmin',
       role: 'admin',
+      status: 'online',
+      statusMessage: 'CyberBoost Staff / В мережі',
       avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80',
       createdAt: new Date(Date.now() - 30 * 86400000).toISOString()
     },
@@ -24,10 +38,18 @@ const createInitialData = () => {
       passwordHash: bcrypt.hashSync('booster123', salt),
       name: 'ShadowStriker',
       role: 'booster',
+      status: 'busy',
+      statusMessage: '🎮 На замовленні (Valorant)',
       rating: 4.98,
       completedOrders: 142,
       rankTitle: 'Radiant / Global Elite / Challenger',
-      games: ['valorant', 'cs2', 'lol'],
+      steamId: '76561198012345678',
+      discord: 'Shadow#1337',
+      boosterVerification: 'Verified',
+      games: [
+        { id: 'gm_1', game: 'Valorant', mmr: 'Radiant (Top 500)' },
+        { id: 'gm_2', game: 'CS2', mmr: 'Faceit 10 (3100 ELO)' }
+      ],
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
       createdAt: new Date(Date.now() - 20 * 86400000).toISOString()
     },
@@ -37,10 +59,18 @@ const createInitialData = () => {
       passwordHash: bcrypt.hashSync('booster123', salt),
       name: 'VortexGod',
       role: 'booster',
+      status: 'ready',
+      statusMessage: '🟢 Вільний • Готовий приймати замовлення',
       rating: 4.94,
       completedOrders: 89,
       rankTitle: 'Immortal Top 100 / Faceit 10 (3100 ELO)',
-      games: ['dota2', 'cs2'],
+      steamId: '76561198098765432',
+      discord: 'Vortex#2026',
+      boosterVerification: 'Pending',
+      games: [
+        { id: 'gm_1', game: 'Dota 2', mmr: 'Immortal (8200 MMR)' },
+        { id: 'gm_2', game: 'CS2', mmr: '24,500 Premier ELO' }
+      ],
       avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
       createdAt: new Date(Date.now() - 15 * 86400000).toISOString()
     },
@@ -50,7 +80,15 @@ const createInitialData = () => {
       passwordHash: bcrypt.hashSync('client123', salt),
       name: 'Alex_Gamer',
       role: 'client',
+      status: 'in_boost',
+      statusMessage: '⚡ Акаунт на бусті (Valorant Silver->Diamond)',
+      steamId: '',
       discord: 'AlexGamer#7721',
+      boosterVerification: 'None',
+      games: [
+        { id: 'gm_1', game: 'Dota 2', mmr: '100' },
+        { id: 'gm_2', game: 'CS2', mmr: '100' }
+      ],
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       createdAt: new Date(Date.now() - 5 * 86400000).toISOString()
     }
@@ -132,46 +170,12 @@ const createInitialData = () => {
       ranks: [
         { id: 'herald_1', name: 'Рекрут 1', tier: 'herald', stars: 1, value: 1, basePrice: 4, color: '#84cc16', defaultElo: 150 },
         { id: 'herald_2', name: 'Рекрут 2', tier: 'herald', stars: 2, value: 2, basePrice: 4.5, color: '#84cc16', defaultElo: 300 },
-        { id: 'herald_3', name: 'Рекрут 3', tier: 'herald', stars: 3, value: 3, basePrice: 5, color: '#84cc16', defaultElo: 450 },
-        { id: 'herald_4', name: 'Рекрут 4', tier: 'herald', stars: 4, value: 4, basePrice: 5.5, color: '#84cc16', defaultElo: 600 },
-        { id: 'herald_5', name: 'Рекрут 5', tier: 'herald', stars: 5, value: 5, basePrice: 6, color: '#84cc16', defaultElo: 750 },
-
         { id: 'guardian_1', name: 'Вартовий 1', tier: 'guardian', stars: 1, value: 6, basePrice: 7, color: '#94a3b8', defaultElo: 900 },
-        { id: 'guardian_2', name: 'Вартовий 2', tier: 'guardian', stars: 2, value: 7, basePrice: 7.5, color: '#94a3b8', defaultElo: 1050 },
-        { id: 'guardian_3', name: 'Вартовий 3', tier: 'guardian', stars: 3, value: 8, basePrice: 8, color: '#94a3b8', defaultElo: 1200 },
-        { id: 'guardian_4', name: 'Вартовий 4', tier: 'guardian', stars: 4, value: 9, basePrice: 8.5, color: '#94a3b8', defaultElo: 1350 },
-        { id: 'guardian_5', name: 'Вартовий 5', tier: 'guardian', stars: 5, value: 10, basePrice: 9, color: '#94a3b8', defaultElo: 1500 },
-
         { id: 'crusader_1', name: 'Лицар 1', tier: 'crusader', stars: 1, value: 11, basePrice: 10, color: '#b45309', defaultElo: 1650 },
-        { id: 'crusader_2', name: 'Лицар 2', tier: 'crusader', stars: 2, value: 12, basePrice: 11, color: '#b45309', defaultElo: 1800 },
-        { id: 'crusader_3', name: 'Лицар 3', tier: 'crusader', stars: 3, value: 13, basePrice: 12, color: '#b45309', defaultElo: 1950 },
-        { id: 'crusader_4', name: 'Лицар 4', tier: 'crusader', stars: 4, value: 14, basePrice: 13, color: '#b45309', defaultElo: 2100 },
-        { id: 'crusader_5', name: 'Лицар 5', tier: 'crusader', stars: 5, value: 15, basePrice: 14, color: '#b45309', defaultElo: 2250 },
-
         { id: 'archon_1', name: 'Архонт 1', tier: 'archon', stars: 1, value: 16, basePrice: 15, color: '#38bdf8', defaultElo: 2400 },
-        { id: 'archon_2', name: 'Архонт 2', tier: 'archon', stars: 2, value: 17, basePrice: 16, color: '#38bdf8', defaultElo: 2550 },
-        { id: 'archon_3', name: 'Архонт 3', tier: 'archon', stars: 3, value: 18, basePrice: 17, color: '#38bdf8', defaultElo: 2700 },
-        { id: 'archon_4', name: 'Архонт 4', tier: 'archon', stars: 4, value: 19, basePrice: 18, color: '#38bdf8', defaultElo: 2850 },
-        { id: 'archon_5', name: 'Архонт 5', tier: 'archon', stars: 5, value: 20, basePrice: 19, color: '#38bdf8', defaultElo: 3000 },
-
         { id: 'legend_1', name: 'Легенда 1', tier: 'legend', stars: 1, value: 21, basePrice: 21, color: '#fbbf24', defaultElo: 3150 },
-        { id: 'legend_2', name: 'Легенда 2', tier: 'legend', stars: 2, value: 22, basePrice: 23, color: '#fbbf24', defaultElo: 3300 },
-        { id: 'legend_3', name: 'Легенда 3', tier: 'legend', stars: 3, value: 23, basePrice: 25, color: '#fbbf24', defaultElo: 3450 },
-        { id: 'legend_4', name: 'Легенда 4', tier: 'legend', stars: 4, value: 24, basePrice: 27, color: '#fbbf24', defaultElo: 3600 },
-        { id: 'legend_5', name: 'Легенда 5', tier: 'legend', stars: 5, value: 25, basePrice: 29, color: '#fbbf24', defaultElo: 3750 },
-
         { id: 'ancient_1', name: 'Володар 1', tier: 'ancient', stars: 1, value: 26, basePrice: 32, color: '#c084fc', defaultElo: 3900 },
-        { id: 'ancient_2', name: 'Володар 2', tier: 'ancient', stars: 2, value: 27, basePrice: 35, color: '#c084fc', defaultElo: 4050 },
-        { id: 'ancient_3', name: 'Володар 3', tier: 'ancient', stars: 3, value: 28, basePrice: 38, color: '#c084fc', defaultElo: 4200 },
-        { id: 'ancient_4', name: 'Володар 4', tier: 'ancient', stars: 4, value: 29, basePrice: 42, color: '#c084fc', defaultElo: 4350 },
-        { id: 'ancient_5', name: 'Володар 5', tier: 'ancient', stars: 5, value: 30, basePrice: 46, color: '#c084fc', defaultElo: 4500 },
-
         { id: 'divine_1', name: 'Божество 1', tier: 'divine', stars: 1, value: 31, basePrice: 52, color: '#f59e0b', defaultElo: 4700 },
-        { id: 'divine_2', name: 'Божество 2', tier: 'divine', stars: 2, value: 32, basePrice: 58, color: '#f59e0b', defaultElo: 4900 },
-        { id: 'divine_3', name: 'Божество 3', tier: 'divine', stars: 3, value: 33, basePrice: 65, color: '#f59e0b', defaultElo: 5100 },
-        { id: 'divine_4', name: 'Божество 4', tier: 'divine', stars: 4, value: 34, basePrice: 72, color: '#f59e0b', defaultElo: 5300 },
-        { id: 'divine_5', name: 'Божество 5', tier: 'divine', stars: 5, value: 35, basePrice: 80, color: '#f59e0b', defaultElo: 5500 },
-
         { id: 'immortal', name: 'Титан (Immortal)', tier: 'immortal', stars: 5, value: 36, basePrice: 120, color: '#ef4444', defaultElo: 6000 }
       ]
     },
@@ -335,8 +339,8 @@ const createInitialData = () => {
       price: 68,
       currency: 'USD',
       priceUAH: 2800,
-      status: 'in_progress', // pending_payment, paid, assigned, in_progress, completed, cancelled
-      paymentStatus: 'verified', // pending, verified, refunded
+      status: 'in_progress',
+      paymentStatus: 'verified',
       paymentMethod: 'monobank',
       options: {
         queueType: 'solo',
@@ -476,106 +480,800 @@ const createInitialData = () => {
   return { users, games, services, orders, messages, promoCodes, reviews };
 };
 
-// Persistent Database Object
-class Database {
+// ---------------- SQLite DATABASE CLASS ----------------
+
+class SqliteDatabase {
   constructor() {
-    this.data = null;
-    this.load();
+    this.sqlite = new Database(DB_SQLITE_FILE);
+    this.sqlite.pragma('journal_mode = WAL');
+    this.sqlite.pragma('synchronous = NORMAL');
+    this.initSchema();
+    this.migrateIfNeeded();
   }
 
-  load() {
+  initSchema() {
+    this.sqlite.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        passwordHash TEXT NOT NULL,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        status TEXT DEFAULT 'online',
+        statusMessage TEXT DEFAULT '',
+        avatar TEXT,
+        discord TEXT DEFAULT '',
+        telegram TEXT DEFAULT '',
+        steamId TEXT DEFAULT '',
+        boosterVerification TEXT DEFAULT 'None',
+        rating REAL DEFAULT 5.0,
+        completedOrders INTEGER DEFAULT 0,
+        rankTitle TEXT DEFAULT '',
+        games TEXT DEFAULT '[]',
+        createdAt TEXT,
+        updatedAt TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS orders (
+        id TEXT PRIMARY KEY,
+        clientId TEXT NOT NULL,
+        clientName TEXT,
+        clientDiscord TEXT,
+        boosterId TEXT,
+        boosterName TEXT,
+        gameId TEXT,
+        gameName TEXT,
+        serviceType TEXT,
+        title TEXT,
+        currentRank TEXT,
+        targetRank TEXT,
+        currentRankValue INTEGER DEFAULT 0,
+        targetRankValue INTEGER DEFAULT 0,
+        progressRank TEXT,
+        progressRankValue INTEGER DEFAULT 0,
+        progressPercent INTEGER DEFAULT 0,
+        price REAL DEFAULT 0,
+        currency TEXT DEFAULT 'USD',
+        priceUAH REAL DEFAULT 0,
+        status TEXT DEFAULT 'paid',
+        paymentStatus TEXT DEFAULT 'verified',
+        paymentMethod TEXT,
+        options TEXT DEFAULT '{}',
+        accountCredentials TEXT DEFAULT '{}',
+        streamUrl TEXT,
+        createdAt TEXT,
+        updatedAt TEXT,
+        acceptedAt TEXT,
+        completedAt TEXT,
+        timeline TEXT DEFAULT '[]'
+      );
+
+      CREATE TABLE IF NOT EXISTS services (
+        id TEXT PRIMARY KEY,
+        gameId TEXT,
+        gameName TEXT,
+        title TEXT NOT NULL,
+        category TEXT,
+        price REAL NOT NULL,
+        currency TEXT DEFAULT 'USD',
+        priceUAH REAL,
+        deliveryTime TEXT,
+        badge TEXT,
+        icon TEXT,
+        description TEXT,
+        features TEXT DEFAULT '[]'
+      );
+
+      CREATE TABLE IF NOT EXISTS games (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        tag TEXT,
+        icon TEXT,
+        badgeColor TEXT,
+        image TEXT,
+        description TEXT,
+        isEloBased INTEGER DEFAULT 0,
+        eloStep INTEGER DEFAULT 25,
+        ranks TEXT DEFAULT '[]',
+        agents TEXT DEFAULT '[]',
+        roles TEXT DEFAULT '[]'
+      );
+
+      CREATE TABLE IF NOT EXISTS messages (
+        id TEXT PRIMARY KEY,
+        orderId TEXT NOT NULL,
+        senderId TEXT,
+        senderName TEXT,
+        senderRole TEXT,
+        text TEXT NOT NULL,
+        timestamp TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS promo_codes (
+        code TEXT PRIMARY KEY,
+        discountPercent INTEGER NOT NULL,
+        validUntil TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS reviews (
+        id TEXT PRIMARY KEY,
+        author TEXT NOT NULL,
+        game TEXT,
+        rating INTEGER DEFAULT 5,
+        comment TEXT,
+        date TEXT
+      );
+    `);
+
+    // Safe column migrations for existing SQLite database
     try {
-      if (fs.existsSync(DB_FILE)) {
-        const raw = fs.readFileSync(DB_FILE, 'utf8');
-        this.data = JSON.parse(raw);
-      } else {
-        this.data = createInitialData();
-        this.save();
+      this.sqlite.exec(`ALTER TABLE users ADD COLUMN steamId TEXT DEFAULT ''`);
+    } catch (e) {}
+    try {
+      this.sqlite.exec(`ALTER TABLE users ADD COLUMN boosterVerification TEXT DEFAULT 'None'`);
+    } catch (e) {}
+  }
+
+  migrateIfNeeded() {
+    const userCount = this.sqlite.prepare('SELECT COUNT(*) as count FROM users').get().count;
+    if (userCount > 0) {
+      // Database already initialized
+      this.syncBackupJson();
+      return;
+    }
+
+    console.log('🔄 Initializing SQLite database tables from data.json or seeds...');
+    let sourceData = null;
+
+    if (fs.existsSync(DB_JSON_BACKUP_FILE)) {
+      try {
+        const raw = fs.readFileSync(DB_JSON_BACKUP_FILE, 'utf8');
+        sourceData = JSON.parse(raw);
+      } catch (e) {
+        console.warn('Could not read existing data.json, using default seed:', e);
       }
-    } catch (e) {
-      console.error('Error loading DB file, resetting to initial seed:', e);
-      this.data = createInitialData();
-      this.save();
     }
+
+    if (!sourceData || !Array.isArray(sourceData.users) || sourceData.users.length === 0) {
+      sourceData = createInitialSeedData();
+    }
+
+    // Insert Users
+    const insertUser = this.sqlite.prepare(`
+      INSERT OR REPLACE INTO users (id, email, passwordHash, name, role, status, statusMessage, avatar, discord, telegram, rating, completedOrders, rankTitle, games, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const insertManyUsers = this.sqlite.transaction((users) => {
+      for (const u of users) {
+        let defStatus = u.status;
+        let defMsg = u.statusMessage || '';
+        if (!defStatus) {
+          if (u.role === 'booster') {
+            defStatus = 'ready';
+            defMsg = defMsg || '🟢 Вільний • Готовий до бусту';
+          } else {
+            defStatus = 'online';
+            defMsg = defMsg || '🟢 В мережі';
+          }
+        }
+        insertUser.run(
+          u.id,
+          (u.email || '').toLowerCase(),
+          u.passwordHash,
+          u.name,
+          u.role,
+          defStatus,
+          defMsg,
+          u.avatar || '',
+          u.discord || '',
+          u.telegram || '',
+          u.rating !== undefined ? Number(u.rating) : 5.0,
+          u.completedOrders !== undefined ? Number(u.completedOrders) : 0,
+          u.rankTitle || '',
+          JSON.stringify(u.games || []),
+          u.createdAt || new Date().toISOString(),
+          u.updatedAt || new Date().toISOString()
+        );
+      }
+    });
+    insertManyUsers(sourceData.users || []);
+
+    // Insert Games
+    const insertGame = this.sqlite.prepare(`
+      INSERT OR REPLACE INTO games (id, name, tag, icon, badgeColor, image, description, isEloBased, eloStep, ranks, agents, roles)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertManyGames = this.sqlite.transaction((games) => {
+      for (const g of games) {
+        insertGame.run(
+          g.id,
+          g.name,
+          g.tag || '',
+          g.icon || '',
+          g.badgeColor || '',
+          g.image || '',
+          g.description || '',
+          g.isEloBased ? 1 : 0,
+          g.eloStep || 25,
+          JSON.stringify(g.ranks || []),
+          JSON.stringify(g.agents || []),
+          JSON.stringify(g.roles || [])
+        );
+      }
+    });
+    insertManyGames(sourceData.games || []);
+
+    // Insert Services
+    const insertService = this.sqlite.prepare(`
+      INSERT OR REPLACE INTO services (id, gameId, gameName, title, category, price, currency, priceUAH, deliveryTime, badge, icon, description, features)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertManyServices = this.sqlite.transaction((services) => {
+      for (const s of services) {
+        insertService.run(
+          s.id,
+          s.gameId || '',
+          s.gameName || '',
+          s.title,
+          s.category || '',
+          Number(s.price),
+          s.currency || 'USD',
+          s.priceUAH ? Number(s.priceUAH) : Math.round(Number(s.price) * 41.5),
+          s.deliveryTime || '',
+          s.badge || '',
+          s.icon || '',
+          s.description || '',
+          JSON.stringify(s.features || [])
+        );
+      }
+    });
+    insertManyServices(sourceData.services || []);
+
+    // Insert Orders
+    const insertOrder = this.sqlite.prepare(`
+      INSERT OR REPLACE INTO orders (id, clientId, clientName, clientDiscord, boosterId, boosterName, gameId, gameName, serviceType, title, currentRank, targetRank, currentRankValue, targetRankValue, progressRank, progressRankValue, progressPercent, price, currency, priceUAH, status, paymentStatus, paymentMethod, options, accountCredentials, streamUrl, createdAt, updatedAt, acceptedAt, completedAt, timeline)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertManyOrders = this.sqlite.transaction((orders) => {
+      for (const o of orders) {
+        insertOrder.run(
+          o.id,
+          o.clientId,
+          o.clientName || '',
+          o.clientDiscord || '',
+          o.boosterId || null,
+          o.boosterName || null,
+          o.gameId || '',
+          o.gameName || '',
+          o.serviceType || 'rank_boost',
+          o.title || '',
+          o.currentRank || '',
+          o.targetRank || '',
+          o.currentRankValue || 0,
+          o.targetRankValue || 0,
+          o.progressRank || '',
+          o.progressRankValue || 0,
+          o.progressPercent || 0,
+          Number(o.price || 0),
+          o.currency || 'USD',
+          o.priceUAH ? Number(o.priceUAH) : Math.round(Number(o.price || 0) * 41.5),
+          o.status || 'paid',
+          o.paymentStatus || 'verified',
+          o.paymentMethod || 'card',
+          JSON.stringify(o.options || {}),
+          JSON.stringify(o.accountCredentials || {}),
+          o.streamUrl || null,
+          o.createdAt || new Date().toISOString(),
+          o.updatedAt || new Date().toISOString(),
+          o.acceptedAt || null,
+          o.completedAt || null,
+          JSON.stringify(o.timeline || [])
+        );
+      }
+    });
+    insertManyOrders(sourceData.orders || []);
+
+    // Insert Messages
+    const insertMsg = this.sqlite.prepare(`
+      INSERT OR REPLACE INTO messages (id, orderId, senderId, senderName, senderRole, text, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertManyMsgs = this.sqlite.transaction((messages) => {
+      for (const m of messages) {
+        insertMsg.run(
+          m.id,
+          m.orderId,
+          m.senderId || '',
+          m.senderName || '',
+          m.senderRole || '',
+          m.text || '',
+          m.timestamp || new Date().toISOString()
+        );
+      }
+    });
+    insertManyMsgs(sourceData.messages || []);
+
+    // Insert Promo Codes
+    const insertPromo = this.sqlite.prepare(`
+      INSERT OR REPLACE INTO promo_codes (code, discountPercent, validUntil)
+      VALUES (?, ?, ?)
+    `);
+    const insertManyPromos = this.sqlite.transaction((promos) => {
+      for (const p of promos) {
+        insertPromo.run(p.code, Number(p.discountPercent), p.validUntil || '2026-12-31');
+      }
+    });
+    insertManyPromos(sourceData.promoCodes || []);
+
+    // Insert Reviews
+    const insertRev = this.sqlite.prepare(`
+      INSERT OR REPLACE INTO reviews (id, author, game, rating, comment, date)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+    const insertManyReviews = this.sqlite.transaction((reviews) => {
+      for (const r of reviews) {
+        insertRev.run(r.id, r.author, r.game || '', Number(r.rating || 5), r.comment || '', r.date || 'Нещодавно');
+      }
+    });
+    insertManyReviews(sourceData.reviews || []);
+
+    console.log('✅ SQLite database cyberboost.db populated successfully!');
+    this.syncBackupJson();
   }
 
-  save() {
+  // Backup sync to data.json
+  syncBackupJson() {
     try {
-      fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf8');
-    } catch (e) {
-      console.error('Error saving DB file:', e);
+      const fullData = {
+        users: this.getUsers(),
+        games: this.getGames(),
+        services: this.getServices(),
+        orders: this.getOrders(),
+        messages: this.sqlite.prepare('SELECT * FROM messages ORDER BY timestamp ASC').all(),
+        promoCodes: this.getPromoCodes(),
+        reviews: this.getReviews()
+      };
+      fs.writeFileSync(DB_JSON_BACKUP_FILE, JSON.stringify(fullData, null, 2), 'utf8');
+    } catch (err) {
+      console.warn('Backup sync to data.json skipped:', err.message);
     }
   }
 
-  // Helper Finders & Mutations
-  getUsers() { return this.data.users; }
-  getUserById(id) { return this.data.users.find(u => u.id === id); }
-  getUserByEmail(email) { return this.data.users.find(u => u.email.toLowerCase() === email.toLowerCase()); }
+  // Mapping Helpers
+  formatUser(row) {
+    if (!row) return null;
+    let parsedGames = safeJsonParse(row.games, []);
+    if (Array.isArray(parsedGames)) {
+      parsedGames = parsedGames.map((g, idx) => {
+        if (typeof g === 'string') {
+          return { id: 'gm_' + (idx + 1), game: g, mmr: '100' };
+        }
+        return {
+          id: g.id || ('gm_' + (idx + 1)),
+          game: g.game || g.name || 'Game',
+          mmr: g.mmr || g.rank || '100'
+        };
+      });
+    } else {
+      parsedGames = [];
+    }
+
+    return {
+      ...row,
+      steamId: row.steamId || '',
+      boosterVerification: row.boosterVerification || (row.role === 'booster' ? 'Verified' : 'None'),
+      games: parsedGames,
+      rating: Number(row.rating || 5.0),
+      completedOrders: Number(row.completedOrders || 0)
+    };
+  }
+
+  formatOrder(row) {
+    if (!row) return null;
+    return {
+      ...row,
+      currentRankValue: Number(row.currentRankValue || 0),
+      targetRankValue: Number(row.targetRankValue || 0),
+      progressRankValue: Number(row.progressRankValue || 0),
+      progressPercent: Number(row.progressPercent || 0),
+      price: Number(row.price || 0),
+      priceUAH: Number(row.priceUAH || 0),
+      options: safeJsonParse(row.options, {}),
+      accountCredentials: safeJsonParse(row.accountCredentials, {}),
+      timeline: safeJsonParse(row.timeline, [])
+    };
+  }
+
+  formatService(row) {
+    if (!row) return null;
+    return {
+      ...row,
+      price: Number(row.price || 0),
+      priceUAH: Number(row.priceUAH || 0),
+      features: safeJsonParse(row.features, [])
+    };
+  }
+
+  formatGame(row) {
+    if (!row) return null;
+    return {
+      ...row,
+      isEloBased: Boolean(row.isEloBased),
+      eloStep: Number(row.eloStep || 25),
+      ranks: safeJsonParse(row.ranks, []),
+      agents: safeJsonParse(row.agents, undefined),
+      roles: safeJsonParse(row.roles, undefined)
+    };
+  }
+
+  // ---------------- USER OPERATIONS ----------------
+
+  getUsers() {
+    const rows = this.sqlite.prepare('SELECT * FROM users ORDER BY createdAt DESC').all();
+    return rows.map(r => this.formatUser(r));
+  }
+
+  getUserById(id) {
+    const row = this.sqlite.prepare('SELECT * FROM users WHERE id = ?').get(id);
+    return this.formatUser(row);
+  }
+
+  getUserByEmail(email) {
+    const row = this.sqlite.prepare('SELECT * FROM users WHERE LOWER(email) = LOWER(?)').get(email);
+    return this.formatUser(row);
+  }
+
   addUser(user) {
-    this.data.users.push(user);
-    this.save();
-    return user;
+    const now = new Date().toISOString();
+    let defStatus = user.status;
+    let defMsg = user.statusMessage || '';
+    if (!defStatus) {
+      if (user.role === 'booster') {
+        defStatus = 'ready';
+        defMsg = defMsg || '🟢 Вільний • Готовий до бусту';
+      } else {
+        defStatus = 'online';
+        defMsg = defMsg || '🟢 В мережі';
+      }
+    }
+
+    const stmt = this.sqlite.prepare(`
+      INSERT INTO users (id, email, passwordHash, name, role, status, statusMessage, avatar, discord, telegram, steamId, boosterVerification, rating, completedOrders, rankTitle, games, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+      user.id,
+      (user.email || '').toLowerCase(),
+      user.passwordHash,
+      user.name,
+      user.role,
+      defStatus,
+      defMsg,
+      user.avatar || '',
+      user.discord || '',
+      user.telegram || '',
+      user.steamId || '',
+      user.boosterVerification || (user.role === 'booster' ? 'Verified' : 'None'),
+      user.rating !== undefined ? Number(user.rating) : 5.0,
+      user.completedOrders !== undefined ? Number(user.completedOrders) : 0,
+      user.rankTitle || '',
+      JSON.stringify(user.games || []),
+      user.createdAt || now,
+      now
+    );
+
+    this.syncBackupJson();
+    return this.getUserById(user.id);
   }
 
-  getGames() { return this.data.games; }
-  getGameById(id) { return this.data.games.find(g => g.id === id); }
+  updateUser(id, updates) {
+    const existing = this.getUserById(id);
+    if (!existing) return null;
 
-  getServices() { return this.data.services; }
-  getServiceById(id) { return this.data.services.find(s => s.id === id); }
+    const merged = { ...existing, ...updates, updatedAt: new Date().toISOString() };
+
+    const stmt = this.sqlite.prepare(`
+      UPDATE users
+      SET name = ?, email = ?, passwordHash = ?, role = ?, status = ?, statusMessage = ?,
+          avatar = ?, discord = ?, telegram = ?, steamId = ?, boosterVerification = ?,
+          rating = ?, completedOrders = ?, rankTitle = ?, games = ?, updatedAt = ?
+      WHERE id = ?
+    `);
+
+    stmt.run(
+      merged.name,
+      merged.email.toLowerCase(),
+      merged.passwordHash,
+      merged.role,
+      merged.status || 'online',
+      merged.statusMessage || '',
+      merged.avatar || '',
+      merged.discord || '',
+      merged.telegram || '',
+      merged.steamId || '',
+      merged.boosterVerification || 'None',
+      Number(merged.rating || 5.0),
+      Number(merged.completedOrders || 0),
+      merged.rankTitle || '',
+      JSON.stringify(merged.games || []),
+      merged.updatedAt,
+      id
+    );
+
+    this.syncBackupJson();
+    return this.getUserById(id);
+  }
+
+  updateUserStatus(id, status, statusMessage) {
+    const existing = this.getUserById(id);
+    if (!existing) return null;
+
+    const updates = { status };
+    if (statusMessage !== undefined) {
+      updates.statusMessage = statusMessage;
+    }
+
+    return this.updateUser(id, updates);
+  }
+
+  // ---------------- GAME OPERATIONS ----------------
+
+  getGames() {
+    const rows = this.sqlite.prepare('SELECT * FROM games').all();
+    return rows.map(r => this.formatGame(r));
+  }
+
+  getGameById(id) {
+    const row = this.sqlite.prepare('SELECT * FROM games WHERE id = ?').get(id);
+    return this.formatGame(row);
+  }
+
+  // ---------------- SERVICE OPERATIONS ----------------
+
+  getServices() {
+    const rows = this.sqlite.prepare('SELECT * FROM services').all();
+    return rows.map(r => this.formatService(r));
+  }
+
+  getServiceById(id) {
+    const row = this.sqlite.prepare('SELECT * FROM services WHERE id = ?').get(id);
+    return this.formatService(row);
+  }
+
   addService(service) {
-    this.data.services.push(service);
-    this.save();
-    return service;
-  }
-  updateService(id, updates) {
-    const idx = this.data.services.findIndex(s => s.id === id);
-    if (idx !== -1) {
-      this.data.services[idx] = { ...this.data.services[idx], ...updates };
-      this.save();
-      return this.data.services[idx];
-    }
-    return null;
-  }
-  deleteService(id) {
-    this.data.services = this.data.services.filter(s => s.id !== id);
-    this.save();
+    const stmt = this.sqlite.prepare(`
+      INSERT INTO services (id, gameId, gameName, title, category, price, currency, priceUAH, deliveryTime, badge, icon, description, features)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+      service.id,
+      service.gameId || '',
+      service.gameName || '',
+      service.title,
+      service.category || '',
+      Number(service.price),
+      service.currency || 'USD',
+      service.priceUAH ? Number(service.priceUAH) : Math.round(Number(service.price) * 41.5),
+      service.deliveryTime || '',
+      service.badge || '',
+      service.icon || '',
+      service.description || '',
+      JSON.stringify(service.features || [])
+    );
+
+    this.syncBackupJson();
+    return this.getServiceById(service.id);
   }
 
-  getOrders() { return this.data.orders; }
-  getOrderById(id) { return this.data.orders.find(o => o.id === id); }
+  updateService(id, updates) {
+    const existing = this.getServiceById(id);
+    if (!existing) return null;
+
+    const merged = { ...existing, ...updates };
+    const stmt = this.sqlite.prepare(`
+      UPDATE services
+      SET gameId = ?, gameName = ?, title = ?, category = ?, price = ?, currency = ?, priceUAH = ?,
+          deliveryTime = ?, badge = ?, icon = ?, description = ?, features = ?
+      WHERE id = ?
+    `);
+
+    stmt.run(
+      merged.gameId || '',
+      merged.gameName || '',
+      merged.title,
+      merged.category || '',
+      Number(merged.price),
+      merged.currency || 'USD',
+      Number(merged.priceUAH || Math.round(merged.price * 41.5)),
+      merged.deliveryTime || '',
+      merged.badge || '',
+      merged.icon || '',
+      merged.description || '',
+      JSON.stringify(merged.features || []),
+      id
+    );
+
+    this.syncBackupJson();
+    return this.getServiceById(id);
+  }
+
+  deleteService(id) {
+    this.sqlite.prepare('DELETE FROM services WHERE id = ?').run(id);
+    this.syncBackupJson();
+  }
+
+  // ---------------- ORDER OPERATIONS ----------------
+
+  getOrders() {
+    const rows = this.sqlite.prepare('SELECT * FROM orders ORDER BY createdAt DESC').all();
+    return rows.map(r => this.formatOrder(r));
+  }
+
+  getOrderById(id) {
+    const row = this.sqlite.prepare('SELECT * FROM orders WHERE id = ?').get(id);
+    return this.formatOrder(row);
+  }
+
   addOrder(order) {
-    this.data.orders.unshift(order);
-    this.save();
-    return order;
+    const now = new Date().toISOString();
+    const stmt = this.sqlite.prepare(`
+      INSERT INTO orders (id, clientId, clientName, clientDiscord, boosterId, boosterName, gameId, gameName, serviceType, title, currentRank, targetRank, currentRankValue, targetRankValue, progressRank, progressRankValue, progressPercent, price, currency, priceUAH, status, paymentStatus, paymentMethod, options, accountCredentials, streamUrl, createdAt, updatedAt, acceptedAt, completedAt, timeline)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+      order.id,
+      order.clientId,
+      order.clientName || '',
+      order.clientDiscord || '',
+      order.boosterId || null,
+      order.boosterName || null,
+      order.gameId || '',
+      order.gameName || '',
+      order.serviceType || 'rank_boost',
+      order.title || '',
+      order.currentRank || '',
+      order.targetRank || '',
+      order.currentRankValue || 0,
+      order.targetRankValue || 0,
+      order.progressRank || '',
+      order.progressRankValue || 0,
+      order.progressPercent || 0,
+      Number(order.price || 0),
+      order.currency || 'USD',
+      order.priceUAH ? Number(order.priceUAH) : Math.round(Number(order.price || 0) * 41.5),
+      order.status || 'paid',
+      order.paymentStatus || 'verified',
+      order.paymentMethod || 'card',
+      JSON.stringify(order.options || {}),
+      JSON.stringify(order.accountCredentials || {}),
+      order.streamUrl || null,
+      order.createdAt || now,
+      now,
+      order.acceptedAt || null,
+      order.completedAt || null,
+      JSON.stringify(order.timeline || [])
+    );
+
+    this.syncBackupJson();
+    return this.getOrderById(order.id);
   }
+
   updateOrder(id, updates) {
-    const idx = this.data.orders.findIndex(o => o.id === id);
-    if (idx !== -1) {
-      this.data.orders[idx] = { ...this.data.orders[idx], ...updates, updatedAt: new Date().toISOString() };
-      this.save();
-      return this.data.orders[idx];
-    }
-    return null;
+    const existing = this.getOrderById(id);
+    if (!existing) return null;
+
+    const merged = { ...existing, ...updates, updatedAt: new Date().toISOString() };
+
+    const stmt = this.sqlite.prepare(`
+      UPDATE orders
+      SET clientId = ?, clientName = ?, clientDiscord = ?, boosterId = ?, boosterName = ?,
+          gameId = ?, gameName = ?, serviceType = ?, title = ?, currentRank = ?, targetRank = ?,
+          currentRankValue = ?, targetRankValue = ?, progressRank = ?, progressRankValue = ?,
+          progressPercent = ?, price = ?, currency = ?, priceUAH = ?, status = ?, paymentStatus = ?,
+          paymentMethod = ?, options = ?, accountCredentials = ?, streamUrl = ?, acceptedAt = ?,
+          completedAt = ?, timeline = ?, updatedAt = ?
+      WHERE id = ?
+    `);
+
+    stmt.run(
+      merged.clientId,
+      merged.clientName || '',
+      merged.clientDiscord || '',
+      merged.boosterId || null,
+      merged.boosterName || null,
+      merged.gameId || '',
+      merged.gameName || '',
+      merged.serviceType || '',
+      merged.title || '',
+      merged.currentRank || '',
+      merged.targetRank || '',
+      merged.currentRankValue || 0,
+      merged.targetRankValue || 0,
+      merged.progressRank || '',
+      merged.progressRankValue || 0,
+      merged.progressPercent || 0,
+      Number(merged.price || 0),
+      merged.currency || 'USD',
+      Number(merged.priceUAH || 0),
+      merged.status || 'paid',
+      merged.paymentStatus || 'verified',
+      merged.paymentMethod || '',
+      JSON.stringify(merged.options || {}),
+      JSON.stringify(merged.accountCredentials || {}),
+      merged.streamUrl || null,
+      merged.acceptedAt || null,
+      merged.completedAt || null,
+      JSON.stringify(merged.timeline || []),
+      merged.updatedAt,
+      id
+    );
+
+    this.syncBackupJson();
+    return this.getOrderById(id);
   }
+
+  // ---------------- MESSAGE OPERATIONS ----------------
 
   getMessages(orderId) {
-    if (!orderId) return this.data.messages;
-    return this.data.messages.filter(m => m.orderId === orderId);
+    if (!orderId) {
+      return this.sqlite.prepare('SELECT * FROM messages ORDER BY timestamp ASC').all();
+    }
+    return this.sqlite.prepare('SELECT * FROM messages WHERE orderId = ? ORDER BY timestamp ASC').all(orderId);
   }
+
   addMessage(message) {
-    this.data.messages.push(message);
-    this.save();
+    const stmt = this.sqlite.prepare(`
+      INSERT INTO messages (id, orderId, senderId, senderName, senderRole, text, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+      message.id,
+      message.orderId,
+      message.senderId || '',
+      message.senderName || '',
+      message.senderRole || '',
+      message.text || '',
+      message.timestamp || new Date().toISOString()
+    );
+
+    this.syncBackupJson();
     return message;
   }
 
-  getPromoCodes() { return this.data.promoCodes; }
-  getReviews() { return this.data.reviews; }
+  // ---------------- PROMO & REVIEW OPERATIONS ----------------
+
+  getPromoCodes() {
+    return this.sqlite.prepare('SELECT * FROM promo_codes').all();
+  }
+
+  getReviews() {
+    return this.sqlite.prepare('SELECT * FROM reviews ORDER BY id DESC').all();
+  }
+
   addReview(review) {
-    this.data.reviews.unshift(review);
-    this.save();
+    const stmt = this.sqlite.prepare(`
+      INSERT INTO reviews (id, author, game, rating, comment, date)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+      review.id,
+      review.author,
+      review.game || '',
+      Number(review.rating || 5),
+      review.comment || '',
+      review.date || 'Нещодавно'
+    );
+
+    this.syncBackupJson();
     return review;
   }
 }
 
-const db = new Database();
+const db = new SqliteDatabase();
 module.exports = db;

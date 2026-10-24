@@ -75,6 +75,14 @@ io.on('connection', (socket) => {
   socket.on('order_progress_sync', (orderData) => {
     io.emit('order_status_changed', orderData);
   });
+
+  // Real-time user status sync (client & booster)
+  socket.on('update_user_status', ({ userId, status, statusMessage }) => {
+    if (userId && status) {
+      db.updateUserStatus(userId, status, statusMessage);
+      io.emit('user_status_changed', { userId, status, statusMessage });
+    }
+  });
 });
 
 // Fallback for SPA routing

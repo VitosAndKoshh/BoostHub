@@ -14,58 +14,142 @@
 </head>
 <body>
 
-  <!-- 1. Top Demo Quick Switcher Banner (For testing all 3 roles seamlessly) -->
-  <div class="demo-role-banner">
-    <div class="demo-title-group">
-      <span>⚡ Тестовий режим (Швидке перемикання ролей):</span>
-    </div>
-    <div class="demo-buttons-group">
-      <button class="demo-role-btn active" data-role="client" onclick="switchDemoRole('client')">
-        👤 Клієнт (Alex_Gamer)
-      </button>
-      <button class="demo-role-btn" data-role="booster" onclick="switchDemoRole('booster')">
-        🎮 Бустер (ShadowStriker - Radiant)
-      </button>
-      <button class="demo-role-btn" data-role="admin" onclick="switchDemoRole('admin')">
-        ⚡ Адміністратор (CyberAdmin)
-      </button>
-    </div>
-  </div>
-
-  <!-- 2. Main Navigation Bar -->
-  <header class="navbar">
+  <!-- 1. Main Navigation Bar (Clean top bar without demo buttons) -->
+  <header class="navbar" id="main-navbar">
     <div class="nav-container">
-      <a href="#" class="brand-logo">
-        <span class="brand-icon">⚡</span>
-        <span>CYBER<span class="brand-highlight">BOOST</span></span>
-      </a>
+      <div class="nav-brand-group">
+        <a href="#" class="brand-logo">
+          <span class="brand-icon">⚡</span>
+          <span>CYBER<span class="brand-highlight">BOOST</span></span>
+        </a>
 
-      <nav class="nav-links">
-        <a class="nav-link" href="#calculator" data-i18n="nav_calc">Калькулятор рангів</a>
-        <a class="nav-link" href="#catalog" data-i18n="nav_catalog">Каталог послуг</a>
+        <!-- "Всі ігри" Dropdown Menu (matching Image 1 & 2) -->
+        <div class="nav-games-dropdown-wrap" id="games-dropdown-wrap">
+          <button class="nav-games-btn" id="btn-all-games-toggle" onclick="toggleAllGamesDropdown(event)" type="button">
+            <span class="btn-icon">🎮</span>
+            <span>Всі ігри</span>
+            <span class="dropdown-chevron">▾</span>
+          </button>
+
+          <!-- 2-column Dropdown Menu (Image 2) -->
+          <div id="all-games-dropdown-menu" class="all-games-dropdown-menu">
+            <div class="dropdown-search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="games-dropdown-search" placeholder="Пошук гри..." oninput="filterGamesDropdownList(this.value)" autocomplete="off" />
+            </div>
+            <div class="games-dropdown-columns" id="games-dropdown-list">
+              <!-- Left Column -->
+              <div class="games-dropdown-col">
+                <a href="#calculator" class="game-drop-item active" onclick="selectSiteGame('dota2')">
+                  <span class="game-drop-badge-icon badge-dota2">🛡️</span>
+                  <span class="game-drop-name">Dota 2</span>
+                </a>
+                <a href="#calculator" class="game-drop-item" onclick="selectSiteGame('lol')">
+                  <span class="game-drop-badge-icon badge-lol">⚔️</span>
+                  <span class="game-drop-name">League of Legends</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('pubg_mobile')">
+                  <span class="game-drop-badge-icon badge-pubg-m">📱</span>
+                  <span class="game-drop-name">PUBG Mobile</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('pubg')">
+                  <span class="game-drop-badge-icon badge-pubg">💣</span>
+                  <span class="game-drop-name">PUBG</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('roblox')">
+                  <span class="game-drop-badge-icon badge-roblox">🧱</span>
+                  <span class="game-drop-name">Roblox</span>
+                  <span class="game-drop-arrow">›</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('mobile_legends')">
+                  <span class="game-drop-badge-icon badge-ml">📲</span>
+                  <span class="game-drop-name">Mobile Legends</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('gta5')">
+                  <span class="game-drop-badge-icon badge-gta5">🚗</span>
+                  <span class="game-drop-name">Grand Theft Auto V</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('apex')">
+                  <span class="game-drop-badge-icon badge-apex">🎯</span>
+                  <span class="game-drop-name">Apex Legends</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('wow_classic')">
+                  <span class="game-drop-badge-icon badge-wowc">⚔️</span>
+                  <span class="game-drop-name">WOW Classic</span>
+                </a>
+                <div class="game-drop-item item-disabled">
+                  <span class="game-drop-badge-icon">🔫</span>
+                  <span class="game-drop-name">Mafia The Old Country</span>
+                  <span class="badge-soon">Скоро</span>
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="games-dropdown-col">
+                <a href="#calculator" class="game-drop-item" onclick="selectSiteGame('cs2_faceit')">
+                  <span class="game-drop-badge-icon badge-cs2">💣</span>
+                  <span class="game-drop-name">Counter-Strike 2</span>
+                </a>
+                <a href="#calculator" class="game-drop-item" onclick="selectSiteGame('valorant')">
+                  <span class="game-drop-badge-icon badge-val">🎯</span>
+                  <span class="game-drop-name">Valorant</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('fortnite')">
+                  <span class="game-drop-badge-icon badge-fn">🏹</span>
+                  <span class="game-drop-name">Fortnite</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('minecraft')">
+                  <span class="game-drop-badge-icon badge-mc">⛏️</span>
+                  <span class="game-drop-name">Minecraft</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('brawl_stars')">
+                  <span class="game-drop-badge-icon badge-bs">⭐</span>
+                  <span class="game-drop-name">Brawl Stars</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('clash')">
+                  <span class="game-drop-badge-icon badge-clash">🏰</span>
+                  <span class="game-drop-name">Clash of Clans</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('wow')">
+                  <span class="game-drop-badge-icon badge-wow">🐉</span>
+                  <span class="game-drop-name">World of Warcraft</span>
+                </a>
+                <a href="#catalog" class="game-drop-item" onclick="selectSiteGame('rocket_league')">
+                  <span class="game-drop-badge-icon badge-rl">🏎️</span>
+                  <span class="game-drop-name">Rocket League</span>
+                </a>
+                <div class="game-drop-item item-disabled">
+                  <span class="game-drop-badge-icon">🌆</span>
+                  <span class="game-drop-name">Grand Theft Auto VI</span>
+                  <span class="badge-soon">Скоро</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation links (Public for guests; Booster, Accounts, Skins, and User Profiles show dynamically after login) -->
+      <nav class="nav-links" id="main-nav-links">
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
       </nav>
 
       <div class="nav-actions">
+        <!-- Live Online Users Counter (matching Image 1) -->
+        <div class="nav-online-pill" title="Гравців онлайн на платформі прямо зараз">
+          <span class="online-indicator-dot"></span>
+          <span class="online-number">1 566</span>
+          <span class="online-label">ONLINE</span>
+        </div>
+
         <!-- Language Switcher -->
         <div class="lang-toggle">
           <button class="lang-btn active" data-lang="ua" onclick="setLanguage('ua')">UA</button>
           <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
         </div>
 
-        <!-- Push Notification Toggle -->
-        <button class="btn btn-icon-sm" onclick="notify.requestPushPermission()" title="Увімкнути сповіщення">
-          🔔
-        </button>
-
-        <!-- Cart Button -->
-        <button class="nav-cart-btn" onclick="cart.openDrawer()">
-          🛒 <span data-i18n="nav_cart">Кошик</span>
-          <span id="nav-cart-badge" class="cart-badge" style="display: none;">0</span>
-        </button>
-
-        <!-- User Area / Auth -->
+        <!-- User Area / Auth (Login & Register for guests; profile & logout after login) -->
         <div id="nav-user-area">
           <!-- Populated by app.js -->
         </div>
@@ -73,51 +157,238 @@
     </div>
   </header>
 
-  <!-- 3. Hero Section -->
-  <section class="hero-section">
-    <div class="hero-badge-pill" data-i18n="hero_badge">
-      ⚡ ПРОФЕСІЙНИЙ ГЕЙМІНГ-БУСТ #1 В УКРАЇНІ ТА ЄВРОПІ
-    </div>
-    
-    <h1 class="hero-title">
-      <span data-i18n="hero_title_1">ПІДВИЩУЙ СВІЙ РАНГ</span>
-      <span class="hero-gradient-text" data-i18n="hero_title_2">З ТОП-100 ГРАВЦЯМИ</span>
-    </h1>
+  <!-- 2. Hero Section (matching Image 1) -->
+  <section class="hero-section hero-goranked-layout">
+    <div class="hero-backdrop-glow"></div>
+    <div class="hero-inner-container">
+      
+      <!-- Big Headline matching Image 1 -->
+      <h1 class="hero-primary-heading">
+        <span class="hero-yellow-line">Всі геймінг послуги</span>
+        <span class="hero-white-line">в парі кліків до<span class="typing-caret">|</span></span>
+      </h1>
 
-    <p class="hero-subtitle" data-i18n="hero_subtitle">
-      Швидкий, безпечний та анонімний буст у Valorant, CS2, League of Legends та Dota 2. Початок через 10 хвилин після замовлення.
-    </p>
+      <!-- Game Ticker Bar (matching Image 1) -->
+      <div class="hero-ticker-scroll" id="hero-ticker-scroll">
+        <button class="ticker-item" onclick="selectSiteGame('gta5')">Grand Theft Auto V</button>
+        <button class="ticker-item" onclick="selectSiteGame('wow')">World of Warcraft</button>
+        <button class="ticker-item" onclick="selectSiteGame('apex')">Apex Legends</button>
+        <button class="ticker-item" onclick="selectSiteGame('rocket_league')">Rocket League</button>
+        <button class="ticker-item active" onclick="selectSiteGame('wow_classic')">WOW Classic</button>
+        <button class="ticker-item" onclick="selectSiteGame('gta4')">Grand Theft Auto IV</button>
+        <button class="ticker-item" onclick="selectSiteGame('mafia')">Mafia The Old Country</button>
+        <button class="ticker-item" onclick="selectSiteGame('dota2')">Dota 2</button>
+        <button class="ticker-item" onclick="selectSiteGame('cs2_faceit')">Counter-Strike 2</button>
+        <button class="ticker-item" onclick="selectSiteGame('valorant')">Valorant</button>
+        <button class="ticker-item" onclick="selectSiteGame('fortnite')">Fortnite</button>
+      </div>
 
-    <div class="hero-cta-group">
-      <button class="btn btn-primary btn-lg" onclick="scrollToSection('calculator')" data-i18n="hero_btn_calc">
-        ⚡ Розрахувати буст
-      </button>
-      <button class="btn btn-outline btn-lg" onclick="scrollToSection('catalog')" data-i18n="hero_btn_catalog">
-        Каталог послуг
-      </button>
-      <button class="btn btn-outline-cyan btn-lg" onclick="openLiveChat()">
-        💬 Чат із консультантом
-      </button>
-    </div>
+      <!-- Subtitle (matching Image 1) -->
+      <div class="hero-category-subline">
+        <span>Ігрові послуги преміум-класу</span> • <span>Акаунти</span> • <span>Скіни</span>
+      </div>
 
-    <!-- Live Stats Bar -->
-    <div class="hero-stats-grid">
-      <div class="hero-stat-card">
-        <div class="stat-val" data-i18n="hero_stat_1_val">14,800+</div>
-        <div class="stat-lbl" data-i18n="hero_stat_1_lbl">Виконаних замовлень</div>
+      <!-- Prominent Search Bar (matching Image) -->
+      <div class="hero-main-search-wrap" id="hero-main-search-wrap">
+        <div class="hero-main-search-box" id="hero-main-search-box">
+          <span class="search-glass-icon">🔍</span>
+          <input type="text" id="hero-game-search-input" class="hero-main-search-input" placeholder="Пошук по грі або послузі..." oninput="handleHeroGameSearch(this.value)" onfocus="openHeroSearchDropdown()" onclick="openHeroSearchDropdown()" autocomplete="off" />
+          <span class="search-gamepad-icon">🎮</span>
+        </div>
+
+        <!-- Rich Game & Services Search Dropdown -->
+        <div id="hero-search-dropdown" class="hero-search-dropdown" style="display: none;">
+          <div id="hero-search-dropdown-content" class="hero-search-dropdown-content">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </div>
       </div>
-      <div class="hero-stat-card">
-        <div class="stat-val" data-i18n="hero_stat_2_val">99.4%</div>
-        <div class="stat-lbl" data-i18n="hero_stat_2_lbl">Вінрейт бустерів</div>
+
+      <!-- Quick Action Category Buttons (matching Image 1) -->
+      <div class="hero-quick-features">
+        <button class="quick-feature-btn" onclick="filterHeroCatalog('boost')">
+          <span class="qf-icon">🚀</span>
+          <span class="qf-text">Буст рейтингу</span>
+        </button>
+        <button class="quick-feature-btn" onclick="filterHeroCatalog('accounts')">
+          <span class="qf-icon">👑</span>
+          <span class="qf-text">Ігрові акаунти</span>
+        </button>
+        <button class="quick-feature-btn" onclick="filterHeroCatalog('skins')">
+          <span class="qf-icon">🗡️</span>
+          <span class="qf-text">Скіни CS2</span>
+        </button>
+        <button class="quick-feature-btn" onclick="filterHeroCatalog('packages')">
+          <span class="qf-icon">📦</span>
+          <span class="qf-text">Пакети бустингу</span>
+        </button>
       </div>
-      <div class="hero-stat-card">
-        <div class="stat-val" data-i18n="hero_stat_3_val">10 хв</div>
-        <div class="stat-lbl" data-i18n="hero_stat_3_lbl">Середній час старту</div>
+
+      <!-- Horizontal Game Showcase Cards Row (matching Image 1 bottom) -->
+      <div class="hero-games-carousel-wrap">
+        <div class="hero-games-carousel" id="hero-games-cards-grid">
+          <!-- Dota 2 -->
+          <div class="hero-game-card card-dota2" onclick="selectSiteGame('dota2')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-dota">
+                <span class="badge-icon">🛡️</span>
+                <span class="badge-tag">DOTA 2</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">Dota 2</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Counter-Strike 2 -->
+          <div class="hero-game-card card-cs2" onclick="selectSiteGame('cs2_faceit')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-cs2">
+                <span class="badge-icon">💣</span>
+                <span class="badge-tag">CS2</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">Counter-Strike 2</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- League of Legends -->
+          <div class="hero-game-card card-lol" onclick="selectSiteGame('lol')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-lol">
+                <span class="badge-icon">⚔️</span>
+                <span class="badge-tag">LoL</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1542751110-97427bbecf20?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">League of Legends</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Valorant -->
+          <div class="hero-game-card card-valorant" onclick="selectSiteGame('valorant')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-val">
+                <span class="badge-icon">🎯</span>
+                <span class="badge-tag">VALORANT</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">Valorant</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PUBG -->
+          <div class="hero-game-card card-pubg" onclick="selectSiteGame('pubg')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-pubg">
+                <span class="badge-icon">💣</span>
+                <span class="badge-tag">PUBG</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">PUBG</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fortnite -->
+          <div class="hero-game-card card-fortnite" onclick="selectSiteGame('fortnite')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-fn">
+                <span class="badge-icon">🏹</span>
+                <span class="badge-tag">FORTNITE</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1589241062272-c0a000072dfa?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">Fortnite</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Minecraft -->
+          <div class="hero-game-card card-minecraft" onclick="selectSiteGame('minecraft')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-mc">
+                <span class="badge-icon">⛏️</span>
+                <span class="badge-tag">MINECRAFT</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1627856013091-fed6e4e30025?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">Minecraft</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brawl Stars -->
+          <div class="hero-game-card card-brawl" onclick="selectSiteGame('brawl_stars')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-bs">
+                <span class="badge-icon">⭐</span>
+                <span class="badge-tag">BRAWL STARS</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">Brawl Stars</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Apex Legends -->
+          <div class="hero-game-card card-apex" onclick="selectSiteGame('apex')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-apex">
+                <span class="badge-icon">🎯</span>
+                <span class="badge-tag">APEX</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">Apex Legends</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- World of Warcraft -->
+          <div class="hero-game-card card-wow" onclick="selectSiteGame('wow')">
+            <div class="card-inner-overlay">
+              <div class="game-card-top-badge badge-wow">
+                <span class="badge-icon">🐉</span>
+                <span class="badge-tag">WOW</span>
+              </div>
+              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80');"></div>
+              <div class="game-card-footer">
+                <span class="game-card-title">World of Warcraft</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="hero-stat-card">
-        <div class="stat-val" data-i18n="hero_stat_4_val">4.98 / 5</div>
-        <div class="stat-lbl" data-i18n="hero_stat_4_lbl">Середня оцінка клієнтів</div>
+
+      <!-- Quick Platform Stats Bar -->
+      <div class="hero-stats-grid mt-4">
+        <div class="hero-stat-card">
+          <div class="stat-val" data-i18n="hero_stat_1_val">14,800+</div>
+          <div class="stat-lbl" data-i18n="hero_stat_1_lbl">Виконаних замовлень</div>
+        </div>
+        <div class="hero-stat-card">
+          <div class="stat-val" data-i18n="hero_stat_2_val">99.4%</div>
+          <div class="stat-lbl" data-i18n="hero_stat_2_lbl">Вінрейт бустерів</div>
+        </div>
+        <div class="hero-stat-card">
+          <div class="stat-val" data-i18n="hero_stat_3_val">10 хв</div>
+          <div class="stat-lbl" data-i18n="hero_stat_3_lbl">Середній час старту</div>
+        </div>
+        <div class="hero-stat-card">
+          <div class="stat-val" data-i18n="hero_stat_4_val">4.98 / 5</div>
+          <div class="stat-lbl" data-i18n="hero_stat_4_lbl">Середня оцінка клієнтів</div>
+        </div>
       </div>
+
     </div>
   </section>
 
@@ -603,8 +874,10 @@
                 <th>Користувач</th>
                 <th>Email</th>
                 <th>Роль</th>
+                <th>Steam / Discord</th>
+                <th>Booster Verification</th>
                 <th>Замовлень</th>
-                <th>Рейтинг</th>
+                <th>Дії верифікації</th>
               </tr>
             </thead>
             <tbody id="admin-users-tbody">
@@ -617,29 +890,186 @@
   </div>
 
   <!-- Booster Dashboard Modal -->
+  <!-- Booster Dashboard Modal -->
   <div id="booster-dashboard-modal" class="modal">
     <div class="modal-backdrop" onclick="closeBoosterDashboard()"></div>
     <div class="modal-content modal-content-lg">
       <div class="modal-header">
-        <h3 data-i18n="booster_title">Кабінет бустера CyberBoost</h3>
+        <div class="d-flex align-items-center gap-3">
+          <div class="brand-icon" style="font-size: 1.8rem;">🎮</div>
+          <div>
+            <h3 data-i18n="booster_title" style="margin: 0; line-height: 1.2;">Кабінет бустера CyberBoost</h3>
+            <div id="booster-header-user-info" class="text-xs text-muted">Виконавець платформи</div>
+          </div>
+        </div>
         <button class="close-btn" onclick="closeBoosterDashboard()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="d-flex gap-2 mb-4">
-          <button class="btn btn-outline-cyan btn-sm booster-tab-btn active" data-tab="available" onclick="switchBoosterTab('available')" data-i18n="booster_tab_available">Доступні замовлення</button>
-          <button class="btn btn-outline-cyan btn-sm booster-tab-btn" data-tab="my" onclick="switchBoosterTab('my')" data-i18n="booster_tab_my">Мої активні замовлення</button>
+        <!-- Top Booster Profile & Quick KPI Banner -->
+        <div id="booster-quick-kpi-banner" class="booster-kpi-banner mb-4">
+          <!-- Populated by dashboard.js -->
         </div>
 
+        <!-- Navigation Tabs -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 border-bottom pb-3" style="border-color: var(--border-color) !important;">
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-cyan btn-sm booster-tab-btn active" data-tab="available" onclick="switchBoosterTab('available')">
+              ⚡ Прийняти замовлення <span id="booster-tab-avail-count" class="badge badge-warning ml-1" style="display:none;">0</span>
+            </button>
+            <button class="btn btn-outline-cyan btn-sm booster-tab-btn" data-tab="my" onclick="switchBoosterTab('my')">
+              🎮 Мої замовлення в роботі <span id="booster-tab-my-count" class="badge badge-success ml-1" style="display:none;">0</span>
+            </button>
+            <button class="btn btn-outline-cyan btn-sm booster-tab-btn" data-tab="stats" onclick="switchBoosterTab('stats')">
+              📊 Заробіток та статистика
+            </button>
+            <button class="btn btn-outline-cyan btn-sm booster-tab-btn" data-tab="settings" onclick="switchBoosterTab('settings')">
+              ⚙️ Профіль та статус бустера
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab 1: Available Orders to Claim -->
         <div id="booster-tab-available" class="booster-tab-content">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 style="margin:0;">⚡ Біржа вільних замовлень</h4>
+              <div class="text-xs text-muted">Оберіть клієнтське замовлення та натисніть «Взяти в роботу» для закріплення за собою</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="loadBoosterData()">🔄 Оновити список</button>
+          </div>
           <div id="booster-available-list" class="catalog-grid">
             <!-- Available orders pool -->
           </div>
         </div>
 
+        <!-- Tab 2: My Active Orders -->
         <div id="booster-tab-my" class="booster-tab-content" style="display: none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 style="margin:0;">🎮 Мої замовлення на бусті</h4>
+              <div class="text-xs text-muted">Оновлюйте прогрес та завершуйте виконання після досягнення цільового рангу</div>
+            </div>
+          </div>
           <div id="booster-my-list" class="catalog-grid">
             <!-- Booster's active orders -->
           </div>
+        </div>
+
+        <!-- Tab 3: Statistics & Earnings -->
+        <div id="booster-tab-stats" class="booster-tab-content" style="display: none;">
+          <!-- Time Period Filter Toolbar -->
+          <div class="stats-period-toolbar mb-4">
+            <div class="stats-period-label">
+              <span>📅 Період розрахунку:</span>
+            </div>
+            <div class="stats-period-buttons">
+              <button class="period-btn" data-period="today" onclick="changeBoosterPeriod('today')">Сьогодні</button>
+              <button class="period-btn" data-period="week" onclick="changeBoosterPeriod('week')">Останні 7 днів</button>
+              <button class="period-btn active" data-period="month" onclick="changeBoosterPeriod('month')">Останні 30 днів</button>
+              <button class="period-btn" data-period="all" onclick="changeBoosterPeriod('all')">За весь час</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Period Stats Summary Cards -->
+          <div id="booster-period-summary" class="booster-stats-grid mb-4">
+            <!-- Injected by dashboard.js -->
+          </div>
+
+          <!-- Game Breakdown Section -->
+          <div class="section-card mb-4 p-4 cyber-box">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h4 style="margin: 0;">🎮 Прийняті заявки та заробіток по іграх</h4>
+                <div class="text-xs text-muted">Кількість замовлень та зароблена сума за обраний період</div>
+              </div>
+              <span id="booster-period-tag" class="badge badge-info">За останні 30 днів</span>
+            </div>
+            <div id="booster-game-stats-container">
+              <!-- Rendered by dashboard.js -->
+            </div>
+          </div>
+
+          <!-- Order History Table for Booster -->
+          <div class="section-card p-4 cyber-box">
+            <h4 class="mb-3">📋 Історія прийнятих заявок із виплатами (80%)</h4>
+            <div class="table-responsive" style="overflow-x: auto;">
+              <table class="cyber-table">
+                <thead>
+                  <tr>
+                    <th>ID / Назва замовлення</th>
+                    <th>Гра</th>
+                    <th>Дата прийняття</th>
+                    <th>Статус</th>
+                    <th>Сума замовлення</th>
+                    <th>Виплата бустеру (80%)</th>
+                  </tr>
+                </thead>
+                <tbody id="booster-orders-history-tbody">
+                  <!-- Rendered by dashboard.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Booster Profile & Settings -->
+        <div id="booster-tab-settings" class="booster-tab-content" style="display: none;">
+          <form onsubmit="submitBoosterProfileUpdate(event)">
+            <div class="row-2-col mb-3">
+              <div>
+                <label class="form-label">Нікнейм бустера:</label>
+                <input type="text" id="booster-settings-name" class="form-control" required />
+              </div>
+              <div>
+                <label class="form-label">Ігровий ранг / Звання:</label>
+                <input type="text" id="booster-settings-rank" class="form-control" placeholder="Radiant / Faceit 10 (3100 ELO)" />
+              </div>
+            </div>
+
+            <!-- Operational Status Selector -->
+            <div class="mb-3">
+              <label class="form-label">Мій робочий статус бустера:</label>
+              <div id="booster-settings-status-grid" class="status-selector-grid mb-2">
+                <!-- Rendered dynamically -->
+              </div>
+              <input type="text" id="booster-settings-status-msg" class="form-control text-xs" placeholder="Повідомлення до статусу (напр: Вільний, готовий до CS2 / Valorant)" />
+            </div>
+
+            <div class="row-2-col mb-3">
+              <div>
+                <label class="form-label">Discord контакт:</label>
+                <input type="text" id="booster-settings-discord" class="form-control" placeholder="Shadow#1337" />
+              </div>
+              <div>
+                <label class="form-label">Telegram контакт:</label>
+                <input type="text" id="booster-settings-telegram" class="form-control" placeholder="@booster_pro" />
+              </div>
+            </div>
+
+            <!-- Avatar Presets -->
+            <div class="mb-3">
+              <label class="form-label">Оберіть аватар бустера:</label>
+              <div class="avatar-presets-grid mb-2">
+                <div class="avatar-preset-item" onclick="selectBoosterAvatar('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')">
+                  <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" />
+                </div>
+                <div class="avatar-preset-item" onclick="selectBoosterAvatar('https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150')">
+                  <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100" />
+                </div>
+                <div class="avatar-preset-item" onclick="selectBoosterAvatar('https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150')">
+                  <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100" />
+                </div>
+                <div class="avatar-preset-item" onclick="selectBoosterAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')">
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" />
+                </div>
+              </div>
+              <input type="url" id="booster-settings-avatar-input" class="form-control text-xs" placeholder="Або вставте свій URL аватарки" />
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <button type="submit" class="btn btn-primary">💾 Зберегти дані бустера</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -665,35 +1095,27 @@
     </div>
   </div>
 
-  <!-- Auth Modal (Login / Register) -->
+  <!-- Auth Modal (Login / Register - Email + Password ONLY) -->
   <div id="auth-modal" class="modal">
     <div class="modal-backdrop" onclick="closeAuthModal()"></div>
-    <div class="modal-content" style="max-width: 420px;">
+    <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
         <h4 id="auth-modal-title">Вхід в акаунт</h4>
         <button class="close-btn" onclick="closeAuthModal()">✕</button>
       </div>
       <div class="modal-body">
+        <!-- Error Alert -->
+        <div id="auth-error-msg" class="auth-error-alert" style="display: none;"></div>
+
         <form onsubmit="handleAuthFormSubmit(event)">
           <div class="mb-3">
-            <label class="form-label">Email:</label>
-            <input type="email" id="auth-email" class="form-control" placeholder="alex@gmail.com" required />
+            <label class="form-label">Email адреса:</label>
+            <input type="email" id="auth-email" class="form-control" placeholder="name@example.com" required autocomplete="email" />
           </div>
 
           <div class="mb-3">
             <label class="form-label">Пароль:</label>
-            <input type="password" id="auth-password" class="form-control" placeholder="••••••••" required />
-          </div>
-
-          <div id="auth-register-fields" style="display: none;">
-            <div class="mb-3">
-              <label class="form-label">Ваш нікнейм:</label>
-              <input type="text" id="auth-name" class="form-control" placeholder="Alex_Gamer" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Discord / Контакт:</label>
-              <input type="text" id="auth-discord" class="form-control" placeholder="Alex#1234" />
-            </div>
+            <input type="password" id="auth-password" class="form-control" placeholder="••••••••" required autocomplete="current-password" />
           </div>
 
           <button type="submit" id="auth-submit-btn" class="btn btn-primary w-100 mb-3" style="width: 100%;">
@@ -701,9 +1123,329 @@
           </button>
 
           <div id="auth-switch-text" class="text-center text-xs text-muted">
-            <!-- Switch between login/register text -->
+            <!-- Dynamically populated switch text -->
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account / Profile Modal (Universal for All Users) -->
+  <div id="user-profile-modal" class="modal">
+    <div class="modal-backdrop" onclick="closeUserProfileModal()"></div>
+    <div class="modal-content modal-content-lg">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <span style="font-size: 1.5rem;">👤</span>
+          <h4 style="margin: 0;">Особистий кабінет (Account / Profile)</h4>
+        </div>
+        <button class="close-btn" onclick="closeUserProfileModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Profile Header Banner -->
+        <div class="profile-hero-card mb-4">
+          <div class="profile-avatar-wrapper">
+            <img id="profile-display-avatar" src="" class="profile-avatar-img" />
+            <div class="profile-role-pill role-client" id="profile-display-role-badge">👤 Клієнт</div>
+          </div>
+          <div class="profile-hero-info">
+            <h3 id="profile-display-name" class="profile-hero-name"></h3>
+            <div id="profile-display-email" class="text-xs text-muted"></div>
+            <div id="profile-display-joined" class="text-xs text-dim mt-1"></div>
+          </div>
+          <div class="client-vip-pill ml-auto p-2 cyber-box d-flex align-items-center gap-2">
+            <span style="font-size: 1.5rem;">💎</span>
+            <div>
+              <div class="fw-bold text-gold" style="font-size: 0.85rem;">CyberBoost Account</div>
+              <div class="text-xs text-muted" id="profile-hero-status-subtitle">Особисті дані та ігри</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Nav Tabs -->
+        <div class="d-flex gap-2 mb-4 border-bottom pb-3" style="border-color: var(--border-color) !important;">
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn active" data-tab="settings" onclick="switchClientTab('settings')">
+            ⚙️ Account / Profile
+          </button>
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="orders" onclick="switchClientTab('orders')">
+            📦 Мої замовлення <span id="client-orders-badge" class="badge badge-info ml-1" style="display:none;">0</span>
+          </button>
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="newboost" onclick="switchClientTab('newboost')">
+            🚀 Замовити новий буст
+          </button>
+        </div>
+
+        <!-- Tab 1: Account / Profile Page -->
+        <div id="client-tab-settings" class="client-tab-content">
+          <!-- 1. Common Account Information -->
+          <div class="cyber-box p-4 mb-4">
+            <h4 class="mb-3 text-cyan" style="font-size: 1.15rem;">👤 Common Account Information</h4>
+            <form onsubmit="submitUserProfileUpdate(event)">
+              <div class="row-2-col mb-3">
+                <div>
+                  <label class="form-label">Email адреса:</label>
+                  <input type="email" id="profile-email-input" class="form-control" required />
+                </div>
+                <div>
+                  <label class="form-label">Nickname / Username:</label>
+                  <input type="text" id="profile-name-input" class="form-control" required />
+                </div>
+              </div>
+
+              <!-- User Status Selector -->
+              <div class="mb-3">
+                <label class="form-label d-flex justify-content-between align-items-center">
+                  <span>Мій статус:</span>
+                  <span id="profile-current-status-preview" class="text-xs text-muted"></span>
+                </label>
+                <div id="profile-status-options-container" class="status-selector-grid mb-2">
+                  <!-- Rendered dynamically by app.js -->
+                </div>
+                <input type="text" id="profile-status-message-input" class="form-control text-xs" placeholder="Повідомлення до статусу (напр: Очікую на бустера / Граю)" />
+              </div>
+
+              <!-- Avatar selection -->
+              <div class="mb-3">
+                <label class="form-label">Avatar (Оберіть або вкажіть URL):</label>
+                <div class="avatar-presets-grid mb-2">
+                  <div class="avatar-preset-item" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" />
+                  </div>
+                  <div class="avatar-preset-item" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" />
+                  </div>
+                  <div class="avatar-preset-item" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150')">
+                    <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100" />
+                  </div>
+                  <div class="avatar-preset-item" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150')">
+                    <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100" />
+                  </div>
+                </div>
+                <input type="url" id="profile-avatar-input" class="form-control text-xs" placeholder="Або вставте посилання на своє фото (URL)" oninput="updateProfileAvatarPreview(this.value)" />
+              </div>
+
+              <!-- Password change -->
+              <div class="accordion-box mb-3">
+                <details>
+                  <summary class="form-label text-cyan" style="cursor: pointer;">🔒 Змінити пароль акаунту</summary>
+                  <div class="pt-3">
+                    <div class="mb-2">
+                      <label class="form-label text-xs">Новий пароль:</label>
+                      <input type="password" id="profile-password-input" class="form-control" placeholder="••••••••" />
+                    </div>
+                    <div>
+                      <label class="form-label text-xs">Підтвердження пароля:</label>
+                      <input type="password" id="profile-password-confirm" class="form-control" placeholder="••••••••" />
+                    </div>
+                  </div>
+                </details>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2">
+                <button type="submit" id="profile-save-btn" class="btn btn-primary">
+                  💾 Зберегти базові дані
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- 2. Game Information (My Games) -->
+          <div class="cyber-box p-4 mb-4" id="profile-my-games-block">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h4 class="text-cyan mb-1" style="font-size: 1.15rem;">🎮 My Games</h4>
+                <div class="text-xs text-muted">Додавайте ваші ігри та вказуйте ранг або MMR</div>
+              </div>
+              <button type="button" class="btn btn-outline-cyan btn-sm" onclick="openAddGameModal()">
+                + Add Game
+              </button>
+            </div>
+
+            <!-- Games List Rendered Here -->
+            <div id="profile-my-games-list" class="my-games-container mb-3">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+
+            <button type="button" class="btn btn-outline-cyan btn-sm w-100" onclick="openAddGameModal()">
+              [+ Add Game]
+            </button>
+          </div>
+
+          <!-- 3. Booster Information & Verification -->
+          <div class="cyber-box p-4 mb-4" id="profile-booster-section">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h4 class="text-cyan mb-1" style="font-size: 1.15rem;">⚡ Booster Information</h4>
+                <div class="text-xs text-muted">Якщо ви є Booster, вкажіть дані та відправте профіль на перевірку Admin</div>
+              </div>
+            </div>
+
+            <form onsubmit="handleBoosterInfoSave(event)" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label">Steam ID:</label>
+                <input type="text" id="profile-booster-steamid" class="form-control" placeholder="76561198000000000 або посилання на профіль" />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Discord nickname:</label>
+                <input type="text" id="profile-booster-discord" class="form-control" placeholder="BoosterNick#1337 або @booster" />
+              </div>
+
+              <button type="submit" class="btn btn-outline-cyan btn-sm">
+                [Save]
+              </button>
+            </form>
+
+            <!-- Booster Verification Status Block -->
+            <div class="booster-verification-card p-3 rounded" id="booster-verification-card">
+              <div class="text-xs text-muted mb-2">Verification status:</div>
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <div id="booster-verification-status-badge" class="verification-status-pill pill-none">
+                  None
+                </div>
+                <button type="button" id="btn-send-admin-verification" class="btn btn-primary btn-sm" onclick="submitBoosterVerification()">
+                  📤 Відправити профіль на перевірку Admin
+                </button>
+              </div>
+              <div id="booster-verification-hint" class="text-xs text-muted">
+                До моменту verification Booster не має доступу до функцій, які вимагають підтвердженого Booster account.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Client Orders -->
+        <div id="client-tab-orders" class="client-tab-content" style="display: none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 style="margin:0;">📦 Мої активні замовлення</h4>
+              <div class="text-xs text-muted">Відстежуйте прогрес бусту в реальному часі та спілкуйтеся з бустером</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="renderClientOrdersInProfile()">🔄 Оновити</button>
+          </div>
+          <div id="client-orders-list-container" class="catalog-grid">
+            <!-- Populated by app.js -->
+          </div>
+        </div>
+
+        <!-- Tab 3: New Boost Quick Jump -->
+        <div id="client-tab-newboost" class="client-tab-content" style="display: none;">
+          <div class="cyber-box p-4 text-center">
+            <h4 class="text-cyan mb-2">🚀 Замовте персональний буст зі знижкою VIP 5%</h4>
+            <p class="text-muted text-sm mb-4">Оберіть потрібну гру та розрахуйте точну ціну в нашому інтерактивному калькуляторі.</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+              <button class="btn btn-primary" onclick="closeUserProfileModal(); selectSiteGame('dota2');">🛡️ Буст Dota 2</button>
+              <button class="btn btn-primary" onclick="closeUserProfileModal(); selectSiteGame('cs2_faceit');">💣 Буст CS2</button>
+              <button class="btn btn-primary" onclick="closeUserProfileModal(); selectSiteGame('valorant');">🎯 Буст Valorant</button>
+              <button class="btn btn-primary" onclick="closeUserProfileModal(); selectSiteGame('lol');">⚔️ Буст LoL</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Game Modal (My Games) -->
+  <div id="add-game-modal" class="modal">
+    <div class="modal-backdrop" onclick="closeAddGameModal()"></div>
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h4 id="add-game-modal-title">🎮 Додати гру (+ Add Game)</h4>
+        <button class="close-btn" onclick="closeAddGameModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="handleSaveGameSubmit(event)">
+          <input type="hidden" id="add-game-edit-id" value="" />
+          <div class="mb-3">
+            <label class="form-label">Game:</label>
+            <select id="add-game-select" class="form-select" onchange="handleGameSelectChange(this.value)" required>
+              <option value="Dota 2">Dota 2</option>
+              <option value="CS2">CS2</option>
+              <option value="Valorant">Valorant</option>
+              <option value="Apex">Apex</option>
+              <option value="League of Legends">League of Legends</option>
+              <option value="Rocket League">Rocket League</option>
+              <option value="Overwatch 2">Overwatch 2</option>
+              <option value="custom">Інша гра (Вказати свою)...</option>
+            </select>
+          </div>
+          <div class="mb-3" id="add-game-custom-row" style="display: none;">
+            <label class="form-label">Вкажіть назву гри:</label>
+            <input type="text" id="add-game-custom-input" class="form-control" placeholder="Назва гри..." />
+          </div>
+          <div class="mb-4">
+            <label class="form-label">MMR / rank:</label>
+            <input type="text" id="add-game-mmr-input" class="form-control" placeholder="100 або Immortal / Faceit 10" required />
+            <div class="form-help-text">Вкажіть ваш ранг або числове значення MMR (напр: 100, 3500, Radiant).</div>
+          </div>
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeAddGameModal()">Скасувати</button>
+            <button type="submit" class="btn btn-primary btn-sm">Зберегти гру</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Users Directory Modal -->
+  <div id="all-users-modal" class="modal">
+    <div class="modal-backdrop" onclick="closeAllUsersModal()"></div>
+    <div class="modal-content modal-content-lg">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <span style="font-size: 1.5rem;">👥</span>
+          <div>
+            <h4 style="margin: 0;">Профілі користувачів та бустерів</h4>
+            <div class="text-xs text-muted">Спільнота гравців та верифікованих виконавців платформи</div>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeAllUsersModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Filter Tabs & Search -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+          <div class="d-flex gap-2 flex-wrap" id="all-users-filter-tabs">
+            <button class="btn btn-outline-cyan btn-sm all-users-tab active" data-filter="all" onclick="filterAllUsers('all')">🌟 Всі користувачі</button>
+            <button class="btn btn-outline-cyan btn-sm all-users-tab" data-filter="booster" onclick="filterAllUsers('booster')">🎮 Бустери</button>
+            <button class="btn btn-outline-cyan btn-sm all-users-tab" data-filter="client" onclick="filterAllUsers('client')">👤 Клієнти</button>
+            <button class="btn btn-outline-cyan btn-sm all-users-tab" data-filter="admin" onclick="filterAllUsers('admin')">⚡ Адміністрація</button>
+          </div>
+          <div class="d-flex gap-2 align-items-center flex-wrap">
+            <select id="all-users-status-filter" class="form-select text-xs" style="max-width: 175px; padding: 6px 10px; font-size: 0.82rem;" onchange="filterAllUsersByStatus(this.value)">
+              <option value="all">⚡ Всі статуси</option>
+              <option value="ready">🟢 Вільний (Готовий)</option>
+              <option value="busy">🎮 На бусті / У грі</option>
+              <option value="online">🟢 В мережі</option>
+              <option value="in_boost">⚡ На бусті (Клієнт)</option>
+              <option value="searching">🔍 Шукає бустера</option>
+              <option value="resting">☕ Відпочиває</option>
+              <option value="offline">⚪ Офлайн</option>
+            </select>
+            <input type="text" id="all-users-search" class="form-control" style="max-width: 190px; padding: 6px 12px; font-size: 0.84rem;" placeholder="🔍 Пошук за нікнеймом..." oninput="handleAllUsersSearch(this.value)" />
+          </div>
+        </div>
+
+        <!-- Users Grid -->
+        <div id="all-users-grid" class="all-users-grid">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Public User Detail Modal -->
+  <div id="public-user-modal" class="modal">
+    <div class="modal-backdrop" onclick="closePublicUserModal()"></div>
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <span style="font-size: 1.5rem;">👤</span>
+          <h4 style="margin: 0;" id="public-user-modal-title">Профіль користувача</h4>
+        </div>
+        <button class="close-btn" onclick="closePublicUserModal()">✕</button>
+      </div>
+      <div class="modal-body" id="public-user-modal-body">
+        <!-- Rendered dynamically by app.js -->
       </div>
     </div>
   </div>

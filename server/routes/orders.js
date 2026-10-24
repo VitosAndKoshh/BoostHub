@@ -126,6 +126,11 @@ router.post('/:id/assign', authMiddleware, staffMiddleware, (req, res) => {
 
   // If booster is taking the order themselves
   if (req.user.role === 'booster') {
+    if (req.user.boosterVerification !== 'Verified') {
+      return res.status(403).json({
+        error: 'Для взяття замовлень необхідна підтверджена верифікація акаунту (Verification status: Verified). Дочекайтеся перевірки адміністратора.'
+      });
+    }
     boosterId = req.user.id;
     boosterName = req.user.name;
   } else if (!boosterId) {
@@ -146,6 +151,7 @@ router.post('/:id/assign', authMiddleware, staffMiddleware, (req, res) => {
     boosterId,
     boosterName,
     status: 'in_progress',
+    acceptedAt: order.acceptedAt || new Date().toISOString(),
     timeline: updatedTimeline
   });
 
@@ -186,6 +192,7 @@ router.post('/:id/progress', authMiddleware, staffMiddleware, (req, res) => {
 
   if (updates.progressPercent >= 100 || status === 'completed') {
     updates.status = 'completed';
+    updates.completedAt = order.completedAt || new Date().toISOString();
     updates.timeline.push({ time: new Date().toISOString(), text: '🎉 Буст успішно виконано на 100%!' });
   }
 

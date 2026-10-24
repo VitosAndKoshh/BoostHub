@@ -21,9 +21,10 @@ async function switchDemoRole(role) {
       localStorage.setItem('cyberboost_token', authToken);
       updateUserAuthUI();
 
+      const roleDisplay = typeof getRoleDisplay === 'function' ? getRoleDisplay(currentUser.role) : { full: currentUser.role };
       notify.show({
-        title: `Увійшли як: ${currentUser.name}`,
-        message: `Роль: ${currentUser.role.toUpperCase()}`,
+        title: `Увійшли як: ${roleDisplay.full}`,
+        message: `Користувач: ${currentUser.name}`,
         type: 'success',
         sound: 'success'
       });
@@ -166,22 +167,78 @@ function renderAdminUsers() {
   const tbody = document.getElementById('admin-users-tbody');
   if (!tbody) return;
 
-  tbody.innerHTML = allUsersList.map(user => `
-    <tr>
-      <td>
-        <div class="d-flex align-items-center gap-2">
-          <img src="${user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" class="user-avatar-sm" />
-          <strong>${user.name}</strong>
+  tbody.innerHTML = allUsersList.map(user => {
+    const verificationStatus = user.boosterVerification || 'None';
+    const statusBadges = {
+      Verified: '<span class="badge badge-success">✓ Verified</span>',
+      Pending: '<span class="badge badge-warning">⏳ Pending</span>',
+      Rejected: '<span class="badge badge-danger">✕ Rejected</span>',
+      None: '<span class="badge" style="opacity: 0.5;">None</span>'
+    };
+
+    const isBoosterOrApplicant = user.role === 'booster' || verificationStatus !== 'None';
+
+    let actionBtns = '<span class="text-muted text-xs">-</span>';
+    if (isBoosterOrApplicant) {
+      actionBtns = `
+        <div class="d-flex gap-1">
+          ${verificationStatus !== 'Verified' ? `<button class="btn btn-xs btn-success" onclick="adminUpdateBoosterVerification('${user.id}', 'Verified')">✅ Підтвердити</button>` : ''}
+          ${verificationStatus !== 'Rejected' ? `<button class="btn btn-xs btn-outline-danger" onclick="adminUpdateBoosterVerification('${user.id}', 'Rejected')">❌ Відхилити</button>` : ''}
         </div>
-      </td>
-      <td>${user.email}</td>
-      <td>
-        <span class="role-badge role-${user.role}">${user.role.toUpperCase()}</span>
-      </td>
-      <td>${user.completedOrders !== undefined ? user.completedOrders : '-'}</td>
-      <td>${user.rating ? `⭐ ${user.rating}` : '-'}</td>
-    </tr>
-  `).join('');
+      `;
+    }
+
+    const steamDiscordText = [
+      user.steamId ? `Steam: ${user.steamId}` : '',
+      user.discord ? `Discord: ${user.discord}` : ''
+    ].filter(Boolean).join('<br/>') || '<span class="text-muted text-xs">Не вказано</span>';
+
+    return `
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <img src="${user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" class="user-avatar-sm" />
+            <strong>${user.name}</strong>
+          </div>
+        </td>
+        <td>${user.email}</td>
+        <td>
+          <span class="role-badge role-${user.role}">${user.role.toUpperCase()}</span>
+        </td>
+        <td class="text-xs">${steamDiscordText}</td>
+        <td>${statusBadges[verificationStatus] || verificationStatus}</td>
+        <td>${user.completedOrders !== undefined ? user.completedOrders : '-'}</td>
+        <td>${actionBtns}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function adminUpdateBoosterVerification(userId, status) {
+  try {
+    const res = await fetch(`/api/auth/users/${userId}/verification`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({ status })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      notify.show({
+        title: 'Статус оновлено!',
+        message: `Статус верифікації для ${data.user?.name || 'бустера'}: ${status}`,
+        type: status === 'Verified' ? 'success' : 'info'
+      });
+      loadAdminData();
+    } else {
+      notify.show({ title: 'Помилка', message: data.error || 'Не вдалося оновити статус', type: 'warning' });
+    }
+  } catch (err) {
+    console.error('Admin verification update error:', err);
+  }
 }
 
 // Assign Booster Modal
@@ -276,7 +333,7 @@ async function submitCreateNewService(event) {
 
 // ---------------- BOOSTER DASHBOARD ----------------
 
-async function openBoosterDashboard() {
+async function openBoosterDashboard(initialTab = 'available') {
   if (!currentUser || (currentUser.role !== 'booster' && currentUser.role !== 'admin')) {
     notify.show({ title: 'Доступ обмежено', message: 'Потрібен акаунт бустера', type: 'warning' });
     return;
@@ -286,11 +343,303 @@ async function openBoosterDashboard() {
   if (modal) modal.classList.add('open');
 
   await loadBoosterData();
+  if (initialTab) {
+    switchBoosterTab(initialTab);
+  }
 }
 
 function closeBoosterDashboard() {
   const modal = document.getElementById('booster-dashboard-modal');
   if (modal) modal.classList.remove('open');
+}
+
+let currentBoosterPeriod = 'month';
+
+function getBoosterPeriodLabel(period) {
+  switch (period) {
+    case 'today': return 'За сьогодні';
+    case 'week': return 'За останні 7 днів';
+    case 'month': return 'За останні 30 днів';
+    case 'all': return 'За весь час';
+    default: return 'За період';
+  }
+}
+
+function getGameIcon(gameName, gameId) {
+  const g = (gameName || gameId || '').toLowerCase();
+  if (g.includes('val')) return '🎯';
+  if (g.includes('cs') || g.includes('counter') || g.includes('premier') || g.includes('faceit')) return '💣';
+  if (g.includes('lol') || g.includes('league')) return '⚔️';
+  if (g.includes('dota')) return '🛡️';
+  if (g.includes('apex')) return '🔥';
+  return '🎮';
+}
+
+function changeBoosterPeriod(period) {
+  currentBoosterPeriod = period;
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-period') === period);
+  });
+  renderBoosterStats();
+}
+
+function filterOrdersByPeriod(orders, period) {
+  const now = Date.now();
+  if (period === 'today') {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    return orders.filter(o => {
+      const d = new Date(o.acceptedAt || o.completedAt || o.createdAt).getTime();
+      return d >= startOfToday.getTime();
+    });
+  }
+  if (period === 'week') {
+    const startOfWeek = now - 7 * 86400000;
+    return orders.filter(o => {
+      const d = new Date(o.acceptedAt || o.completedAt || o.createdAt).getTime();
+      return d >= startOfWeek;
+    });
+  }
+  if (period === 'month') {
+    const startOfMonth = now - 30 * 86400000;
+    return orders.filter(o => {
+      const d = new Date(o.acceptedAt || o.completedAt || o.createdAt).getTime();
+      return d >= startOfMonth;
+    });
+  }
+  return orders; // 'all'
+}
+
+function renderBoosterStats() {
+  if (!currentUser) return;
+
+  // Header user info & quick banner
+  const headerInfo = document.getElementById('booster-header-user-info');
+  if (headerInfo) {
+    headerInfo.innerHTML = `Нікнейм: <strong>${currentUser.name}</strong> | Ранг: <span class="text-cyan">${currentUser.rankTitle || 'Radiant / Faceit 10 (PRO)'}</span> | Рейтинг: <span class="text-warning">⭐ ${currentUser.rating || 5.0}</span>`;
+  }
+
+  // Calculate all-time summary
+  const allCompleted = boosterMyOrders.filter(o => o.status === 'completed');
+  const allEarnedUSD = allCompleted.reduce((sum, o) => sum + Math.round((o.price || 0) * 0.8), 0);
+  const allEarnedUAH = allCompleted.reduce((sum, o) => sum + Math.round((o.priceUAH || (o.price || 0) * 41.5) * 0.8), 0);
+
+  const kpiBanner = document.getElementById('booster-quick-kpi-banner');
+  if (kpiBanner) {
+    kpiBanner.innerHTML = `
+      <div class="booster-kpi-card">
+        <div class="kpi-icon">💰</div>
+        <div>
+          <div class="kpi-label">Всього зароблено (весь час)</div>
+          <div class="kpi-value text-success">$${allEarnedUSD.toLocaleString()} <span class="kpi-sub">(${allEarnedUAH.toLocaleString()} ₴)</span></div>
+        </div>
+      </div>
+      <div class="booster-kpi-card">
+        <div class="kpi-icon">📋</div>
+        <div>
+          <div class="kpi-label">Всього прийнято заявок</div>
+          <div class="kpi-value text-cyan">${boosterMyOrders.length}</div>
+        </div>
+      </div>
+      <div class="booster-kpi-card">
+        <div class="kpi-icon">🏆</div>
+        <div>
+          <div class="kpi-label">Успішно виконано</div>
+          <div class="kpi-value text-gold">${allCompleted.length}</div>
+        </div>
+      </div>
+      <div class="booster-kpi-card">
+        <div class="kpi-icon">⭐</div>
+        <div>
+          <div class="kpi-label">Рейтинг виконавця</div>
+          <div class="kpi-value text-warning">${currentUser.rating || 5.0} / 5.0</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Filter orders for the selected period
+  const periodOrders = filterOrdersByPeriod(boosterMyOrders, currentBoosterPeriod);
+  const periodCompleted = periodOrders.filter(o => o.status === 'completed');
+  const periodInProgress = periodOrders.filter(o => o.status !== 'completed');
+
+  const periodEarnedUSD = periodCompleted.reduce((sum, o) => sum + Math.round((o.price || 0) * 0.8), 0);
+  const periodEarnedUAH = periodCompleted.reduce((sum, o) => sum + Math.round((o.priceUAH || (o.price || 0) * 41.5) * 0.8), 0);
+  const periodPendingUSD = periodInProgress.reduce((sum, o) => sum + Math.round((o.price || 0) * 0.8), 0);
+  const periodPendingUAH = periodInProgress.reduce((sum, o) => sum + Math.round((o.priceUAH || (o.price || 0) * 41.5) * 0.8), 0);
+
+  // Period label tag
+  const periodTag = document.getElementById('booster-period-tag');
+  if (periodTag) {
+    periodTag.textContent = getBoosterPeriodLabel(currentBoosterPeriod);
+  }
+
+  // Period summary cards
+  const summaryContainer = document.getElementById('booster-period-summary');
+  if (summaryContainer) {
+    summaryContainer.innerHTML = `
+      <div class="period-stat-card cyber-card">
+        <div class="stat-top">
+          <span class="stat-title">💵 Заробіток за період</span>
+          <span class="badge badge-success">Виплата 80%</span>
+        </div>
+        <div class="stat-number text-success">$${periodEarnedUSD.toLocaleString()} <span class="stat-unit">(${periodEarnedUAH.toLocaleString()} ₴)</span></div>
+        <div class="stat-footnote text-muted">
+          ${periodPendingUSD > 0 ? `+ $${periodPendingUSD} (${periodPendingUAH} ₴) очікує завершення` : 'Всі прийняті замовлення виплачені'}
+        </div>
+      </div>
+
+      <div class="period-stat-card cyber-card">
+        <div class="stat-top">
+          <span class="stat-title">📋 Прийнято заявок</span>
+          <span class="badge badge-info">${getBoosterPeriodLabel(currentBoosterPeriod)}</span>
+        </div>
+        <div class="stat-number text-cyan">${periodOrders.length} <span class="stat-unit">заявок</span></div>
+        <div class="stat-footnote text-muted">
+          Виконано: <strong>${periodCompleted.length}</strong> | В роботі: <strong>${periodInProgress.length}</strong>
+        </div>
+      </div>
+
+      <div class="period-stat-card cyber-card">
+        <div class="stat-top">
+          <span class="stat-title">🏁 Успішність виконання</span>
+          <span class="badge badge-warning">Winrate</span>
+        </div>
+        <div class="stat-number text-gold">
+          ${periodOrders.length > 0 ? Math.round((periodCompleted.length / periodOrders.length) * 100) : 100}%
+        </div>
+        <div class="stat-footnote text-muted">
+          ${periodCompleted.length} з ${periodOrders.length} замовлень завершено
+        </div>
+      </div>
+    `;
+  }
+
+  // Breakdown by game for selected period
+  const gameStats = {};
+  periodOrders.forEach(o => {
+    const game = o.gameName || 'Інші ігри';
+    if (!gameStats[game]) {
+      gameStats[game] = {
+        gameName: game,
+        gameId: o.gameId,
+        acceptedCount: 0,
+        completedCount: 0,
+        inProgressCount: 0,
+        earnedUSD: 0,
+        earnedUAH: 0,
+        pendingUSD: 0,
+        pendingUAH: 0
+      };
+    }
+    gameStats[game].acceptedCount += 1;
+    const payoutUSD = Math.round((o.price || 0) * 0.8);
+    const payoutUAH = Math.round((o.priceUAH || (o.price || 0) * 41.5) * 0.8);
+
+    if (o.status === 'completed') {
+      gameStats[game].completedCount += 1;
+      gameStats[game].earnedUSD += payoutUSD;
+      gameStats[game].earnedUAH += payoutUAH;
+    } else {
+      gameStats[game].inProgressCount += 1;
+      gameStats[game].pendingUSD += payoutUSD;
+      gameStats[game].pendingUAH += payoutUAH;
+    }
+  });
+
+  const gameList = Object.values(gameStats).sort((a, b) => b.acceptedCount - a.acceptedCount);
+  const gameContainer = document.getElementById('booster-game-stats-container');
+
+  if (gameContainer) {
+    if (gameList.length === 0) {
+      gameContainer.innerHTML = `
+        <div class="p-4 text-center text-muted">
+          Немає прийнятих заявок за обраний період (${getBoosterPeriodLabel(currentBoosterPeriod)}).
+          <div class="mt-2"><button class="btn btn-outline-cyan btn-xs" onclick="changeBoosterPeriod('all')">Показати за весь час</button></div>
+        </div>
+      `;
+    } else {
+      const maxCount = Math.max(...gameList.map(g => g.acceptedCount), 1);
+      gameContainer.innerHTML = `
+        <div class="game-stats-grid">
+          ${gameList.map(g => {
+            const icon = getGameIcon(g.gameName, g.gameId);
+            const percent = periodOrders.length > 0 ? Math.round((g.acceptedCount / periodOrders.length) * 100) : 0;
+            return `
+              <div class="game-stat-card cyber-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="game-icon-bubble">${icon}</span>
+                    <strong class="game-title-text">${g.gameName}</strong>
+                  </div>
+                  <span class="badge badge-info">${percent}% заявок</span>
+                </div>
+
+                <div class="game-stat-body my-3">
+                  <div class="d-flex justify-content-between align-items-baseline mb-1">
+                    <span class="text-muted text-xs">Прийнято заявок:</span>
+                    <span class="game-order-count text-cyan fw-bold">${g.acceptedCount} замовл.</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-baseline mb-2">
+                    <span class="text-muted text-xs">Зароблено:</span>
+                    <span class="text-success fw-bold">$${g.earnedUSD} (${g.earnedUAH} ₴)</span>
+                  </div>
+                  <div class="game-progress-bar">
+                    <div class="game-progress-fill" style="width: ${(g.acceptedCount / maxCount) * 100}%"></div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between text-xs text-muted pt-2 border-top" style="border-color: rgba(255,255,255,0.08) !important;">
+                  <span>Виконано: <strong class="text-success">${g.completedCount}</strong></span>
+                  <span>В роботі: <strong class="text-warning">${g.inProgressCount}</strong></span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+  }
+
+  // History Table
+  const tbody = document.getElementById('booster-orders-history-tbody');
+  if (tbody) {
+    if (periodOrders.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-muted">Немає замовлень за обраний період</td></tr>`;
+    } else {
+      tbody.innerHTML = periodOrders.map(o => {
+        const dateStr = new Date(o.acceptedAt || o.createdAt).toLocaleDateString('uk-UA', {
+          day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+        const icon = getGameIcon(o.gameName, o.gameId);
+        const payoutUSD = Math.round((o.price || 0) * 0.8);
+        const payoutUAH = Math.round((o.priceUAH || (o.price || 0) * 41.5) * 0.8);
+        const isDone = o.status === 'completed';
+
+        return `
+          <tr>
+            <td>
+              <strong>${o.id}</strong><br/>
+              <span class="text-xs text-muted">${o.title}</span>
+            </td>
+            <td>
+              <span class="badge badge-info">${icon} ${o.gameName}</span>
+            </td>
+            <td class="text-xs text-muted">${dateStr}</td>
+            <td>
+              <span class="badge ${isDone ? 'badge-success' : 'badge-warning'}">
+                ${isDone ? '✅ Виконано' : '⚡ В роботі'}
+              </span>
+            </td>
+            <td>$${o.price} (${o.priceUAH} ₴)</td>
+            <td class="fw-bold ${isDone ? 'text-success' : 'text-warning'}">
+              +$${payoutUSD} (${payoutUAH} ₴)
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+  }
 }
 
 async function loadBoosterData() {
@@ -304,8 +653,29 @@ async function loadBoosterData() {
     boosterMyOrders = orders.filter(o => o.boosterId === currentUser.id);
     boosterAvailableOrders = orders.filter(o => !o.boosterId && o.status === 'paid');
 
+    // Update badge counts in tabs
+    const availCountEl = document.getElementById('booster-tab-avail-count');
+    if (availCountEl) {
+      availCountEl.textContent = boosterAvailableOrders.length;
+      availCountEl.style.display = boosterAvailableOrders.length > 0 ? 'inline-block' : 'none';
+    }
+
+    const myCountEl = document.getElementById('booster-tab-my-count');
+    if (myCountEl) {
+      myCountEl.textContent = boosterMyOrders.length;
+      myCountEl.style.display = boosterMyOrders.length > 0 ? 'inline-block' : 'none';
+    }
+
+    const navBadge = document.getElementById('nav-booster-avail-badge');
+    if (navBadge) {
+      navBadge.textContent = boosterAvailableOrders.length;
+      navBadge.style.display = boosterAvailableOrders.length > 0 ? 'inline-block' : 'none';
+    }
+
+    renderBoosterStats();
     renderBoosterAvailableOrders();
     renderBoosterMyOrders();
+    renderBoosterSettings();
   } catch (err) {
     console.error('Failed to load booster data:', err);
   }
@@ -318,40 +688,84 @@ function switchBoosterTab(tabName) {
   document.querySelectorAll('.booster-tab-content').forEach(c => {
     c.style.display = c.id === `booster-tab-${tabName}` ? 'block' : 'none';
   });
+  if (tabName === 'settings') {
+    renderBoosterSettings();
+  }
 }
 
 function renderBoosterAvailableOrders() {
   const container = document.getElementById('booster-available-list');
   if (!container) return;
 
+  const isVerified = currentUser && currentUser.boosterVerification === 'Verified';
+  const verificationBanner = !isVerified ? `
+    <div class="verification-warning-banner p-3 mb-3 border-warning cyber-box text-center" style="grid-column: 1 / -1; background: rgba(245, 158, 11, 0.08); border-left: 4px solid #f59e0b;">
+      <div style="font-size: 1.5rem; margin-bottom: 4px;">⚠️</div>
+      <strong class="text-warning">Доступ обмежено: потрібна верифікація акаунту</strong>
+      <div class="text-xs text-muted mt-1">
+        Поточний статус: <span class="badge ${currentUser?.boosterVerification === 'Pending' ? 'badge-warning' : 'badge-danger'}">Verification status: ${currentUser?.boosterVerification || 'None'}</span>
+      </div>
+      <div class="text-xs text-muted mt-1">
+        До моменту підтвердження адміністратором доступ до взяття замовлень заблоковано.
+        Перейдіть у <a href="javascript:void(0)" onclick="closeBoosterDashboard(); openUserProfileModal('settings');" class="text-cyan">Account / Profile</a>, щоб вказати Steam ID та Discord і надіслати заявку.
+      </div>
+    </div>
+  ` : '';
+
   if (boosterAvailableOrders.length === 0) {
-    container.innerHTML = `<div class="empty-state p-4"><p>Наразі немає вільних замовлень. Нові з'являться щойно клієнт здійснить оплату!</p></div>`;
+    container.innerHTML = `
+      ${verificationBanner}
+      <div class="empty-state p-4 text-center" style="grid-column: 1 / -1;">
+        <div style="font-size: 2rem; margin-bottom: 8px;">⏳</div>
+        <h4>Наразі немає нових вільних замовлень</h4>
+        <p class="text-muted text-xs">Щойно клієнт здійснить оплату, нове замовлення миттєво з'явиться тут для взяття в роботу!</p>
+      </div>
+    `;
     return;
   }
 
-  container.innerHTML = boosterAvailableOrders.map(order => `
-    <div class="booster-order-card cyber-card">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="badge badge-warning">Вільне замовлення</span>
-        <span class="fw-bold text-success">$${order.price} (${order.priceUAH} ₴)</span>
+  container.innerHTML = verificationBanner + boosterAvailableOrders.map(order => {
+    const payoutUSD = Math.round((order.price || 0) * 0.8);
+    const payoutUAH = Math.round((order.priceUAH || (order.price || 0) * 41.5) * 0.8);
+
+    return `
+      <div class="booster-order-card cyber-card border-warning">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="badge badge-warning">⚡ Очікує бустера</span>
+          <span class="text-xs text-muted">ID: ${order.id}</span>
+        </div>
+        <h4 style="margin-bottom: 4px;">${order.title}</h4>
+        <div class="text-xs text-muted mb-2">Гра: <strong>${order.gameName}</strong> | Сервер: ${order.accountCredentials?.server || 'EU'}</div>
+
+        <div class="options-tag-row mb-3">
+          ${order.options?.queueType === 'duo' ? '<span class="tag tag-duo">👥 Duo Queue</span>' : '<span class="tag">Solo</span>'}
+          ${order.options?.stream ? '<span class="tag tag-stream">🎥 Discord Stream</span>' : ''}
+          ${order.options?.priority ? '<span class="tag tag-vip">⚡ Express VIP</span>' : ''}
+          ${order.options?.offlineMode ? '<span class="tag">Offline Steam</span>' : ''}
+        </div>
+
+        <div class="p-2 cyber-box mb-3 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-xs text-muted">Вартість замовлення:</span>
+            <div class="text-sm fw-bold">$${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</div>
+          </div>
+          <div class="text-end">
+            <span class="text-xs text-success fw-bold">💰 Ваша виплата (80%):</span>
+            <div class="text-lg text-success fw-bold">+$${payoutUSD} (${payoutUAH} ₴)</div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn ${isVerified ? 'btn-primary' : 'btn-outline'} btn-sm flex-grow-1" onclick="claimBoosterOrder('${order.id}')" ${!isVerified ? 'style="opacity: 0.6;" title="Потрібна верифікація акаунту"' : ''}>
+            ${isVerified ? '⚡ Прийняти замовлення' : '🔒 Потрібна верифікація'}
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="openLiveChat('${order.id}', '${order.title}')">
+            💬 Чат
+          </button>
+        </div>
       </div>
-      <h4>${order.title}</h4>
-      <div class="text-muted mb-2">Гра: ${order.gameName} | Сервер: ${order.accountCredentials?.server || 'EU'}</div>
-      <div class="options-tag-row mb-3">
-        ${order.options?.queueType === 'duo' ? '<span class="tag tag-duo">👥 Duo Queue</span>' : '<span class="tag">Solo</span>'}
-        ${order.options?.stream ? '<span class="tag tag-stream">🎥 Discord Stream</span>' : ''}
-        ${order.options?.priority ? '<span class="tag tag-vip">⚡ Express VIP</span>' : ''}
-      </div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-primary btn-sm flex-grow-1" onclick="claimBoosterOrder('${order.id}')">
-          ⚡ Взяти в роботу
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="openLiveChat('${order.id}', '${order.title}')">
-          💬 Чат
-        </button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function renderBoosterMyOrders() {
@@ -359,7 +773,7 @@ function renderBoosterMyOrders() {
   if (!container) return;
 
   if (boosterMyOrders.length === 0) {
-    container.innerHTML = `<div class="empty-state p-4"><p>У вас немає активних замовлень. Оберіть замовлення у вкладці "Доступні замовлення"!</p></div>`;
+    container.innerHTML = `<div class="empty-state p-4 text-center" style="grid-column: 1 / -1;"><p>У вас немає активних замовлень у роботі. Оберіть замовлення у вкладці "⚡ Прийняти замовлення"!</p></div>`;
     return;
   }
 
@@ -367,12 +781,12 @@ function renderBoosterMyOrders() {
     <div class="booster-order-card cyber-card ${order.status === 'completed' ? 'border-success' : 'border-cyan'}">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <span class="badge ${order.status === 'completed' ? 'badge-success' : 'badge-info'}">
-          ${order.status === 'completed' ? 'Виконано' : 'В процесі'}
+          ${order.status === 'completed' ? '✅ Виконано' : '⚡ В процесі'}
         </span>
-        <span class="fw-bold">$${order.price}</span>
+        <span class="fw-bold text-success">$${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</span>
       </div>
       <h4>${order.title}</h4>
-      <div class="text-muted mb-2">Клієнт: <strong>${order.clientName}</strong> (${order.accountCredentials?.login || 'Login'})</div>
+      <div class="text-muted text-xs mb-2">Клієнт: <strong>${order.clientName}</strong> (${order.accountCredentials?.login || 'Login'})</div>
 
       <div class="progress-bar-container my-3">
         <div class="d-flex justify-content-between text-xs mb-1">
@@ -423,6 +837,15 @@ function renderBoosterMyOrders() {
 }
 
 async function claimBoosterOrder(orderId) {
+  if (!currentUser || currentUser.boosterVerification !== 'Verified') {
+    notify.show({
+      title: 'Потрібна верифікація!',
+      message: 'Для взяття замовлень необхідна підтверджена верифікація акаунту (Verification status: Verified). Дочекайтеся перевірки адміністратора.',
+      type: 'warning'
+    });
+    return;
+  }
+
   try {
     const res = await fetch(`/api/orders/${orderId}/assign`, {
       method: 'POST',
@@ -434,8 +857,17 @@ async function claimBoosterOrder(orderId) {
     });
 
     if (res.ok) {
-      notify.show({ title: 'Замовлення взято в роботу! ⚡', message: 'Повідомте клієнта в чаті', type: 'success', sound: 'success' });
-      loadBoosterData();
+      notify.show({
+        title: 'Замовлення успішно прийнято! ⚡',
+        message: 'Ви закріплені за замовленням. Перейдіть до "Мої замовлення" для старту.',
+        type: 'success',
+        sound: 'rankup'
+      });
+      await loadBoosterData();
+      switchBoosterTab('my');
+    } else {
+      const data = await res.json();
+      notify.show({ title: 'Помилка', message: data.error || 'Не вдалося прийняти замовлення', type: 'warning' });
     }
   } catch (err) {
     console.error('Claim error:', err);
@@ -511,3 +943,123 @@ function reloadDashboardOrders() {
   if (currentUser?.role === 'admin') loadAdminData();
   if (currentUser?.role === 'booster') loadBoosterData();
 }
+
+// ---------------- BOOSTER PROFILE & SETTINGS ----------------
+
+let currentBoosterStatusSelect = 'ready';
+
+function renderBoosterSettings() {
+  if (!currentUser) return;
+
+  const nameInput = document.getElementById('booster-settings-name');
+  if (nameInput) nameInput.value = currentUser.name || '';
+
+  const rankInput = document.getElementById('booster-settings-rank');
+  if (rankInput) rankInput.value = currentUser.rankTitle || 'Radiant / Faceit 10 (3100 ELO)';
+
+  const discordInput = document.getElementById('booster-settings-discord');
+  if (discordInput) discordInput.value = currentUser.discord || '';
+
+  const telegramInput = document.getElementById('booster-settings-telegram');
+  if (telegramInput) telegramInput.value = currentUser.telegram || '';
+
+  const avatarInput = document.getElementById('booster-settings-avatar-input');
+  if (avatarInput) avatarInput.value = currentUser.avatar || '';
+
+  const statusMsgInput = document.getElementById('booster-settings-status-msg');
+  if (statusMsgInput) statusMsgInput.value = currentUser.statusMessage || '';
+
+  renderBoosterStatusGrid();
+}
+
+function selectBoosterAvatar(url) {
+  const avatarInput = document.getElementById('booster-settings-avatar-input');
+  if (avatarInput) avatarInput.value = url;
+}
+
+function renderBoosterStatusGrid() {
+  const container = document.getElementById('booster-settings-status-grid');
+  if (!container || !currentUser) return;
+
+  currentBoosterStatusSelect = currentUser.status || 'ready';
+
+  const statuses = [
+    { key: 'ready', icon: '🟢', label: 'Вільний (Готовий до бусту)' },
+    { key: 'busy', icon: '🎮', label: 'На замовленні (У грі)' },
+    { key: 'resting', icon: '☕', label: 'Відпочиває (AFK)' },
+    { key: 'offline', icon: '⚪', label: 'Офлайн' }
+  ];
+
+  container.innerHTML = statuses.map(s => `
+    <div class="status-opt-card ${currentBoosterStatusSelect === s.key ? 'active' : ''}" onclick="selectBoosterStatusOption('${s.key}')">
+      <span>${s.icon}</span>
+      <span>${s.label}</span>
+    </div>
+  `).join('');
+}
+
+function selectBoosterStatusOption(statusKey) {
+  currentBoosterStatusSelect = statusKey;
+  renderBoosterStatusGrid();
+}
+
+async function submitBoosterProfileUpdate(event) {
+  if (event) event.preventDefault();
+
+  const name = document.getElementById('booster-settings-name')?.value?.trim();
+  const rankTitle = document.getElementById('booster-settings-rank')?.value?.trim();
+  const discord = document.getElementById('booster-settings-discord')?.value?.trim();
+  const telegram = document.getElementById('booster-settings-telegram')?.value?.trim();
+  const avatar = document.getElementById('booster-settings-avatar-input')?.value?.trim();
+  const statusMessage = document.getElementById('booster-settings-status-msg')?.value?.trim();
+
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        name,
+        rankTitle,
+        discord,
+        telegram,
+        avatar,
+        status: currentBoosterStatusSelect,
+        statusMessage
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.user) {
+      currentUser = data.user;
+      updateUserAuthUI();
+      notify.show({
+        title: 'Профіль бустера оновлено! 🎮',
+        message: `Статус: ${getStatusDisplay('booster', currentUser.status).text}`,
+        type: 'success',
+        sound: 'success'
+      });
+      loadBoosterData();
+    } else {
+      notify.show({ title: 'Помилка', message: data.error || 'Не вдалося зберегти дані', type: 'warning' });
+    }
+  } catch (err) {
+    console.error('Update booster profile error:', err);
+  }
+}
+
+// Global window bindings for booster dashboard
+window.openBoosterDashboard = openBoosterDashboard;
+window.closeBoosterDashboard = closeBoosterDashboard;
+window.switchBoosterTab = switchBoosterTab;
+window.claimBoosterOrder = claimBoosterOrder;
+window.submitBoosterProgress = submitBoosterProgress;
+window.completeBoosterOrder = completeBoosterOrder;
+window.loadBoosterData = loadBoosterData;
+window.selectBoosterAvatar = selectBoosterAvatar;
+window.selectBoosterStatusOption = selectBoosterStatusOption;
+window.submitBoosterProfileUpdate = submitBoosterProfileUpdate;
+window.changeBoosterPeriod = changeBoosterPeriod;
+window.adminUpdateBoosterVerification = adminUpdateBoosterVerification;

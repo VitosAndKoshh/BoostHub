@@ -1,46 +1,319 @@
 {
   "users": [
     {
-      "id": "usr_admin",
-      "email": "admin@boost.gg",
-      "passwordHash": "$2a$10$M0nAkVHhymr1vsj9k.2.He8sLt64LXJY7D7gmU7JY1.howS8SK4qu",
-      "name": "CyberAdmin",
-      "role": "admin",
-      "avatar": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80",
-      "createdAt": "2026-08-08T13:49:14.362Z"
+      "id": "usr_1792666395509",
+      "email": "test2@gmail.com",
+      "passwordHash": "$2a$10$B0HOYHUxKhaLg2IgqiGzzeSIZX8dt3hKt8gfYrWg7jd7on5VtHLxi",
+      "name": "test2",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-10-22T10:53:15.581Z",
+      "updatedAt": "2026-10-22T10:53:15.581Z",
+      "steamId": "",
+      "boosterVerification": "None"
     },
     {
-      "id": "usr_booster_1",
-      "email": "booster@boost.gg",
-      "passwordHash": "$2a$10$M0nAkVHhymr1vsj9k.2.HeqaCw87ykxOQuJBS29Uall3BZG6z/i0q",
-      "name": "ShadowStriker",
+      "id": "usr_1791656208253",
+      "email": "ozirvkijevgenij@gmail.com",
+      "passwordHash": "$2a$10$6P1NCqnhGKpY7MKOdl/72ORcOQiOzqXoEptxU1WrkWXNCMe6tpY6i",
+      "name": "ozirvkijevgenij",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-10-10T18:16:48.329Z",
+      "updatedAt": "2026-10-10T18:16:48.329Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_1791655603018",
+      "email": "newuser_1791655602995@test.com",
+      "passwordHash": "$2a$10$Bgjsm3JR8frh13V8Zlm9jebYa6hMYWeGyWc12tM5S07IQEHP0D0Fu",
+      "name": "MasterChief",
       "role": "booster",
-      "rating": 4.98,
-      "completedOrders": 142,
-      "rankTitle": "Radiant / Global Elite / Challenger",
+      "status": "online",
+      "statusMessage": "Ready to game!",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "Chief#9999",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
       "games": [
-        "valorant",
-        "cs2",
-        "lol"
+        {
+          "id": "gm_1",
+          "game": "Dota 2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_2",
+          "game": "CS2",
+          "mmr": "100"
+        }
       ],
+      "createdAt": "2026-10-10T18:06:43.098Z",
+      "updatedAt": "2026-10-10T18:06:43.229Z",
+      "steamId": "76561198012345678",
+      "boosterVerification": "Verified"
+    },
+    {
+      "id": "usr_1791655582197",
+      "email": "newuser_1791655582173@test.com",
+      "passwordHash": "$2a$10$JvEzPMlF/4uTczC9jhbBR./Ln79GOHRBaMZPFZdt01hqztsG849Ni",
+      "name": "MasterChief",
+      "role": "booster",
+      "status": "online",
+      "statusMessage": "Ready to game!",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "Chief#9999",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [
+        {
+          "id": "gm_1",
+          "game": "Dota 2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_2",
+          "game": "CS2",
+          "mmr": "100"
+        }
+      ],
+      "createdAt": "2026-10-10T18:06:22.282Z",
+      "updatedAt": "2026-10-10T18:06:22.305Z",
+      "steamId": "76561198012345678",
+      "boosterVerification": "Pending"
+    },
+    {
+      "id": "usr_1791655568897",
+      "email": "newuser_1791655568856@test.com",
+      "passwordHash": "$2a$10$52TjYneUDINofQ8ORT0.wOIl8MWbPI0Yv267p.b8n48XjO49GshqW",
+      "name": "MasterChief",
+      "role": "booster",
+      "status": "online",
+      "statusMessage": "Ready to game!",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "Chief#9999",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [
+        {
+          "id": "gm_1",
+          "game": "Dota 2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_2",
+          "game": "CS2",
+          "mmr": "100"
+        }
+      ],
+      "createdAt": "2026-10-10T18:06:08.976Z",
+      "updatedAt": "2026-10-10T18:06:09.010Z",
+      "steamId": "76561198012345678",
+      "boosterVerification": "Pending"
+    },
+    {
+      "id": "usr_1791640762166",
+      "email": "test@gmail.com",
+      "passwordHash": "$2a$10$R54FbScNbhMneFWDemN/8ugqRlLOP3KxOt5wJMOtEXK.z/BUuUWMC",
+      "name": "lox",
+      "role": "booster",
+      "status": "ready",
+      "statusMessage": "🟢 Вільний • Готовий до бусту",
       "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
-      "createdAt": "2026-08-18T13:49:14.437Z"
+      "discord": "dssdsd",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "Radiant / Faceit 10 (PRO)",
+      "games": [
+        {
+          "id": "gm_1",
+          "game": "cs2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_2",
+          "game": "valorant",
+          "mmr": "100"
+        }
+      ],
+      "createdAt": "2026-10-10T13:59:22.242Z",
+      "updatedAt": "2026-10-10T13:59:22.242Z",
+      "steamId": "",
+      "boosterVerification": "None"
     },
     {
-      "id": "usr_booster_2",
-      "email": "booster2@boost.gg",
-      "passwordHash": "$2a$10$M0nAkVHhymr1vsj9k.2.HeqaCw87ykxOQuJBS29Uall3BZG6z/i0q",
-      "name": "VortexGod",
+      "id": "usr_1791622935701",
+      "email": "toh558121@gmail.com",
+      "passwordHash": "$2a$10$VwHxeM3K8j.gwUvE4VCkkO6dSqYyeRaEsAJweqIGQDW0u4FBGbkMm",
+      "name": "tes",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-10-10T09:02:15.780Z",
+      "updatedAt": "2026-10-10T09:02:15.780Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_1791571110799",
+      "email": "vvd073768@gmail.com",
+      "passwordHash": "$2a$10$T7larTnuHMeoZHoqo.acBuB0rF.X/MywXYTVkvhzgK3MU7RbmidIS",
+      "name": "koshh",
       "role": "booster",
-      "rating": 4.94,
-      "completedOrders": 89,
-      "rankTitle": "Immortal Top 100 / Faceit 10 (3100 ELO)",
+      "status": "ready",
+      "statusMessage": "🟢 Вільний • Готовий до бусту",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+      "discord": "test",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "Radiant / Faceit 10 (PRO)",
       "games": [
-        "dota2",
-        "cs2"
+        {
+          "id": "gm_1",
+          "game": "cs2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_2",
+          "game": "valorant",
+          "mmr": "100"
+        }
       ],
-      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
-      "createdAt": "2026-08-23T13:49:14.508Z"
+      "createdAt": "2026-10-09T18:38:30.873Z",
+      "updatedAt": "2026-10-09T18:38:30.873Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_1791569551085",
+      "email": "dddhieg@gmail.com",
+      "passwordHash": "$2a$10$K89m.BCmUlRCBpKNUgZ1ieXWKIvKsi938.UW.5u.undXe5TTZxJj6",
+      "name": "test",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-10-09T18:12:31.160Z",
+      "updatedAt": "2026-10-09T18:12:31.160Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_1789296833903",
+      "email": "nnaminete@gmail.com",
+      "passwordHash": "$2a$10$3d2fryFQ1.5hlSSNkViBeu3uP2MLRckFLwwjlRaVFNN8CKQ72h6ty",
+      "name": "vitos",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "vitos",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-09-13T10:53:53.976Z",
+      "updatedAt": "2026-09-13T10:53:53.977Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_1789046235389",
+      "email": "gdgduu302@gmail.com",
+      "passwordHash": "$2a$10$cmCCHn6H46SnRuhhPdVgxOeW44fAD6IuYg2ObtzXzt6fEcaaoEwTC",
+      "name": "koshh",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-09-10T13:17:15.464Z",
+      "updatedAt": "2026-09-13T10:50:51.900Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_1789044696651",
+      "email": "toh55812@gmail.com",
+      "passwordHash": "$2a$10$IHQcRo.Tc4lYM6HTtM9vPeNBUfToHRrqHOC.s2ZoTSMbHa31YKSTe",
+      "name": "tered",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "tered",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-09-10T12:51:36.730Z",
+      "updatedAt": "2026-09-13T10:50:51.900Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_1788958155346",
+      "email": "vitalioostrovski@gmail.com",
+      "passwordHash": "$2a$10$Q5RVQnloPspPMS.DPexWWOAqx4BQ3kv2hX6HQNToUe3ngBLS.rOV6",
+      "name": "vitos",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "vitos",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-09-09T12:49:15.426Z",
+      "updatedAt": "2026-09-13T10:50:51.900Z",
+      "steamId": "",
+      "boosterVerification": "None"
     },
     {
       "id": "usr_client",
@@ -48,19 +321,106 @@
       "passwordHash": "$2a$10$M0nAkVHhymr1vsj9k.2.HeKHb8gMrvvhuUOrM/Vf0OPuarYuqgTWC",
       "name": "Alex_Gamer",
       "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
       "discord": "AlexGamer#7721",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-      "createdAt": "2026-09-02T13:49:14.581Z"
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-09-02T13:49:14.581Z",
+      "updatedAt": "2026-09-10T12:56:44.431Z",
+      "steamId": "",
+      "boosterVerification": "None"
     },
     {
-      "id": "usr_1788958155346",
-      "email": "vitalioostrovski@gmail.com",
-      "passwordHash": "$2a$10$Q5RVQnloPspPMS.DPexWWOAqx4BQ3kv2hX6HQNToUe3ngBLS.rOV6",
-      "name": "vitos",
-      "discord": "vitos",
-      "role": "client",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-      "createdAt": "2026-09-09T12:49:15.426Z"
+      "id": "usr_booster_2",
+      "email": "booster2@boost.gg",
+      "passwordHash": "$2a$10$M0nAkVHhymr1vsj9k.2.HeqaCw87ykxOQuJBS29Uall3BZG6z/i0q",
+      "name": "VortexGod",
+      "role": "booster",
+      "status": "ready",
+      "statusMessage": "🟢 Вільний • Готовий до бусту",
+      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 4.94,
+      "completedOrders": 89,
+      "rankTitle": "Immortal Top 100 / Faceit 10 (3100 ELO)",
+      "games": [
+        {
+          "id": "gm_1",
+          "game": "dota2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_2",
+          "game": "cs2",
+          "mmr": "100"
+        }
+      ],
+      "createdAt": "2026-08-23T13:49:14.508Z",
+      "updatedAt": "2026-09-13T10:50:51.900Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_booster_1",
+      "email": "booster@boost.gg",
+      "passwordHash": "$2a$10$M0nAkVHhymr1vsj9k.2.HeqaCw87ykxOQuJBS29Uall3BZG6z/i0q",
+      "name": "ShadowStriker",
+      "role": "booster",
+      "status": "ready",
+      "statusMessage": "🟢 Вільний • Готовий до бусту",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 4.98,
+      "completedOrders": 142,
+      "rankTitle": "Radiant / Global Elite / Challenger",
+      "games": [
+        {
+          "id": "gm_1",
+          "game": "valorant",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_2",
+          "game": "cs2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_3",
+          "game": "lol",
+          "mmr": "100"
+        }
+      ],
+      "createdAt": "2026-08-18T13:49:14.437Z",
+      "updatedAt": "2026-09-13T10:50:51.900Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
+      "id": "usr_admin",
+      "email": "admin@boost.gg",
+      "passwordHash": "$2a$10$M0nAkVHhymr1vsj9k.2.He8sLt64LXJY7D7gmU7JY1.howS8SK4qu",
+      "name": "CyberAdmin",
+      "role": "admin",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-08-08T13:49:14.362Z",
+      "updatedAt": "2026-09-13T10:50:51.899Z",
+      "steamId": "",
+      "boosterVerification": "None"
     }
   ],
   "games": [
@@ -185,7 +545,9 @@
           "color": "#ef4444",
           "strokePercent": 100
         }
-      ]
+      ],
+      "agents": [],
+      "roles": []
     },
     {
       "id": "valorant",
@@ -511,7 +873,8 @@
         "Iso",
         "Fade",
         "Any"
-      ]
+      ],
+      "roles": []
     },
     {
       "id": "dota2",
@@ -884,7 +1247,9 @@
           "color": "#ef4444",
           "defaultElo": 6000
         }
-      ]
+      ],
+      "agents": [],
+      "roles": []
     },
     {
       "id": "cs2_premier",
@@ -963,7 +1328,9 @@
           "color": "#ef4444",
           "icon": "🔥"
         }
-      ]
+      ],
+      "agents": [],
+      "roles": []
     },
     {
       "id": "lol",
@@ -1087,6 +1454,7 @@
           "icon": "🔥"
         }
       ],
+      "agents": [],
       "roles": [
         "Top",
         "Jungle",
@@ -1220,9 +1588,9 @@
     },
     {
       "id": "srv_1788882272288",
-      "title": "cs ",
       "gameId": "cs2",
       "gameName": "Custom Game",
+      "title": "cs ",
       "category": "placement",
       "price": 4,
       "currency": "USD",
@@ -1237,6 +1605,254 @@
     }
   ],
   "orders": [
+    {
+      "id": "ORD-4920",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexPro#2026",
+      "boosterId": "usr_1791655603018",
+      "boosterName": "MasterChief",
+      "gameId": "cs2_premier",
+      "gameName": "Counter-Strike 2",
+      "serviceType": "rank_boost",
+      "title": "CS2 Premier: 12,000 ➔ 16,500 ELO (VIP Solo)",
+      "currentRank": "12,000 ELO",
+      "targetRank": "16,500 ELO",
+      "currentRankValue": 12000,
+      "targetRankValue": 16500,
+      "progressRank": "12,000 ELO",
+      "progressRankValue": 0,
+      "progressPercent": 0,
+      "price": 68,
+      "currency": "USD",
+      "priceUAH": 2822,
+      "status": "in_progress",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "queueType": "solo",
+        "stream": true,
+        "priority": true,
+        "offlineMode": true
+      },
+      "accountCredentials": {
+        "login": "alex_steam_pro",
+        "server": "Frankfurt / EU"
+      },
+      "streamUrl": null,
+      "createdAt": "2026-10-09T18:35:27.754Z",
+      "updatedAt": "2026-10-10T18:06:43.239Z",
+      "acceptedAt": "2026-10-10T18:06:43.238Z",
+      "completedAt": null,
+      "timeline": [
+        {
+          "time": "2026-10-10T18:06:43.238Z",
+          "text": "Призначено бустера: MasterChief"
+        }
+      ]
+    },
+    {
+      "id": "ORD-3819",
+      "clientId": "usr_client",
+      "clientName": "Max_Shooter",
+      "clientDiscord": "Max#9901",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "valorant",
+      "gameName": "Valorant",
+      "serviceType": "rank_boost",
+      "title": "Valorant Boost: Gold 1 -> Platinum 2",
+      "currentRank": "Gold 1",
+      "targetRank": "Platinum 2",
+      "currentRankValue": 10,
+      "targetRankValue": 14,
+      "progressRank": "Gold 1",
+      "progressRankValue": 0,
+      "progressPercent": 0,
+      "price": 44,
+      "currency": "USD",
+      "priceUAH": 1820,
+      "status": "in_progress",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "queueType": "duo",
+        "stream": true,
+        "priority": false,
+        "offlineMode": true
+      },
+      "accountCredentials": {
+        "server": "Frankfurt",
+        "login": "riot_max",
+        "notes": "Duo q стрім у Discord"
+      },
+      "streamUrl": null,
+      "createdAt": "2026-10-09T18:19:31.853Z",
+      "updatedAt": "2026-10-09T18:34:30.553Z",
+      "acceptedAt": "2026-10-09T18:34:30.553Z",
+      "completedAt": null,
+      "timeline": [
+        {
+          "time": "2026-10-09T18:19:31.853Z",
+          "text": "Оплату підтверджено. Очікує бустера."
+        },
+        {
+          "time": "2026-10-09T18:34:30.553Z",
+          "text": "Призначено бустера: ShadowStriker"
+        }
+      ]
+    },
+    {
+      "id": "ORD-2041",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": null,
+      "boosterName": null,
+      "gameId": "dota2",
+      "gameName": "Dota 2",
+      "serviceType": "rank_boost",
+      "title": "Dota 2 Boost: Archon 2 -> Legend 1",
+      "currentRank": "Archon 2",
+      "targetRank": "Legend 1",
+      "currentRankValue": 17,
+      "targetRankValue": 21,
+      "progressRank": "Archon 2",
+      "progressRankValue": 0,
+      "progressPercent": 0,
+      "price": 36,
+      "currency": "USD",
+      "priceUAH": 1490,
+      "status": "paid",
+      "paymentStatus": "verified",
+      "paymentMethod": "monobank",
+      "options": {
+        "queueType": "solo",
+        "stream": false,
+        "priority": true,
+        "offlineMode": true
+      },
+      "accountCredentials": {
+        "server": "EU West",
+        "login": "dota_player_77",
+        "notes": "Грати з 12:00 до 22:00"
+      },
+      "streamUrl": null,
+      "createdAt": "2026-10-09T18:19:31.849Z",
+      "updatedAt": "2026-10-09T18:19:31.850Z",
+      "acceptedAt": null,
+      "completedAt": null,
+      "timeline": [
+        {
+          "time": "2026-10-09T18:19:31.850Z",
+          "text": "Оплату підтверджено. Очікує бустера."
+        }
+      ]
+    },
+    {
+      "id": "ORD-9101",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "valorant",
+      "gameName": "Valorant",
+      "serviceType": "rank_boost",
+      "title": "Valorant: Gold 3 -> Diamond 1",
+      "currentRank": "Gold 3",
+      "targetRank": "Diamond 1",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 45,
+      "currency": "USD",
+      "priceUAH": 1860,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "monobank",
+      "options": {},
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-09-10T07:45:00.000Z",
+      "updatedAt": "2026-09-10T12:30:00.000Z",
+      "acceptedAt": "2026-09-10T08:00:00.000Z",
+      "completedAt": "2026-09-10T12:30:00.000Z",
+      "timeline": [
+        {
+          "time": "2026-09-10T07:45:00.000Z",
+          "text": "Замовлення створено клієнтом"
+        },
+        {
+          "time": "2026-09-10T08:00:00.000Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-09-10T12:30:00.000Z",
+          "text": "🎉 Буст успішно виконано на 100%!"
+        }
+      ]
+    },
+    {
+      "id": "ORD-5402",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "cs2",
+      "gameName": "Counter-Strike 2",
+      "serviceType": "catalog_service",
+      "title": "CS2 Premier Win Boost (Пакет 5 Перемог)",
+      "currentRank": "11,200 ELO",
+      "targetRank": "5 Перемог (+1500 ELO)",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "",
+      "progressRankValue": 0,
+      "progressPercent": 0,
+      "price": 19,
+      "currency": "USD",
+      "priceUAH": 790,
+      "status": "in_progress",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "queueType": "duo",
+        "stream": false,
+        "priority": false
+      },
+      "accountCredentials": {
+        "server": "EU North",
+        "login": "steam_alex_gg",
+        "notes": "Грати в Duo разом по Discord"
+      },
+      "streamUrl": null,
+      "createdAt": "2026-09-07T11:49:14.581Z",
+      "updatedAt": "2026-09-09T12:50:11.137Z",
+      "acceptedAt": null,
+      "completedAt": null,
+      "timeline": [
+        {
+          "time": "2026-09-07T11:49:14.581Z",
+          "text": "Замовлення створено клієнтом"
+        },
+        {
+          "time": "2026-09-07T12:01:14.581Z",
+          "text": "Оплату 790 UAH підтверджено"
+        },
+        {
+          "time": "2026-09-07T12:19:14.581Z",
+          "text": "Очікує призначення бустера адміністратором"
+        },
+        {
+          "time": "2026-09-09T12:50:11.137Z",
+          "text": "Призначено бустера: ShadowStriker"
+        }
+      ]
+    },
     {
       "id": "ORD-7821",
       "clientId": "usr_client",
@@ -1276,6 +1892,8 @@
       "streamUrl": "https://twitch.tv/sample_stream_demo",
       "createdAt": "2026-09-06T23:49:14.581Z",
       "updatedAt": "2026-09-07T13:49:14.581Z",
+      "acceptedAt": null,
+      "completedAt": null,
       "timeline": [
         {
           "time": "2026-09-06T23:49:14.581Z",
@@ -1300,7 +1918,7 @@
       ]
     },
     {
-      "id": "ORD-5402",
+      "id": "ORD-8344",
       "clientId": "usr_client",
       "clientName": "Alex_Gamer",
       "clientDiscord": "AlexGamer#7721",
@@ -1308,50 +1926,146 @@
       "boosterName": "ShadowStriker",
       "gameId": "cs2",
       "gameName": "Counter-Strike 2",
-      "serviceType": "catalog_service",
-      "title": "CS2 Premier Win Boost (Пакет 5 Перемог)",
-      "currentRank": "11,200 ELO",
-      "targetRank": "5 Перемог (+1500 ELO)",
-      "progressPercent": 0,
-      "price": 19,
+      "serviceType": "rank_boost",
+      "title": "CS2 Faceit Level 6 -> Level 8",
+      "currentRank": "Level 6 (1275 ELO)",
+      "targetRank": "Level 8 (1600 ELO)",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 38,
       "currency": "USD",
-      "priceUAH": 790,
-      "status": "in_progress",
+      "priceUAH": 1570,
+      "status": "completed",
       "paymentStatus": "verified",
       "paymentMethod": "card",
-      "options": {
-        "queueType": "duo",
-        "stream": false,
-        "priority": false
-      },
-      "accountCredentials": {
-        "server": "EU North",
-        "login": "steam_alex_gg",
-        "notes": "Грати в Duo разом по Discord"
-      },
-      "createdAt": "2026-09-07T11:49:14.581Z",
-      "updatedAt": "2026-09-09T12:50:11.137Z",
+      "options": {},
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-09-06T13:30:00.000Z",
+      "updatedAt": "2026-09-07T18:00:00.000Z",
+      "acceptedAt": "2026-09-06T14:00:00.000Z",
+      "completedAt": "2026-09-07T18:00:00.000Z",
       "timeline": [
         {
-          "time": "2026-09-07T11:49:14.581Z",
+          "time": "2026-09-06T13:30:00.000Z",
           "text": "Замовлення створено клієнтом"
         },
         {
-          "time": "2026-09-07T12:01:14.581Z",
-          "text": "Оплату 790 UAH підтверджено"
-        },
-        {
-          "time": "2026-09-07T12:19:14.581Z",
-          "text": "Очікує призначення бустера адміністратором"
-        },
-        {
-          "time": "2026-09-09T12:50:11.137Z",
+          "time": "2026-09-06T14:00:00.000Z",
           "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-09-07T18:00:00.000Z",
+          "text": "🎉 Буст успішно виконано на 100%!"
+        }
+      ]
+    },
+    {
+      "id": "ORD-7120",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "lol",
+      "gameName": "League of Legends",
+      "serviceType": "rank_boost",
+      "title": "LoL Solo/Duo: Platinum 2 -> Emerald 4",
+      "currentRank": "Platinum 2",
+      "targetRank": "Emerald 4",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 55,
+      "currency": "USD",
+      "priceUAH": 2280,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "crypto",
+      "options": {},
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-08-25T09:30:00.000Z",
+      "updatedAt": "2026-08-27T16:00:00.000Z",
+      "acceptedAt": "2026-08-25T10:00:00.000Z",
+      "completedAt": "2026-08-27T16:00:00.000Z",
+      "timeline": [
+        {
+          "time": "2026-08-25T09:30:00.000Z",
+          "text": "Замовлення створено клієнтом"
+        },
+        {
+          "time": "2026-08-25T10:00:00.000Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-08-27T16:00:00.000Z",
+          "text": "🎉 Буст успішно виконано на 100%!"
+        }
+      ]
+    },
+    {
+      "id": "ORD-6019",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "dota2",
+      "gameName": "Dota 2",
+      "serviceType": "rank_boost",
+      "title": "Dota 2 MMR: 3500 -> 4200 MMR (Ancient 3)",
+      "currentRank": "Legend 4 (3500 MMR)",
+      "targetRank": "Ancient 3 (4200 MMR)",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 60,
+      "currency": "USD",
+      "priceUAH": 2490,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {},
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-07-28T11:00:00.000Z",
+      "updatedAt": "2026-07-31T20:00:00.000Z",
+      "acceptedAt": "2026-07-28T12:00:00.000Z",
+      "completedAt": "2026-07-31T20:00:00.000Z",
+      "timeline": [
+        {
+          "time": "2026-07-28T11:00:00.000Z",
+          "text": "Замовлення створено клієнтом"
+        },
+        {
+          "time": "2026-07-28T12:00:00.000Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-07-31T20:00:00.000Z",
+          "text": "🎉 Буст успішно виконано на 100%!"
         }
       ]
     }
   ],
   "messages": [
+    {
+      "id": "msg_general_1",
+      "orderId": "pre_order_consultation",
+      "senderId": "usr_admin",
+      "senderName": "CyberBoost Support",
+      "senderRole": "admin",
+      "text": "Вітаємо в CyberBoost! Маєте запитання щодо термінів, підбору бустера чи знижок? Напишіть нам прямо зараз!",
+      "timestamp": "2026-09-06T13:49:14.581Z"
+    },
     {
       "id": "msg_1",
       "orderId": "ORD-7821",
@@ -1380,15 +2094,6 @@
       "timestamp": "2026-09-07T11:49:14.581Z"
     },
     {
-      "id": "msg_general_1",
-      "orderId": "pre_order_consultation",
-      "senderId": "usr_admin",
-      "senderName": "CyberBoost Support",
-      "senderRole": "admin",
-      "text": "Вітаємо в CyberBoost! Маєте запитання щодо термінів, підбору бустера чи знижок? Напишіть нам прямо зараз!",
-      "timestamp": "2026-09-06T13:49:14.581Z"
-    },
-    {
       "id": "msg_1788789368878_wxfd",
       "orderId": "pre_order_consultation",
       "senderId": "usr_client",
@@ -1405,6 +2110,42 @@
       "senderRole": "booster",
       "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
       "timestamp": "2026-09-09T12:50:11.137Z"
+    },
+    {
+      "id": "msg_1789044593253",
+      "orderId": "ORD-9589",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-9589 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-09-10T12:49:53.253Z"
+    },
+    {
+      "id": "msg_1789044593255",
+      "orderId": "ORD-9589",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-09-10T12:49:53.255Z"
+    },
+    {
+      "id": "msg_1791570870557",
+      "orderId": "ORD-3819",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-10-09T18:34:30.557Z"
+    },
+    {
+      "id": "msg_1791655603242",
+      "orderId": "ORD-4920",
+      "senderId": "usr_1791655603018",
+      "senderName": "MasterChief",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер MasterChief. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-10-10T18:06:43.242Z"
     }
   ],
   "promoCodes": [
@@ -1426,12 +2167,12 @@
   ],
   "reviews": [
     {
-      "id": "rev_1",
-      "author": "Max_Sniper",
-      "game": "Valorant",
+      "id": "rev_3",
+      "author": "Vova_CS",
+      "game": "CS2",
       "rating": 5,
-      "comment": "Підняли з Gold 1 до Diamond 2 за півтора дні! Стрім працював без лагів, бустер топ 100.",
-      "date": "2 дні тому"
+      "comment": "Замовляв Duo буст у Premier. Грали разом, бустер давав чудову інфу та координував. Рекомендую!",
+      "date": "1 тиждень тому"
     },
     {
       "id": "rev_2",
@@ -1442,12 +2183,12 @@
       "date": "4 дні тому"
     },
     {
-      "id": "rev_3",
-      "author": "Vova_CS",
-      "game": "CS2",
+      "id": "rev_1",
+      "author": "Max_Sniper",
+      "game": "Valorant",
       "rating": 5,
-      "comment": "Замовляв Duo буст у Premier. Грали разом, бустер давав чудову інфу та координував. Рекомендую!",
-      "date": "1 тиждень тому"
+      "comment": "Підняли з Gold 1 до Diamond 2 за півтора дні! Стрім працював без лагів, бустер топ 100.",
+      "date": "2 дні тому"
     }
   ]
 }

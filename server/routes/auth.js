@@ -45,27 +45,42 @@ const staffMiddleware = (req, res, next) => {
   }
 };
 
-// POST /api/auth/register
+// POST /api/auth/register - Simple registration with ONLY email & password
 router.post('/register', (req, res) => {
-  const { email, password, name, discord } = req.body;
-  if (!email || !password || !name) {
-    return res.status(400).json({ error: 'Заповніть усі обов’язкові поля (email, пароль, ім’я)' });
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Вкажіть email та пароль' });
   }
 
-  const existing = db.getUserByEmail(email);
+  const normalizedEmail = email.trim().toLowerCase();
+  const existing = db.getUserByEmail(normalizedEmail);
   if (existing) {
     return res.status(400).json({ error: 'Користувач з таким email вже існує' });
   }
 
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Пароль має містити щонайменше 6 символів' });
+  }
+
+  const defaultName = normalizedEmail.split('@')[0];
   const salt = bcrypt.genSaltSync(10);
   const newUser = {
     id: 'usr_' + Date.now(),
-    email,
+    email: normalizedEmail,
     passwordHash: bcrypt.hashSync(password, salt),
-    name,
-    discord: discord || '',
+    name: defaultName,
     role: 'client',
+    steamId: '',
+    discord: '',
+    telegram: '',
+    boosterVerification: 'None',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    status: 'online',
+    statusMessage: '🟢 В мережі',
+    rating: 5.0,
+    completedOrders: 0,
+    rankTitle: '',
+    games: [],
     createdAt: new Date().toISOString()
   };
 
@@ -83,7 +98,8 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ error: 'Введіть email та пароль' });
   }
 
-  const user = db.getUserByEmail(email);
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = db.getUserByEmail(normalizedEmail);
   if (!user) {
     return res.status(400).json({ error: 'Невірний email або пароль' });
   }
@@ -121,6 +137,107 @@ router.get('/me', authMiddleware, (req, res) => {
   res.json({ user: userSafe });
 });
 
+// PUT /api/auth/profile - Update personal profile
+router.put('/profile', authMiddleware, (req, res) => {
+  const { name, email, discord, telegram, steamId, avatar, rankTitle, games, password, status, statusMessage } = req.body;
+  const updates = {};
+
+  if (name !== undefined && name.trim()) updates.name = name.trim();
+  if (email !== undefined && email.trim()) updates.email = email.trim().toLowerCase();
+  if (discord !== undefined) updates.discord = discord.trim();
+  if (telegram !== undefined) updates.telegram = telegram.trim();
+  if (steamId !== undefined) updates.steamId = steamId.trim();
+  if (avatar !== undefined && avatar.trim()) updates.avatar = avatar.trim();
+  if (status !== undefined) updates.status = status;
+  if (statusMessage !== undefined) updates.statusMessage = statusMessage.trim();
+  if (rankTitle !== undefined) updates.rankTitle = rankTitle.trim();
+  if (Array.isArray(games)) updates.games = games;
+
+  if (password && password.trim()) {
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Пароль має містити щонайменше 6 символів' });
+    }
+    const salt = bcrypt.genSaltSync(10);
+    updates.passwordHash = bcrypt.hashSync(password, salt);
+  }
+
+  const updatedUser = db.updateUser(req.user.id, updates);
+  if (!updatedUser) {
+    return res.status(404).json({ error: 'Користувача не знайдено' });
+  }
+
+  const { passwordHash, ...userSafe } = updatedUser;
+  res.json({ user: userSafe, message: 'Профіль успішно оновлено' });
+});
+
+// POST /api/auth/booster-verification - Send booster profile for Admin verification
+router.post('/booster-verification', authMiddleware, (req, res) => {
+  const { steamId, discord } = req.body;
+  const currentSteam = steamId !== undefined ? steamId.trim() : (req.user.steamId || '');
+  const currentDiscord = discord !== undefined ? discord.trim() : (req.user.discord || '');
+
+  if (!currentSteam && !currentDiscord) {
+    return res.status(400).json({ error: 'Будь ласка, вкажіть Steam ID або Discord nickname' });
+  }
+
+  const updates = {
+    steamId: currentSteam,
+    discord: currentDiscord,
+    boosterVerification: 'Pending',
+    role: 'booster'
+  };
+
+  const updatedUser = db.updateUser(req.user.id, updates);
+  const { passwordHash, ...userSafe } = updatedUser;
+  res.json({
+    user: userSafe,
+    message: 'Профіль надіслано на перевірку адміністратору. Статус: Pending'
+  });
+});
+
+// PUT /api/auth/users/:id/verification - Admin updates booster verification status
+router.put('/users/:id/verification', authMiddleware, adminMiddleware, (req, res) => {
+  const { status } = req.body; // 'Verified', 'Pending', 'Rejected', 'None'
+  if (!['Verified', 'Pending', 'Rejected', 'None'].includes(status)) {
+    return res.status(400).json({ error: 'Некоректний статус верифікації' });
+  }
+
+  const target = db.getUserById(req.params.id);
+  if (!target) {
+    return res.status(404).json({ error: 'Користувача не знайдено' });
+  }
+
+  const updates = { boosterVerification: status };
+  if (status === 'Verified') {
+    updates.role = 'booster';
+  }
+
+  const updated = db.updateUser(target.id, updates);
+  const { passwordHash, ...userSafe } = updated;
+  res.json({ user: userSafe, message: `Статус верифікації бустера оновлено: ${status}` });
+});
+
+// PUT /api/auth/status - Quick update presence / operational status
+router.put('/status', authMiddleware, (req, res) => {
+  const { status, statusMessage } = req.body;
+  if (!status) {
+    return res.status(400).json({ error: 'Вкажіть статус' });
+  }
+
+  const allowedStatuses = ['online', 'ready', 'busy', 'resting', 'in_boost', 'searching', 'afk', 'offline'];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Некоректний статус' });
+  }
+
+  const updatedUser = db.updateUserStatus(req.user.id, status, statusMessage);
+  if (!updatedUser) {
+    return res.status(404).json({ error: 'Користувача не знайдено' });
+  }
+
+  const { passwordHash, ...userSafe } = updatedUser;
+  res.json({ user: userSafe, message: 'Статус успішно оновлено' });
+});
+
 // GET /api/auth/users (admin only)
 router.get('/users', authMiddleware, adminMiddleware, (req, res) => {
   const users = db.getUsers().map(u => {
@@ -128,6 +245,25 @@ router.get('/users', authMiddleware, adminMiddleware, (req, res) => {
     return safe;
   });
   res.json({ users });
+});
+
+// GET /api/auth/all-profiles - Public list of user profiles (clients, boosters, admin)
+router.get('/all-profiles', (req, res) => {
+  const users = db.getUsers().map(u => {
+    const { passwordHash, ...safe } = u;
+    return safe;
+  });
+  res.json({ users });
+});
+
+// GET /api/auth/profile/:id - Public single user profile
+router.get('/profile/:id', (req, res) => {
+  const user = db.getUserById(req.params.id);
+  if (!user) {
+    return res.status(404).json({ error: 'Користувача не знайдено' });
+  }
+  const { passwordHash, ...safe } = user;
+  res.json({ user: safe });
 });
 
 // GET /api/auth/boosters

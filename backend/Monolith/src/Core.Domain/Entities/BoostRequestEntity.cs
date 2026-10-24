@@ -31,12 +31,12 @@ public sealed class BoostRequestEntity : EntityBase<Guid>
         Status = BoostRequestStatus.Open;
     }
 
-    public Guid CustomerId { get; private set; }
-    public Guid GameId { get; private set; }
-    public Price Price { get; private set; }
-    public string Description { get; private set; }
-    public MaxCompletionDuration MaxCompletionDuration { get; private set; }
-    public DateTime RequestedAt { get; private set; }
+    public Guid CustomerId { get; init; }
+    public Guid GameId { get; init; }
+    public Price Price { get; init; }
+    public string Description { get; init; }
+    public MaxCompletionDuration MaxCompletionDuration { get; init; }
+    public DateTime RequestedAt { get; init; }
     public BoostRequestStatus Status { get; private set; }
 
     public static BoostRequestEntity Create(

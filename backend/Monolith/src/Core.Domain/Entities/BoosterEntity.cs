@@ -9,7 +9,10 @@ namespace Core.Domain.Entities;
 public sealed class BoosterEntity : AggregateRootBase<Guid>
 {
     // For EF Core
-    private BoosterEntity(){}
+    private BoosterEntity()
+    {
+        DiscordNickname = null!;
+    }
 
     private BoosterEntity(Guid accountId, DiscordNickname discordNickname)
     {

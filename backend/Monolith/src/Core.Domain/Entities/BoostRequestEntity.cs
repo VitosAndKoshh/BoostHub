@@ -1,41 +1,92 @@
 using Core.Domain.Enums;
+using Core.Domain.Errors.BoostRequest;
+using Core.Domain.Exceptions;
+using Core.Domain.ValueObjects;
 
 namespace Core.Domain.Entities;
 
 public sealed class BoostRequestEntity : EntityBase<Guid>
 {
     // For EF Core
-    private BoostRequestEntity(){}
+    private BoostRequestEntity()
+    {
+        Price = null!;
+        Description = null!;
+        MaxCompletionDuration = null!;
+    }
 
     private BoostRequestEntity(
-        Guid accountId,
+        Guid customerId,
         Guid gameId,
-        decimal price,
-        string? description,
-        DateTime endDate)
+        Price price,
+        string description,
+        MaxCompletionDuration maxCompletionDuration)
     {
-        AccountId = accountId;
+        CustomerId = customerId;
         GameId = gameId;
         Price = price;
         Description = description;
-        Status = BoostRequestStatus.Pending;
-        EndDate = endDate;
-        RequestedAt = DateTime.UtcNow;       
+        MaxCompletionDuration = maxCompletionDuration;
+        RequestedAt = DateTime.UtcNow;
+        Status = BoostRequestStatus.Open;
     }
-    
-    public Guid AccountId { get; init; }
-    public Guid GameId { get; init; }
-    public decimal Price { get; private set; }
-    public string? Description { get; private set; }
-    public BoostRequestStatus Status { get; private set; }  
-    public DateTime EndDate { get; private set; }   
-    public DateTime RequestedAt { get; init; }
 
-    public static BoostRequestEntity Create(Guid accountId, Guid gameId,
-        decimal price, string? description, DateTime endDate)
+    public Guid CustomerId { get; private set; }
+    public Guid GameId { get; private set; }
+    public Price Price { get; private set; }
+    public string Description { get; private set; }
+    public MaxCompletionDuration MaxCompletionDuration { get; private set; }
+    public DateTime RequestedAt { get; private set; }
+    public BoostRequestStatus Status { get; private set; }
+
+    public static BoostRequestEntity Create(
+        Guid customerId,
+        Guid gameId,
+        Price price,
+        string description,
+        MaxCompletionDuration maxCompletionDuration)
     {
-        if (accountId == Guid.Empty)
-            
-        return new BoostRequestEntity();
+        if (customerId == Guid.Empty)
+            throw new DomainException(BoostRequestErrors.InvalidCustomerId);
+
+        if (gameId == Guid.Empty)
+            throw new DomainException(BoostRequestErrors.InvalidGameId);
+
+        if (price is null)
+            throw new DomainException(BoostRequestErrors.InvalidPrice);
+
+        if (string.IsNullOrWhiteSpace(description))
+            throw new DomainException(BoostRequestErrors.InvalidDescription);
+
+        if (maxCompletionDuration is null)
+            throw new DomainException(BoostRequestErrors.InvalidMaxCompletionDuration);
+
+        return new BoostRequestEntity(
+            customerId,
+            gameId,
+            price,
+            description.Trim(),
+            maxCompletionDuration);
+    }
+
+    public void Close()
+    {
+        EnsureOpen();
+        Status = BoostRequestStatus.Closed;
+    }
+
+    public void Cancel()
+    {
+        EnsureOpen();
+        Status = BoostRequestStatus.Cancelled;
+    }
+
+    private void EnsureOpen()
+    {
+        if (Status == BoostRequestStatus.Closed)
+            throw new DomainException(BoostRequestErrors.RequestAlreadyClosed);
+
+        if (Status == BoostRequestStatus.Cancelled)
+            throw new DomainException(BoostRequestErrors.RequestAlreadyCancelled);
     }
 }

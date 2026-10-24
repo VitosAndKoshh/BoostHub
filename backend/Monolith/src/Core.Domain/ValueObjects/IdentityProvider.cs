@@ -8,7 +8,10 @@ public sealed class IdentityProvider : ValueObjectBase
     public string Provider { get; }
     
     // For Ef Core
-    private IdentityProvider(){}
+    private IdentityProvider()
+    {
+        Provider = null!;
+    }
 
     private IdentityProvider(string provider) => Provider = provider;
 

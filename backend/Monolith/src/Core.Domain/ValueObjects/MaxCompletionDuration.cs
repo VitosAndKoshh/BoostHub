@@ -6,7 +6,7 @@ namespace Core.Domain.ValueObjects;
 public sealed class MaxCompletionDuration : ValueObjectBase
 {
     // For EF Core
-    private MaxCompletionDuration() { }
+    private MaxCompletionDuration() {}
 
     private MaxCompletionDuration(TimeSpan value)
     {

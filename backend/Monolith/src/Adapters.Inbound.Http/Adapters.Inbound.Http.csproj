@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="Swashbuckle.AspNetCore" />
+      <PackageReference Include="Microsoft.OpenApi" />
       <PackageReference Include="Mapster" />
       <PackageReference Include="Mapster.DependencyInjection" />
     </ItemGroup>

@@ -6,7 +6,10 @@ namespace Core.Domain.ValueObjects;
 public class DiscordNickname : ValueObjectBase
 {
     // EF Core constructor
-    private DiscordNickname() { }
+    private DiscordNickname()
+    {
+        Nickname = null!;
+    }
     private DiscordNickname(string nickname)
     {
         Nickname = nickname;

@@ -15,8 +15,8 @@
               "state": {
                 "file": "mvp/Architecture.md"
               },
-              "icon": "excalidraw-icon",
-              "title": "Architecture"
+              "icon": "lucide-ghost",
+              "title": "excalidraw"
             }
           },
           {
@@ -27,8 +27,8 @@
               "state": {
                 "file": "mvp/Architecture.md"
               },
-              "icon": "excalidraw-icon",
-              "title": "Architecture"
+              "icon": "lucide-ghost",
+              "title": "excalidraw"
             }
           },
           {
@@ -39,8 +39,8 @@
               "state": {
                 "file": "mvp/Features.md"
               },
-              "icon": "excalidraw-icon",
-              "title": "Features"
+              "icon": "lucide-ghost",
+              "title": "excalidraw"
             }
           },
           {
@@ -49,10 +49,10 @@
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "mvp/Architecture.md"
+                "file": "mvp/Entities.md"
               },
               "icon": "excalidraw-icon",
-              "title": "Architecture"
+              "title": "Entities"
             }
           }
         ],
@@ -226,10 +226,10 @@
   },
   "active": "9e83f8761f5515d3",
   "lastOpenFiles": [
+    "mvp/Architecture.md",
     "mvp/frontend.md",
     "mvp/Entities.md",
     "mvp/Features.md",
-    "mvp/Architecture.md",
     "Excalidraw",
     "mvp/Features.canvas",
     "mvp/Architecture.canvas",

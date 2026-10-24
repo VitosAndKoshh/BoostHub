@@ -1,4 +1,3 @@
-using System;
 using Core.Abstractions.Errors;
 
 namespace Core.Domain.Exceptions;
@@ -7,14 +6,14 @@ public class DomainException : Exception
 {
     public Error Error { get; }
 
-    public DomainException(string message, Error error)
-        : base(message)
+    public DomainException(Error error)
+        : base(error.Description)
     {
         Error = error;
     }
 
-    protected DomainException(string message, Error error, Exception innerException)
-        : base(message, innerException)
+    protected DomainException(Error error, Exception innerException)
+        : base(error.Description, innerException)
     {
         Error = error;
     }

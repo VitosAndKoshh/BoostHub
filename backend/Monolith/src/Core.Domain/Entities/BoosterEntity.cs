@@ -25,11 +25,14 @@ public sealed class BoosterEntity : AggregateRootBase<Guid>
     public DiscordNickname DiscordNickname { get; private set; }
     public BoosterStatus Status { get; private set; }   
     
-    public BoosterEntity Create(Guid accountId, DiscordNickname discordNickname)
+    public static BoosterEntity Create(Guid accountId, DiscordNickname discordNickname)
     {
         if (accountId == Guid.Empty)
             throw new DomainException(BoosterErrors.InvalidAccountId);
             
+        if (discordNickname is null)
+            throw new DomainException(BoosterErrors.InvalidDiscordNickname);
+        
         return new BoosterEntity(accountId, discordNickname);
     }
     

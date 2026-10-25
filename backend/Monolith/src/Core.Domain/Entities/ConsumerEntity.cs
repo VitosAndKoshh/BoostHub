@@ -15,7 +15,7 @@ public sealed class ConsumerEntity : EntityBase<Guid>
     
     public Guid AccountId { get; init; }
 
-    public ConsumerEntity Create(Guid accountId)
+    public static ConsumerEntity Create(Guid accountId)
     {
         if (accountId == Guid.Empty)
             throw new DomainException(ConsumerErrors.InvalidAccountId);

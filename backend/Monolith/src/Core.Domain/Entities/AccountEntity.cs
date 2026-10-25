@@ -20,7 +20,7 @@ public sealed class AccountEntity : EntityBase<Guid>
     private readonly IList<AccountIdentityEntity> _identities = new List<AccountIdentityEntity>();
     public IReadOnlyCollection<AccountIdentityEntity> Identities => _identities.AsReadOnly();
 
-    public AccountEntity Create(string? steamId)
+    public static AccountEntity Create(string? steamId)
     {
         if (!string.IsNullOrEmpty(steamId) && string.IsNullOrWhiteSpace(steamId))
             throw new DomainException(AccountErrors.InvalidSteamId);

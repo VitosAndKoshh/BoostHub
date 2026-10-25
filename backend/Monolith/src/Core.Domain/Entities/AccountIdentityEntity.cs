@@ -7,7 +7,11 @@ namespace Core.Domain.Entities;
 public sealed class AccountIdentityEntity
 {
     // For EF Core
-    private AccountIdentityEntity(){}
+    private AccountIdentityEntity()
+    {
+        IdentityProvider = null!;
+        IdentityId = null!;
+    }
 
     private AccountIdentityEntity(
         Guid accountId,
@@ -23,7 +27,7 @@ public sealed class AccountIdentityEntity
     public IdentityProvider IdentityProvider { get; init; }
     public string IdentityId { get; init; }
 
-    public AccountIdentityEntity Create(Guid accountId, IdentityProvider provider, string identityId)
+    public static AccountIdentityEntity Create(Guid accountId, IdentityProvider provider, string identityId)
     {
         if (accountId == Guid.Empty)
             throw new DomainException(AccountErrors.InvalidAccountId);

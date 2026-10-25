@@ -26,7 +26,7 @@ public sealed class WalletEntity : AggregateRootBase<Guid>
     private readonly IList<WalletTransactionEntity> _transactions = new List<WalletTransactionEntity>();
     public IReadOnlyCollection<WalletTransactionEntity> Transactions => _transactions.AsReadOnly();
     
-    public WalletEntity Create(Guid accountId)
+    public static WalletEntity Create(Guid accountId)
     {
         if (accountId == Guid.Empty)
             throw new DomainException(WalletErrors.InvalidAccountId);

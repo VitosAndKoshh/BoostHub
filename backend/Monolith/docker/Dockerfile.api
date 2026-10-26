@@ -5,15 +5,18 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY src/Directory.Build.props .
-COPY src/Directory.Packages.props .
+COPY Directory.Build.props .
+COPY Directory.Packages.props .
 
-COPY src/Core.Domain/Core.Domain.csproj Core.Domain/
+COPY src/Core.Abstractions/Core.Abstractions.csproj Core.Abstractions/
 COPY src/Migrations/Migrations.csproj Migrations/
+COPY src/Adapters.Wolverine/Adapters.Wolverine.csproj Adapters.Wolverine/
 COPY src/Bootstrap.Api/Bootstrap.Api.csproj Bootstrap.Api/
-COPY src/Adapters.Outbound.Postgres/Adapters.Outbound.Postgres.csproj Adapters.Outbound.Postgres/
-COPY src/Adapters.Inbound.Http/Adapters.Inbound.Http.csproj Adapters.Inbound.Http/
+COPY src/Core.Domain/Core.Domain.csproj Core.Domain/
 COPY src/Core.Application/Core.Application.csproj Core.Application/
+COPY src/Adapters.Inbound.Http/Adapters.Inbound.Http.csproj Adapters.Inbound.Http/
+COPY src/Adapters.Outbound.Postgres/Adapters.Outbound.Postgres.csproj Adapters.Outbound.Postgres/
+COPY src/Core.Features/Core.Features.csproj Core.Features/
 
 RUN dotnet restore Bootstrap.Api/Bootstrap.Api.csproj
 

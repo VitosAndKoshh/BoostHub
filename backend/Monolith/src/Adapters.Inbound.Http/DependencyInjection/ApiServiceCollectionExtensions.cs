@@ -12,6 +12,8 @@ public static class ApiServiceCollectionExtensions
         Assembly assembly)
     {
         services.AddHttpContextAccessor();
+        services.AddAuthentication();
+        services.AddAuthorization();
         services.AddMapper(assembly)
             .AddAppCors(configuration)
             .AddSwagger();

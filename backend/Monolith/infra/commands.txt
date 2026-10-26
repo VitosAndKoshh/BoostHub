@@ -1,0 +1,3 @@
+From Root directory
+
+docker compose -f ./backend/Monolith/infra/docker-compose.yml -p boost-hub --env-file ./backend/Monolith/infra/.env up --build -d

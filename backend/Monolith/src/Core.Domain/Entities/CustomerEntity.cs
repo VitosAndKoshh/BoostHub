@@ -3,22 +3,22 @@ using Core.Domain.Exceptions;
 
 namespace Core.Domain.Entities;
 
-public sealed class ConsumerEntity : EntityBase<Guid>
+public sealed class CustomerEntity : EntityBase<Guid>
 {
     // For EF Core
-    private ConsumerEntity(){}
+    private CustomerEntity(){}
 
-    private ConsumerEntity(Guid accountId)
+    private CustomerEntity(Guid accountId)
     {
         AccountId = accountId;
     }
     
     public Guid AccountId { get; init; }
 
-    public static ConsumerEntity Create(Guid accountId)
+    public static CustomerEntity Create(Guid accountId)
     {
         if (accountId == Guid.Empty)
             throw new DomainException(ConsumerErrors.InvalidAccountId);
-        return new ConsumerEntity(accountId);
+        return new CustomerEntity(accountId);
     }
 }

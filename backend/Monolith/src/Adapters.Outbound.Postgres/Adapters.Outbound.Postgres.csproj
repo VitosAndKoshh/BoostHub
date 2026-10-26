@@ -11,8 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="EntityConfigurations\" />
-      <Folder Include="Repositories\" />
+      <Folder Include="Repositories\Read\" />
+      <Folder Include="Repositories\Write\" />
     </ItemGroup>
 
 </Project>

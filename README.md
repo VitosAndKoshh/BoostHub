@@ -7,17 +7,23 @@ Customers can create boosting requests, receive offers from boosters, select a s
 ## Tech Stack
 
 - **Backend:** C#, .NET 10, ASP.NET Core Minimal APIs
-- **Frontend:** TBD
+- **Frontend:** Not yet defined
 - **Database:** PostgreSQL
 - **ORM:** Entity Framework Core
 - **Authentication:** Keycloak (planned)
 - **Handler Dispatching:** Wolverine
-- **Infrastructure:** Docker, Docker Compose, Nginx
+- **Infrastructure:** Docker, Docker Compose
+- **Reverse Proxy:** Nginx (planned)
 
 ## Architecture
 
-The backend is implemented as a monolith using a hybrid architecture that combines Clean Architecture, Onion Architecture, Hexagonal Architecture, and Feature-Sliced Design.
+The backend is implemented as a monolith using a hybrid architecture influenced by Clean Architecture, Onion Architecture, Hexagonal Architecture, and Feature-Sliced Design.
 
-The application follows Domain-Driven Design (DDD) practices and uses lightweight CQRS, with a rich domain model for write operations and dedicated read projections for queries.
+The application follows Domain-Driven Design (DDD) principles and uses lightweight Command Query Responsibility Segregation (CQRS). Write operations use a rich domain model, while read operations use dedicated projections optimized for individual queries.
 
-For more details, see [Architecture Documentation](docs/architecture.md).
+For more details, see [Architecture Documentation](architecture.md).
+
+## Project Status
+
+The backend foundation and architectural configuration are being prepared for feature development. Business functionality is being implemented incrementally.
+

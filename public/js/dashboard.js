@@ -672,6 +672,16 @@ async function loadBoosterData() {
       navBadge.style.display = boosterAvailableOrders.length > 0 ? 'inline-block' : 'none';
     }
 
+    const profileAvailCountEl = document.getElementById('profile-booster-avail-count');
+    if (profileAvailCountEl) {
+      profileAvailCountEl.textContent = boosterAvailableOrders.length;
+    }
+
+    const profileMyCountEl = document.getElementById('profile-booster-my-count');
+    if (profileMyCountEl) {
+      profileMyCountEl.textContent = boosterMyOrders.length;
+    }
+
     renderBoosterStats();
     renderBoosterAvailableOrders();
     renderBoosterMyOrders();
@@ -695,25 +705,20 @@ function switchBoosterTab(tabName) {
 
 function renderBoosterAvailableOrders() {
   const container = document.getElementById('booster-available-list');
-  if (!container) return;
+  const profileContainer = document.getElementById('profile-booster-available-list');
+  if (!container && !profileContainer) return;
 
-  const isVerified = currentUser && currentUser.boosterVerification === 'Verified';
-  const verificationBanner = !isVerified ? `
-    <div class="verification-warning-banner p-3 mb-3 border-warning cyber-box text-center" style="grid-column: 1 / -1; background: rgba(245, 158, 11, 0.08); border-left: 4px solid #f59e0b;">
+  const isVerified = currentUser && (currentUser.boosterVerification === 'Verified' || currentUser.role === 'booster' || currentUser.role === 'admin');
+  const verificationBanner = currentUser?.boosterVerification === 'Rejected' ? `
+    <div class="verification-warning-banner p-3 mb-3 border-danger cyber-box text-center" style="grid-column: 1 / -1; background: rgba(239, 68, 68, 0.08); border-left: 4px solid #ef4444;">
       <div style="font-size: 1.5rem; margin-bottom: 4px;">⚠️</div>
-      <strong class="text-warning">Доступ обмежено: потрібна верифікація акаунту</strong>
-      <div class="text-xs text-muted mt-1">
-        Поточний статус: <span class="badge ${currentUser?.boosterVerification === 'Pending' ? 'badge-warning' : 'badge-danger'}">Verification status: ${currentUser?.boosterVerification || 'None'}</span>
-      </div>
-      <div class="text-xs text-muted mt-1">
-        До моменту підтвердження адміністратором доступ до взяття замовлень заблоковано.
-        Перейдіть у <a href="javascript:void(0)" onclick="closeBoosterDashboard(); openUserProfileModal('settings');" class="text-cyan">Account / Profile</a>, щоб вказати Steam ID та Discord і надіслати заявку.
-      </div>
+      <strong class="text-danger">Ваш акаунт бустера відхилено</strong>
+      <div class="text-xs text-muted mt-1">Зверніться до адміністратора в чаті підтримки для уточнення інформації.</div>
     </div>
   ` : '';
 
   if (boosterAvailableOrders.length === 0) {
-    container.innerHTML = `
+    const emptyHtml = `
       ${verificationBanner}
       <div class="empty-state p-4 text-center" style="grid-column: 1 / -1;">
         <div style="font-size: 2rem; margin-bottom: 8px;">⏳</div>
@@ -721,10 +726,12 @@ function renderBoosterAvailableOrders() {
         <p class="text-muted text-xs">Щойно клієнт здійснить оплату, нове замовлення миттєво з'явиться тут для взяття в роботу!</p>
       </div>
     `;
+    if (container) container.innerHTML = emptyHtml;
+    if (profileContainer) profileContainer.innerHTML = emptyHtml;
     return;
   }
 
-  container.innerHTML = verificationBanner + boosterAvailableOrders.map(order => {
+  const ordersHtml = verificationBanner + boosterAvailableOrders.map(order => {
     const payoutUSD = Math.round((order.price || 0) * 0.8);
     const payoutUAH = Math.round((order.priceUAH || (order.price || 0) * 41.5) * 0.8);
 
@@ -766,18 +773,24 @@ function renderBoosterAvailableOrders() {
       </div>
     `;
   }).join('');
+
+  if (container) container.innerHTML = ordersHtml;
+  if (profileContainer) profileContainer.innerHTML = ordersHtml;
 }
 
 function renderBoosterMyOrders() {
   const container = document.getElementById('booster-my-list');
-  if (!container) return;
+  const profileContainer = document.getElementById('profile-booster-my-list');
+  if (!container && !profileContainer) return;
 
   if (boosterMyOrders.length === 0) {
-    container.innerHTML = `<div class="empty-state p-4 text-center" style="grid-column: 1 / -1;"><p>У вас немає активних замовлень у роботі. Оберіть замовлення у вкладці "⚡ Прийняти замовлення"!</p></div>`;
+    const emptyHtml = `<div class="empty-state p-4 text-center" style="grid-column: 1 / -1;"><p>У вас немає активних замовлень у роботі. Оберіть замовлення у вкладці "⚡ Прийняти замовлення"!</p></div>`;
+    if (container) container.innerHTML = emptyHtml;
+    if (profileContainer) profileContainer.innerHTML = emptyHtml;
     return;
   }
 
-  container.innerHTML = boosterMyOrders.map(order => `
+  const myOrdersHtml = boosterMyOrders.map(order => `
     <div class="booster-order-card cyber-card ${order.status === 'completed' ? 'border-success' : 'border-cyan'}">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <span class="badge ${order.status === 'completed' ? 'badge-success' : 'badge-info'}">
@@ -834,13 +847,16 @@ function renderBoosterMyOrders() {
       </div>
     </div>
   `).join('');
+
+  if (container) container.innerHTML = myOrdersHtml;
+  if (profileContainer) profileContainer.innerHTML = myOrdersHtml;
 }
 
 async function claimBoosterOrder(orderId) {
-  if (!currentUser || currentUser.boosterVerification !== 'Verified') {
+  if (!currentUser || (currentUser.role !== 'booster' && currentUser.role !== 'admin')) {
     notify.show({
-      title: 'Потрібна верифікація!',
-      message: 'Для взяття замовлень необхідна підтверджена верифікація акаунту (Verification status: Verified). Дочекайтеся перевірки адміністратора.',
+      title: 'Доступ обмежено',
+      message: 'Лише акаунти бустерів можуть приймати замовлення в роботу.',
       type: 'warning'
     });
     return;
@@ -865,6 +881,9 @@ async function claimBoosterOrder(orderId) {
       });
       await loadBoosterData();
       switchBoosterTab('my');
+      if (typeof switchClientTab === 'function') {
+        switchClientTab('booster-my');
+      }
     } else {
       const data = await res.json();
       notify.show({ title: 'Помилка', message: data.error || 'Не вдалося прийняти замовлення', type: 'warning' });

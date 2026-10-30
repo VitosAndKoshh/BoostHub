@@ -126,10 +126,14 @@ router.post('/:id/assign', authMiddleware, staffMiddleware, (req, res) => {
 
   // If booster is taking the order themselves
   if (req.user.role === 'booster') {
-    if (req.user.boosterVerification !== 'Verified') {
+    if (req.user.boosterVerification === 'Rejected') {
       return res.status(403).json({
-        error: 'Для взяття замовлень необхідна підтверджена верифікація акаунту (Verification status: Verified). Дочекайтеся перевірки адміністратора.'
+        error: 'Ваш акаунт бустера відхилено адміністратором.'
       });
+    }
+    if (req.user.boosterVerification !== 'Verified') {
+      db.updateUser(req.user.id, { boosterVerification: 'Verified' });
+      req.user.boosterVerification = 'Verified';
     }
     boosterId = req.user.id;
     boosterName = req.user.name;

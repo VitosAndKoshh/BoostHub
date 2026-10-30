@@ -90,6 +90,24 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-server.listen(PORT, () => {
-  console.log(`🚀 CyberBoost server running on http://localhost:${PORT}`);
+function startServer(port) {
+  server.listen(port, () => {
+    console.log(`\n==================================================`);
+    console.log(`🚀 CyberBoost сервер успішно запущено!`);
+    console.log(`🌐 Відкрийте сайт у браузері: http://localhost:${port}`);
+    console.log(`==================================================\n`);
+  });
+}
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.warn(`⚠️ Порт ${PORT} вже зайнятий іншим процесом.`);
+    const fallbackPort = Number(PORT) + 1;
+    console.log(`🔄 Автоматично запускаємо на резервному порту: http://localhost:${fallbackPort}...`);
+    startServer(fallbackPort);
+  } else {
+    console.error('Помилка сервера:', err);
+  }
 });
+
+startServer(PORT);

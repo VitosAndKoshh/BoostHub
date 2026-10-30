@@ -47,7 +47,7 @@ const staffMiddleware = (req, res, next) => {
 
 // POST /api/auth/register - Simple registration with ONLY email & password
 router.post('/register', (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: 'Вкажіть email та пароль' });
   }
@@ -62,6 +62,7 @@ router.post('/register', (req, res) => {
     return res.status(400).json({ error: 'Пароль має містити щонайменше 6 символів' });
   }
 
+  const isBooster = role === 'booster';
   const defaultName = normalizedEmail.split('@')[0];
   const salt = bcrypt.genSaltSync(10);
   const newUser = {
@@ -69,17 +70,19 @@ router.post('/register', (req, res) => {
     email: normalizedEmail,
     passwordHash: bcrypt.hashSync(password, salt),
     name: defaultName,
-    role: 'client',
+    role: isBooster ? 'booster' : 'client',
     steamId: '',
     discord: '',
     telegram: '',
-    boosterVerification: 'None',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    status: 'online',
-    statusMessage: '🟢 В мережі',
+    boosterVerification: isBooster ? 'Verified' : 'None',
+    avatar: isBooster 
+      ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+      : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    status: isBooster ? 'ready' : 'online',
+    statusMessage: isBooster ? '🟢 Вільний • Готовий приймати замовлення' : '🟢 В мережі',
     rating: 5.0,
     completedOrders: 0,
-    rankTitle: '',
+    rankTitle: isBooster ? 'Pro Booster' : '',
     games: [],
     createdAt: new Date().toISOString()
   };
@@ -151,6 +154,7 @@ router.put('/profile', authMiddleware, (req, res) => {
   if (status !== undefined) updates.status = status;
   if (statusMessage !== undefined) updates.statusMessage = statusMessage.trim();
   if (rankTitle !== undefined) updates.rankTitle = rankTitle.trim();
+  if (req.body.boosterVerification !== undefined) updates.boosterVerification = req.body.boosterVerification;
   if (Array.isArray(games)) updates.games = games;
 
   if (password && password.trim()) {

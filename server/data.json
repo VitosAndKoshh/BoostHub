@@ -1,6 +1,26 @@
 {
   "users": [
     {
+      "id": "usr_1793287717708",
+      "email": "toh155812@gmail.com",
+      "passwordHash": "$2a$10$gvT4mdlnr2W54bUpE396WuzqT6bXMfjEo9dh9aaMN0Y39LbaqzWxu",
+      "name": "toh155812",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-10-29T15:28:37.784Z",
+      "updatedAt": "2026-10-29T15:28:37.784Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
       "id": "usr_1792666395509",
       "email": "test2@gmail.com",
       "passwordHash": "$2a$10$B0HOYHUxKhaLg2IgqiGzzeSIZX8dt3hKt8gfYrWg7jd7on5VtHLxi",
@@ -46,8 +66,8 @@
       "passwordHash": "$2a$10$Bgjsm3JR8frh13V8Zlm9jebYa6hMYWeGyWc12tM5S07IQEHP0D0Fu",
       "name": "MasterChief",
       "role": "booster",
-      "status": "online",
-      "statusMessage": "Ready to game!",
+      "status": "ready",
+      "statusMessage": "🟢 Вільний • Готовий приймати замовлення",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
       "discord": "Chief#9999",
       "telegram": "",
@@ -67,7 +87,7 @@
         }
       ],
       "createdAt": "2026-10-10T18:06:43.098Z",
-      "updatedAt": "2026-10-10T18:06:43.229Z",
+      "updatedAt": "2026-10-29T16:00:34.051Z",
       "steamId": "76561198012345678",
       "boosterVerification": "Verified"
     },
@@ -77,8 +97,8 @@
       "passwordHash": "$2a$10$JvEzPMlF/4uTczC9jhbBR./Ln79GOHRBaMZPFZdt01hqztsG849Ni",
       "name": "MasterChief",
       "role": "booster",
-      "status": "online",
-      "statusMessage": "Ready to game!",
+      "status": "ready",
+      "statusMessage": "🟢 Вільний • Готовий приймати замовлення",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
       "discord": "Chief#9999",
       "telegram": "",
@@ -98,9 +118,9 @@
         }
       ],
       "createdAt": "2026-10-10T18:06:22.282Z",
-      "updatedAt": "2026-10-10T18:06:22.305Z",
+      "updatedAt": "2026-10-29T16:00:34.057Z",
       "steamId": "76561198012345678",
-      "boosterVerification": "Pending"
+      "boosterVerification": "Verified"
     },
     {
       "id": "usr_1791655568897",
@@ -108,8 +128,8 @@
       "passwordHash": "$2a$10$52TjYneUDINofQ8ORT0.wOIl8MWbPI0Yv267p.b8n48XjO49GshqW",
       "name": "MasterChief",
       "role": "booster",
-      "status": "online",
-      "statusMessage": "Ready to game!",
+      "status": "ready",
+      "statusMessage": "🟢 Вільний • Готовий приймати замовлення",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
       "discord": "Chief#9999",
       "telegram": "",
@@ -129,9 +149,9 @@
         }
       ],
       "createdAt": "2026-10-10T18:06:08.976Z",
-      "updatedAt": "2026-10-10T18:06:09.010Z",
+      "updatedAt": "2026-10-29T16:00:34.059Z",
       "steamId": "76561198012345678",
-      "boosterVerification": "Pending"
+      "boosterVerification": "Verified"
     },
     {
       "id": "usr_1791640762166",
@@ -140,7 +160,7 @@
       "name": "lox",
       "role": "booster",
       "status": "ready",
-      "statusMessage": "🟢 Вільний • Готовий до бусту",
+      "statusMessage": "🟢 Вільний • Готовий приймати замовлення",
       "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
       "discord": "dssdsd",
       "telegram": "",
@@ -160,9 +180,9 @@
         }
       ],
       "createdAt": "2026-10-10T13:59:22.242Z",
-      "updatedAt": "2026-10-10T13:59:22.242Z",
+      "updatedAt": "2026-10-29T16:00:34.061Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "Verified"
     },
     {
       "id": "usr_1791622935701",
@@ -191,7 +211,7 @@
       "name": "koshh",
       "role": "booster",
       "status": "ready",
-      "statusMessage": "🟢 Вільний • Готовий до бусту",
+      "statusMessage": "🟢 Вільний • Готовий приймати замовлення",
       "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
       "discord": "test",
       "telegram": "",
@@ -211,9 +231,9 @@
         }
       ],
       "createdAt": "2026-10-09T18:38:30.873Z",
-      "updatedAt": "2026-10-09T18:38:30.873Z",
+      "updatedAt": "2026-10-29T16:00:34.063Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "Verified"
     },
     {
       "id": "usr_1791569551085",
@@ -329,9 +349,25 @@
       "rating": 5,
       "completedOrders": 0,
       "rankTitle": "",
-      "games": [],
+      "games": [
+        {
+          "id": "gm_1",
+          "game": "Dota 2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_2",
+          "game": "CS2",
+          "mmr": "100"
+        },
+        {
+          "id": "gm_test_1793291888608",
+          "game": "Apex",
+          "mmr": "Diamond 4 (2500 MMR)"
+        }
+      ],
       "createdAt": "2026-09-02T13:49:14.581Z",
-      "updatedAt": "2026-09-10T12:56:44.431Z",
+      "updatedAt": "2026-10-29T16:38:08.614Z",
       "steamId": "",
       "boosterVerification": "None"
     },
@@ -342,7 +378,7 @@
       "name": "VortexGod",
       "role": "booster",
       "status": "ready",
-      "statusMessage": "🟢 Вільний • Готовий до бусту",
+      "statusMessage": "🟢 Вільний • Готовий приймати замовлення",
       "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
       "discord": "",
       "telegram": "",
@@ -362,9 +398,9 @@
         }
       ],
       "createdAt": "2026-08-23T13:49:14.508Z",
-      "updatedAt": "2026-09-13T10:50:51.900Z",
+      "updatedAt": "2026-10-29T16:00:34.065Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "Verified"
     },
     {
       "id": "usr_booster_1",
@@ -373,7 +409,7 @@
       "name": "ShadowStriker",
       "role": "booster",
       "status": "ready",
-      "statusMessage": "🟢 Вільний • Готовий до бусту",
+      "statusMessage": "🟢 Вільний • Готовий приймати замовлення",
       "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
       "discord": "",
       "telegram": "",
@@ -398,9 +434,9 @@
         }
       ],
       "createdAt": "2026-08-18T13:49:14.437Z",
-      "updatedAt": "2026-09-13T10:50:51.900Z",
+      "updatedAt": "2026-10-29T16:00:34.068Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "Verified"
     },
     {
       "id": "usr_admin",
@@ -416,9 +452,15 @@
       "rating": 5,
       "completedOrders": 0,
       "rankTitle": "",
-      "games": [],
+      "games": [
+        {
+          "id": "gm_1793291950645",
+          "game": "Dota 2",
+          "mmr": "100"
+        }
+      ],
       "createdAt": "2026-08-08T13:49:14.362Z",
-      "updatedAt": "2026-09-13T10:50:51.899Z",
+      "updatedAt": "2026-10-29T16:39:10.648Z",
       "steamId": "",
       "boosterVerification": "None"
     }
@@ -1055,7 +1097,7 @@
           "value": 17,
           "basePrice": 16,
           "color": "#38bdf8",
-          "defaultElo": 2550
+          "defaultElo": 2588
         },
         {
           "id": "archon_3",
@@ -1095,7 +1137,7 @@
           "value": 21,
           "basePrice": 21,
           "color": "#fbbf24",
-          "defaultElo": 3150
+          "defaultElo": 3212
         },
         {
           "id": "legend_2",
@@ -1260,73 +1302,84 @@
       "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80",
       "description": "Premier Rating (ELO 1,000 - 30,000+)",
       "isEloBased": true,
-      "eloStep": 250,
+      "eloStep": 100,
       "ranks": [
         {
-          "id": "prem_5k",
-          "name": "Premier 1,000 - 4,999 ELO",
+          "id": "prem_gray",
+          "name": "Сірий",
+          "tierName": "Сірий",
           "value": 1,
-          "basePrice": 6,
+          "basePrice": 5,
           "minElo": 1000,
-          "maxElo": 5000,
-          "defaultElo": 3000,
-          "color": "#94a3b8",
-          "icon": "🥉"
+          "maxElo": 4999,
+          "defaultElo": 3500,
+          "color": "#94a3b8"
         },
         {
-          "id": "prem_10k",
-          "name": "Premier 5,000 - 9,999 ELO",
+          "id": "prem_lightblue",
+          "name": "Світло-блакитний",
+          "tierName": "Світло-блакитний",
           "value": 2,
-          "basePrice": 10,
+          "basePrice": 9,
           "minElo": 5000,
-          "maxElo": 10000,
-          "defaultElo": 7500,
-          "color": "#38bdf8",
-          "icon": "🥈"
+          "maxElo": 9999,
+          "defaultElo": 6588,
+          "color": "#38bdf8"
         },
         {
-          "id": "prem_15k",
-          "name": "Premier 10,000 - 14,999 ELO",
+          "id": "prem_blue",
+          "name": "Синій",
+          "tierName": "Синій",
           "value": 3,
-          "basePrice": 16,
+          "basePrice": 15,
           "minElo": 10000,
-          "maxElo": 15000,
+          "maxElo": 14999,
           "defaultElo": 12000,
-          "color": "#a855f7",
-          "icon": "🥇"
+          "color": "#3b82f6"
         },
         {
-          "id": "prem_20k",
-          "name": "Premier 15,000 - 19,999 ELO",
+          "id": "prem_purple",
+          "name": "Фіолетовий",
+          "tierName": "Фіолетовий",
           "value": 4,
-          "basePrice": 26,
+          "basePrice": 24,
           "minElo": 15000,
-          "maxElo": 20000,
+          "maxElo": 19999,
           "defaultElo": 17500,
-          "color": "#ec4899",
-          "icon": "💎"
+          "color": "#a855f7"
         },
         {
-          "id": "prem_25k",
-          "name": "Premier 20,000 - 24,999 ELO",
+          "id": "prem_pink",
+          "name": "Рожевий",
+          "tierName": "Рожевий",
           "value": 5,
-          "basePrice": 42,
+          "basePrice": 38,
           "minElo": 20000,
-          "maxElo": 25000,
+          "maxElo": 24999,
           "defaultElo": 22000,
-          "color": "#f59e0b",
-          "icon": "💠"
+          "color": "#ec4899"
         },
         {
-          "id": "prem_30k",
-          "name": "Premier 25,000+ ELO",
+          "id": "prem_red",
+          "name": "Червоний",
+          "tierName": "Червоний",
           "value": 6,
-          "basePrice": 78,
+          "basePrice": 65,
           "minElo": 25000,
-          "maxElo": 35000,
-          "defaultElo": 26000,
-          "color": "#ef4444",
-          "icon": "🔥"
+          "maxElo": 29999,
+          "defaultElo": 27000,
+          "color": "#ef4444"
+        },
+        {
+          "id": "prem_gold",
+          "name": "Золотий",
+          "tierName": "Золотий",
+          "value": 7,
+          "basePrice": 110,
+          "minElo": 30000,
+          "maxElo": 40000,
+          "defaultElo": 32000,
+          "color": "#facc15"
         }
       ],
       "agents": [],
@@ -1606,6 +1659,115 @@
   ],
   "orders": [
     {
+      "id": "ORD-1451",
+      "clientId": "usr_admin",
+      "clientName": "CyberAdmin",
+      "clientDiscord": "",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "dota2",
+      "gameName": "Dota 2",
+      "serviceType": "rank_boost",
+      "title": "Dota 2 Boost: Архонт 2 → Легенда 1",
+      "currentRank": "Архонт 2 (2550 Rating)",
+      "targetRank": "Легенда 1 (3150 Rating)",
+      "currentRankValue": 17,
+      "targetRankValue": 21,
+      "progressRank": "Архонт 2 (2550 Rating)",
+      "progressRankValue": 0,
+      "progressPercent": 0,
+      "price": 21,
+      "currency": "USD",
+      "priceUAH": 872,
+      "status": "in_progress",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "queueType": "solo",
+        "stream": false,
+        "priority": false,
+        "offlineMode": true,
+        "specificAgents": "Any",
+        "currentElo": 2550,
+        "targetElo": 3150
+      },
+      "accountCredentials": {
+        "server": "EU West / Europe",
+        "login": "ds",
+        "discord": "sdsad",
+        "notes": "sdas"
+      },
+      "streamUrl": null,
+      "createdAt": "2026-10-30T12:33:35.242Z",
+      "updatedAt": "2026-10-30T12:34:04.263Z",
+      "acceptedAt": "2026-10-30T12:34:04.263Z",
+      "completedAt": null,
+      "timeline": [
+        {
+          "time": "2026-10-30T12:33:35.242Z",
+          "text": "Замовлення створено клієнтом CyberAdmin"
+        },
+        {
+          "time": "2026-10-30T12:33:35.242Z",
+          "text": "Оплату підтверджено (card). Очікує бустера."
+        },
+        {
+          "time": "2026-10-30T12:34:04.263Z",
+          "text": "Призначено бустера: ShadowStriker"
+        }
+      ]
+    },
+    {
+      "id": "ORD-1168",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "dota2",
+      "gameName": "Dota 2",
+      "serviceType": "rank_boost",
+      "title": "Dota 2 MMR: 100 -> 3000 MMR (Archon)",
+      "currentRank": "Herald 1 (100 MMR)",
+      "targetRank": "Archon 1 (3000 MMR)",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "Crusader 3 (2100 MMR)",
+      "progressRankValue": 0,
+      "progressPercent": 68,
+      "price": 45,
+      "currency": "USD",
+      "priceUAH": 1850,
+      "status": "in_progress",
+      "paymentStatus": "verified",
+      "paymentMethod": "monobank",
+      "options": {},
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-10-29T16:02:14.552Z",
+      "updatedAt": "2026-10-29T16:02:14.641Z",
+      "acceptedAt": "2026-10-29T16:02:14.634Z",
+      "completedAt": null,
+      "timeline": [
+        {
+          "time": "2026-10-29T16:02:14.552Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-10-29T16:02:14.552Z",
+          "text": "Оплату підтверджено (monobank). Очікує бустера."
+        },
+        {
+          "time": "2026-10-29T16:02:14.634Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-10-29T16:02:14.641Z",
+          "text": "Бустер підняв ранг до Crusader 3!"
+        }
+      ]
+    },
+    {
       "id": "ORD-4920",
       "clientId": "usr_client",
       "clientName": "Alex_Gamer",
@@ -1717,9 +1879,9 @@
       "targetRank": "Legend 1",
       "currentRankValue": 17,
       "targetRankValue": 21,
-      "progressRank": "Archon 2",
+      "progressRank": "Faceit Level 8 (+50 ELO)",
       "progressRankValue": 0,
-      "progressPercent": 0,
+      "progressPercent": 55,
       "price": 36,
       "currency": "USD",
       "priceUAH": 1490,
@@ -1739,13 +1901,17 @@
       },
       "streamUrl": null,
       "createdAt": "2026-10-09T18:19:31.849Z",
-      "updatedAt": "2026-10-09T18:19:31.850Z",
+      "updatedAt": "2026-10-29T16:00:12.114Z",
       "acceptedAt": null,
       "completedAt": null,
       "timeline": [
         {
           "time": "2026-10-09T18:19:31.850Z",
           "text": "Оплату підтверджено. Очікує бустера."
+        },
+        {
+          "time": "2026-10-29T16:00:12.114Z",
+          "text": "Бустер виграв 3 матчі поспіль!"
         }
       ]
     },
@@ -2146,6 +2312,51 @@
       "senderRole": "booster",
       "text": "Привіт! Я твій бустер MasterChief. Я прийняв замовлення і незабаром розпочну гру!",
       "timestamp": "2026-10-10T18:06:43.242Z"
+    },
+    {
+      "id": "msg_1793289734555",
+      "orderId": "ORD-1168",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-1168 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-10-29T16:02:14.555Z"
+    },
+    {
+      "id": "msg_1793289734636",
+      "orderId": "ORD-1168",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-10-29T16:02:14.636Z"
+    },
+    {
+      "id": "msg_1793363615247",
+      "orderId": "ORD-1451",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-1451 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-10-30T12:33:35.247Z"
+    },
+    {
+      "id": "msg_1793363623561_twh9",
+      "orderId": "ORD-1451",
+      "senderId": "usr_admin",
+      "senderName": "CyberAdmin",
+      "senderRole": "admin",
+      "text": "ghfh",
+      "timestamp": "2026-10-30T12:33:43.561Z"
+    },
+    {
+      "id": "msg_1793363644265",
+      "orderId": "ORD-1451",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-10-30T12:34:04.265Z"
     }
   ],
   "promoCodes": [

@@ -133,6 +133,8 @@
       <nav class="nav-links" id="main-nav-links">
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
+        <a class="nav-link text-cyan" href="javascript:void(0)" onclick="openAllUsersModal('all')">👥 Профілі користувачів</a>
+        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openUserProfileModal('settings')">👤 Мій профіль</a>
       </nav>
 
       <div class="nav-actions">
@@ -222,151 +224,6 @@
           <span class="qf-icon">📦</span>
           <span class="qf-text">Пакети бустингу</span>
         </button>
-      </div>
-
-      <!-- Horizontal Game Showcase Cards Row (matching Image 1 bottom) -->
-      <div class="hero-games-carousel-wrap">
-        <div class="hero-games-carousel" id="hero-games-cards-grid">
-          <!-- Dota 2 -->
-          <div class="hero-game-card card-dota2" onclick="selectSiteGame('dota2')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-dota">
-                <span class="badge-icon">🛡️</span>
-                <span class="badge-tag">DOTA 2</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">Dota 2</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Counter-Strike 2 -->
-          <div class="hero-game-card card-cs2" onclick="selectSiteGame('cs2_faceit')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-cs2">
-                <span class="badge-icon">💣</span>
-                <span class="badge-tag">CS2</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">Counter-Strike 2</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- League of Legends -->
-          <div class="hero-game-card card-lol" onclick="selectSiteGame('lol')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-lol">
-                <span class="badge-icon">⚔️</span>
-                <span class="badge-tag">LoL</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1542751110-97427bbecf20?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">League of Legends</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Valorant -->
-          <div class="hero-game-card card-valorant" onclick="selectSiteGame('valorant')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-val">
-                <span class="badge-icon">🎯</span>
-                <span class="badge-tag">VALORANT</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">Valorant</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- PUBG -->
-          <div class="hero-game-card card-pubg" onclick="selectSiteGame('pubg')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-pubg">
-                <span class="badge-icon">💣</span>
-                <span class="badge-tag">PUBG</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">PUBG</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Fortnite -->
-          <div class="hero-game-card card-fortnite" onclick="selectSiteGame('fortnite')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-fn">
-                <span class="badge-icon">🏹</span>
-                <span class="badge-tag">FORTNITE</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1589241062272-c0a000072dfa?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">Fortnite</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Minecraft -->
-          <div class="hero-game-card card-minecraft" onclick="selectSiteGame('minecraft')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-mc">
-                <span class="badge-icon">⛏️</span>
-                <span class="badge-tag">MINECRAFT</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1627856013091-fed6e4e30025?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">Minecraft</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Brawl Stars -->
-          <div class="hero-game-card card-brawl" onclick="selectSiteGame('brawl_stars')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-bs">
-                <span class="badge-icon">⭐</span>
-                <span class="badge-tag">BRAWL STARS</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">Brawl Stars</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Apex Legends -->
-          <div class="hero-game-card card-apex" onclick="selectSiteGame('apex')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-apex">
-                <span class="badge-icon">🎯</span>
-                <span class="badge-tag">APEX</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">Apex Legends</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- World of Warcraft -->
-          <div class="hero-game-card card-wow" onclick="selectSiteGame('wow')">
-            <div class="card-inner-overlay">
-              <div class="game-card-top-badge badge-wow">
-                <span class="badge-icon">🐉</span>
-                <span class="badge-tag">WOW</span>
-              </div>
-              <div class="game-card-art" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80');"></div>
-              <div class="game-card-footer">
-                <span class="game-card-title">World of Warcraft</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Quick Platform Stats Bar -->
@@ -1108,6 +965,20 @@
         <div id="auth-error-msg" class="auth-error-alert" style="display: none;"></div>
 
         <form onsubmit="handleAuthFormSubmit(event)">
+          <!-- Role selector for registration -->
+          <div id="auth-role-select-group" class="mb-3" style="display: none;">
+            <label class="form-label text-xs">Оберіть вашу роль на платформі:</label>
+            <div class="d-flex gap-2">
+              <button type="button" id="auth-role-client-btn" class="btn btn-outline-cyan btn-sm flex-grow-1 active" onclick="selectAuthRole('client')">
+                👤 Я Клієнт<br/><span class="text-xs text-muted" style="font-size: 0.72rem;">Замовляти буст</span>
+              </button>
+              <button type="button" id="auth-role-booster-btn" class="btn btn-outline btn-sm flex-grow-1" onclick="selectAuthRole('booster')">
+                ⚡ Я Бустер<br/><span class="text-xs text-muted" style="font-size: 0.72rem;">Приймати замовлення</span>
+              </button>
+            </div>
+            <input type="hidden" id="auth-selected-role" value="client" />
+          </div>
+
           <div class="mb-3">
             <label class="form-label">Email адреса:</label>
             <input type="email" id="auth-email" class="form-control" placeholder="name@example.com" required autocomplete="email" />
@@ -1126,6 +997,15 @@
             <!-- Dynamically populated switch text -->
           </div>
         </form>
+
+        <div class="mt-3 pt-3 border-top text-center" style="border-color: rgba(255,255,255,0.08) !important;">
+          <div class="text-xs text-muted mb-2">Швидкий тестовий вхід (в 1 клік):</div>
+          <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <button type="button" class="btn btn-outline-cyan btn-xs" onclick="quickFillAuth('client@boost.gg', 'client123')">👤 Клієнт</button>
+            <button type="button" class="btn btn-outline-cyan btn-xs" onclick="quickFillAuth('booster@boost.gg', 'booster123')">⚡ Бустер (Verified)</button>
+            <button type="button" class="btn btn-outline-cyan btn-xs" onclick="quickFillAuth('admin@boost.gg', 'admin123')">🛡️ Адмін</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1162,15 +1042,30 @@
           </div>
         </div>
 
+        <!-- Quick Role Switch Toolbar inside Profile -->
+        <div class="p-2 mb-3 cyber-box d-flex justify-content-between align-items-center flex-wrap gap-2 text-xs">
+          <span class="text-muted">Швидке перемикання ролі для перевірки кабінету:</span>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-cyan btn-xs" onclick="switchDemoRole('client'); setTimeout(() => openUserProfileModal('settings'), 200);">👤 Тест як Клієнт</button>
+            <button type="button" class="btn btn-outline-cyan btn-xs" onclick="switchDemoRole('booster'); setTimeout(() => openUserProfileModal('settings'), 200);">⚡ Тест як Бустер</button>
+          </div>
+        </div>
+
         <!-- Account Nav Tabs -->
-        <div class="d-flex gap-2 mb-4 border-bottom pb-3" style="border-color: var(--border-color) !important;">
+        <div class="d-flex gap-2 mb-4 border-bottom pb-3 flex-wrap" style="border-color: var(--border-color) !important;">
           <button class="btn btn-outline-cyan btn-sm client-tab-btn active" data-tab="settings" onclick="switchClientTab('settings')">
             ⚙️ Account / Profile
           </button>
-          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="orders" onclick="switchClientTab('orders')">
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="orders" id="profile-tab-client-orders" onclick="switchClientTab('orders')">
             📦 Мої замовлення <span id="client-orders-badge" class="badge badge-info ml-1" style="display:none;">0</span>
           </button>
-          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="newboost" onclick="switchClientTab('newboost')">
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="booster-avail" id="profile-tab-booster-avail" onclick="switchClientTab('booster-avail')" style="display:none;">
+            ⚡ Біржа замовлень <span id="profile-booster-avail-count" class="badge badge-warning ml-1">0</span>
+          </button>
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="booster-my" id="profile-tab-booster-my" onclick="switchClientTab('booster-my')" style="display:none;">
+            🎮 Замовлення в роботі <span id="profile-booster-my-count" class="badge badge-success ml-1">0</span>
+          </button>
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="newboost" id="profile-tab-newboost" onclick="switchClientTab('newboost')">
             🚀 Замовити новий буст
           </button>
         </div>
@@ -1310,6 +1205,7 @@
               <div id="booster-verification-hint" class="text-xs text-muted">
                 До моменту verification Booster не має доступу до функцій, які вимагають підтвердженого Booster account.
               </div>
+              <button type="button" id="btn-quick-verify-booster" class="btn btn-outline-cyan btn-xs mt-2" onclick="quickVerifyBoosterSelf()">⚡ Отримати статус Verified (Швидкий тест)</button>
             </div>
           </div>
         </div>
@@ -1339,6 +1235,34 @@
               <button class="btn btn-primary" onclick="closeUserProfileModal(); selectSiteGame('valorant');">🎯 Буст Valorant</button>
               <button class="btn btn-primary" onclick="closeUserProfileModal(); selectSiteGame('lol');">⚔️ Буст LoL</button>
             </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Booster Available Orders (Client orders pool for booster to claim) -->
+        <div id="client-tab-booster-avail" class="client-tab-content" style="display: none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 style="margin:0;">⚡ Біржа клієнтських замовлень</h4>
+              <div class="text-xs text-muted">Замовлення, оформлені клієнтами. Натисніть «⚡ Прийняти замовлення», щоб взяти його в роботу.</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="if(typeof loadBoosterData==='function') loadBoosterData();">🔄 Оновити</button>
+          </div>
+          <div id="profile-booster-available-list" class="catalog-grid">
+            <!-- Rendered dynamically by dashboard.js -->
+          </div>
+        </div>
+
+        <!-- Tab 5: Booster Active Orders (Orders taken by this booster) -->
+        <div id="client-tab-booster-my" class="client-tab-content" style="display: none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 style="margin:0;">🎮 Мої замовлення на бусті</h4>
+              <div class="text-xs text-muted">Оновлюйте поточний ранг, прогрес у % та спілкуйтеся з клієнтом у прямому чаті.</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="if(typeof loadBoosterData==='function') loadBoosterData();">🔄 Оновити</button>
+          </div>
+          <div id="profile-booster-my-list" class="catalog-grid">
+            <!-- Rendered dynamically by dashboard.js -->
           </div>
         </div>
       </div>
@@ -1402,6 +1326,20 @@
         <button class="close-btn" onclick="closeAllUsersModal()">✕</button>
       </div>
       <div class="modal-body">
+        <!-- My Profile Quick Jump Banner inside Directory -->
+        <div class="cyber-box p-3 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2" style="border: 1px solid rgba(0, 243, 255, 0.3); background: rgba(0, 243, 255, 0.05);">
+          <div class="d-flex align-items-center gap-2">
+            <span style="font-size: 1.5rem;">👤</span>
+            <div>
+              <div class="fw-bold text-cyan">Ваш особистий профіль</div>
+              <div class="text-xs text-muted">Керуйте іграми, MMR, відстежуйте замовлення або беріть їх у роботу</div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="closeAllUsersModal(); openUserProfileModal('settings');">
+            🚀 Відкрити Мій профіль
+          </button>
+        </div>
+
         <!-- Filter Tabs & Search -->
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
           <div class="d-flex gap-2 flex-wrap" id="all-users-filter-tabs">

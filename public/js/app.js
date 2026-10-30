@@ -104,12 +104,15 @@ function updateUserAuthUI() {
         <a class="nav-link" href="#catalog" onclick="filterHeroCatalog('skins')">🗡️ Скіни CS2</a>
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
-        <a class="nav-link text-cyan" href="javascript:void(0)" onclick="openAllUsersModal()">👥 Профілі користувачів</a>
+        <a class="nav-link text-cyan" href="javascript:void(0)" onclick="openAllUsersModal('all')">👥 Профілі користувачів</a>
+        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openUserProfileModal('settings')">👤 Мій профіль</a>
       `;
     } else {
       navLinksContainer.innerHTML = `
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
+        <a class="nav-link text-cyan" href="javascript:void(0)" onclick="openAllUsersModal('all')">👥 Профілі користувачів</a>
+        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openUserProfileModal('settings')">👤 Мій профіль</a>
       `;
     }
   }
@@ -435,12 +438,16 @@ function openAuthModal(mode = 'login') {
 
   if (modal) modal.classList.add('open');
 
+  const roleGroup = document.getElementById('auth-role-select-group');
+  if (roleGroup) {
+    roleGroup.style.display = mode === 'register' ? 'block' : 'none';
+  }
+
   if (mode === 'login') {
     if (title) title.textContent = 'Вхід в акаунт CyberBoost';
     if (submitBtn) submitBtn.textContent = 'Увійти в акаунт';
     if (switchText) switchText.innerHTML = `Немає акаунту? <a href="javascript:void(0)" onclick="openAuthModal('register')">Зареєструватися</a>`;
   } else {
-    // Registration must be as simple as possible: ONLY email and password
     if (title) title.textContent = 'Реєстрація акаунту';
     if (submitBtn) submitBtn.textContent = 'Зареєструватися';
     if (switchText) switchText.innerHTML = `Вже зареєстровані? <a href="javascript:void(0)" onclick="openAuthModal('login')">Увійти в акаунт</a>`;
@@ -479,8 +486,8 @@ async function handleAuthFormSubmit(event) {
   }
 
   const endpoint = currentAuthMode === 'login' ? '/api/auth/login' : '/api/auth/register';
-  // Strictly email and password ONLY!
-  const payload = { email, password };
+  const selectedRole = document.getElementById('auth-selected-role')?.value || 'client';
+  const payload = currentAuthMode === 'login' ? { email, password } : { email, password, role: selectedRole };
 
   const submitBtn = document.getElementById('auth-submit-btn');
   const originalBtnText = submitBtn ? submitBtn.textContent : '';
@@ -518,11 +525,12 @@ async function handleAuthFormSubmit(event) {
       } else {
         const roleDisplay = getRoleDisplay(currentUser.role);
         notify.show({
-          title: 'Успішний вхід!',
-          message: `Ви увійшли як: ${currentUser.name} (${roleDisplay.full})`,
+          title: 'Успішний вхід! 👤',
+          message: `Переходимо у ваш профіль: ${currentUser.name} (${roleDisplay.full})`,
           type: 'success',
           sound: 'success'
         });
+        openUserProfileModal('settings');
       }
     } else {
       const errMsg = data.error || 'Помилка авторизації. Перевірте введені дані.';
@@ -557,6 +565,10 @@ function switchClientTab(tabName) {
   });
   if (tabName === 'orders') {
     renderClientOrdersInProfile();
+  } else if (tabName === 'booster-avail') {
+    if (typeof loadBoosterData === 'function') loadBoosterData();
+  } else if (tabName === 'booster-my') {
+    if (typeof loadBoosterData === 'function') loadBoosterData();
   }
 }
 
@@ -677,8 +689,78 @@ async function renderClientOrdersInProfile() {
 
 // ---------------- USER ACCOUNT / PROFILE MODAL ----------------
 
+// Safe getGameIcon definition
+if (typeof getGameIcon !== 'function') {
+  window.getGameIcon = function(gameName, gameId) {
+    const g = (gameName || gameId || '').toLowerCase();
+    if (g.includes('val')) return '🎯';
+    if (g.includes('cs') || g.includes('counter') || g.includes('faceit') || g.includes('premier')) return '💣';
+    if (g.includes('lol') || g.includes('league')) return '⚔️';
+    if (g.includes('dota')) return '🛡️';
+    if (g.includes('apex')) return '🔥';
+    if (g.includes('rocket')) return '🏎️';
+    if (g.includes('mine') || g.includes('craft')) return '⛏️';
+    if (g.includes('brawl')) return '⭐';
+    if (g.includes('wow') || g.includes('warcraft')) return '🐉';
+    return '🎮';
+  };
+}
+
+let selectedProfileStatus = 'online';
+
+function selectProfileStatus(status) {
+  selectedProfileStatus = status;
+  renderProfileStatusOptions();
+}
+
+function renderProfileStatusOptions() {
+  const container = document.getElementById('profile-status-options-container');
+  const preview = document.getElementById('profile-current-status-preview');
+  if (!container || !currentUser) return;
+
+  const role = currentUser.role || 'client';
+  let options = [];
+
+  if (role === 'booster') {
+    options = [
+      { id: 'ready', label: '🟢 Вільний', desc: 'Готовий приймати замовлення' },
+      { id: 'busy', label: '🎮 На бусті', desc: 'Зараз у грі / виконую замовлення' },
+      { id: 'resting', label: '☕ Відпочиваю', desc: 'Тимчасово не беру замовлення' },
+      { id: 'offline', label: '⚪ Офлайн', desc: 'Не на зв\'язку' }
+    ];
+  } else {
+    // Client options
+    options = [
+      { id: 'online', label: '🟢 В мережі', desc: 'Готовий грати / на зв\'язку' },
+      { id: 'searching', label: '🔍 Шукаю бустера', desc: 'Обираю послугу або чекаю на виконавця' },
+      { id: 'in_boost', label: '⚡ На бусті', desc: 'Мій акаунт зараз прокачується' },
+      { id: 'afk', label: '☕ Відійшов', desc: 'Відпочиваю' },
+      { id: 'offline', label: '⚪ Офлайн', desc: 'Не в мережі' }
+    ];
+  }
+
+  const currentDisplay = getStatusDisplay(role, selectedProfileStatus);
+  if (preview) {
+    preview.innerHTML = `<span class="badge badge-info">${currentDisplay.full}</span>`;
+  }
+
+  container.innerHTML = options.map(opt => `
+    <button type="button" class="btn btn-outline-cyan btn-xs status-opt-btn ${selectedProfileStatus === opt.id ? 'active' : ''}" onclick="selectProfileStatus('${opt.id}')" title="${opt.desc}">
+      ${opt.label}
+    </button>
+  `).join('');
+}
+
+
 async function openUserProfileModal(defaultTab = 'settings') {
   if (!currentUser) {
+    if (typeof notify !== 'undefined' && notify.show) {
+      notify.show({
+        title: 'Увійдіть у профіль',
+        message: 'Для перегляду та взаємодії з власним профілем, будь ласка, увійдіть або зареєструйтесь!',
+        type: 'info'
+      });
+    }
     openAuthModal('login');
     return;
   }
@@ -686,7 +768,11 @@ async function openUserProfileModal(defaultTab = 'settings') {
   const modal = document.getElementById('user-profile-modal');
   if (!modal) return;
 
-  const roleInfo = getRoleDisplay(currentUser.role);
+  // Open modal immediately so UI is responsive
+  modal.classList.add('open');
+
+  try {
+    const roleInfo = getRoleDisplay(currentUser.role);
 
   // Fill in display header
   const avatarEl = document.getElementById('profile-display-avatar');
@@ -746,10 +832,29 @@ async function openUserProfileModal(defaultTab = 'settings') {
 
   renderBoosterVerificationUI();
 
+  // Role-specific tabs & UI in User Profile Modal
+  const isBooster = currentUser.role === 'booster';
+  const tabBoosterAvail = document.getElementById('profile-tab-booster-avail');
+  const tabBoosterMy = document.getElementById('profile-tab-booster-my');
+  const tabClientOrders = document.getElementById('profile-tab-client-orders');
+  const tabNewBoost = document.getElementById('profile-tab-newboost');
+  const boosterSection = document.getElementById('profile-booster-section');
+
+  if (tabBoosterAvail) tabBoosterAvail.style.display = isBooster ? 'inline-block' : 'none';
+  if (tabBoosterMy) tabBoosterMy.style.display = isBooster ? 'inline-block' : 'none';
+  if (tabClientOrders) tabClientOrders.style.display = !isBooster ? 'inline-block' : 'none';
+  if (tabNewBoost) tabNewBoost.style.display = !isBooster ? 'inline-block' : 'none';
+  if (boosterSection) boosterSection.style.display = isBooster ? 'block' : 'none';
+
+  if (isBooster && typeof loadBoosterData === 'function') {
+    loadBoosterData();
+  }
+
   // Switch to requested tab (default is 'settings')
   switchClientTab(defaultTab);
-
-  modal.classList.add('open');
+  } catch (err) {
+    console.error('Error populating profile modal:', err);
+  }
 }
 
 function closeUserProfileModal() {
@@ -1177,18 +1282,6 @@ let currentDirectoryFilter = 'all';
 let currentDirectorySearch = '';
 
 async function openAllUsersModal(filterRole = 'all') {
-  if (!currentUser) {
-    if (typeof notify !== 'undefined' && notify.show) {
-      notify.show({
-        title: 'Потрібна авторизація',
-        message: 'Профілі користувачів доступні лише після реєстрації або входу на сайт!',
-        type: 'info'
-      });
-    }
-    openAuthModal('login');
-    return;
-  }
-
   currentDirectoryFilter = filterRole;
   currentDirectorySearch = '';
   const searchInput = document.getElementById('all-users-search');
@@ -1308,18 +1401,27 @@ function renderAllUsersGrid() {
       `;
     } else {
       // Client
+      const clientGamesHtml = Array.isArray(user.games) && user.games.length > 0
+        ? `<div class="user-game-tags">${user.games.map(g => `<span class="user-game-tag">🎮 ${typeof g === 'object' ? `${g.game} (${g.mmr})` : g}</span>`).join('')}</div>`
+        : '<div class="text-xs text-muted">Ігри клієнта: Dota 2, CS2</div>';
+
+      const statusClass = user.status === 'in_boost' ? 'text-info' : (user.status === 'searching' ? 'text-warning' : 'text-success');
+      const statusText = user.status === 'in_boost' ? '⚡ На бусті' : (user.status === 'searching' ? '🔍 Шукає бустера' : '🟢 В мережі');
+
       roleStatsHtml = `
         <div class="user-directory-stats">
           <div>
-            <div class="user-dir-stat-label">Статус акаунту</div>
-            <div class="user-dir-stat-val text-cyan">🎮 Клієнт</div>
+            <div class="user-dir-stat-label">Роль</div>
+            <div class="user-dir-stat-val text-cyan">👤 Клієнт</div>
           </div>
           <div>
-            <div class="user-dir-stat-label">Кешбек рівень</div>
-            <div class="user-dir-stat-val text-gold">VIP Tier</div>
+            <div class="user-dir-stat-label">Статус</div>
+            <div class="user-dir-stat-val ${statusClass}">${statusText}</div>
           </div>
         </div>
-        ${user.discord ? `<div class="text-xs text-dim" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">💬 Discord: <span class="text-main">${user.discord}</span></div>` : '<div class="text-xs text-muted">Зареєстрований клієнт</div>'}
+        ${user.statusMessage ? `<div class="text-xs text-dim mb-1" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">💬 "${user.statusMessage}"</div>` : ''}
+        <div class="text-xs text-muted mb-1">🎮 Мої ігри та MMR:</div>
+        ${clientGamesHtml}
       `;
     }
 
@@ -1419,11 +1521,20 @@ async function viewPublicUserProfile(userId) {
     `;
   } else {
     // Client
+    const clientGamesList = Array.isArray(user.games) && user.games.length > 0
+      ? user.games.map(g => `
+          <div class="p-2 cyber-box d-flex justify-content-between align-items-center mb-1">
+            <span>🎮 <strong>${typeof g === 'object' ? g.game : g}</strong></span>
+            <span class="badge badge-info">MMR / Ранг: ${typeof g === 'object' ? g.mmr : '100'}</span>
+          </div>
+        `).join('')
+      : '<div class="text-xs text-muted">Ігри ще не додані в профіль</div>';
+
     extraSections = `
       <div class="cyber-box p-3 mb-3">
         <h5 class="text-cyan mb-2">👤 Інформація клієнта</h5>
-        <div class="text-xs text-muted mb-3">Зареєстрований користувач сервісу з доступом до індивідуальних замовлень та безпечних угод.</div>
-        <div class="row-2-col">
+        <div class="text-xs text-muted mb-2">Замовник послуг бусту платформи CyberBoost.</div>
+        <div class="row-2-col mb-3">
           <div class="profile-stat-box">
             <div class="stat-box-val text-cyan">VIP</div>
             <div class="stat-box-lbl">Рівень акаунту</div>
@@ -1433,6 +1544,8 @@ async function viewPublicUserProfile(userId) {
             <div class="stat-box-lbl">Гарантія безпеки</div>
           </div>
         </div>
+        <h6 class="text-cyan mb-2">🎮 Ігри клієнта (My Games & MMR):</h6>
+        ${clientGamesList}
       </div>
     `;
   }
@@ -1977,3 +2090,79 @@ document.addEventListener('click', (e) => {
 });
 
 
+
+
+function selectAuthRole(role) {
+  const hiddenInput = document.getElementById('auth-selected-role');
+  if (hiddenInput) hiddenInput.value = role;
+
+  const clientBtn = document.getElementById('auth-role-client-btn');
+  const boosterBtn = document.getElementById('auth-role-booster-btn');
+
+  if (clientBtn) {
+    clientBtn.classList.toggle('active', role === 'client');
+    clientBtn.classList.toggle('btn-outline-cyan', role === 'client');
+    clientBtn.classList.toggle('btn-outline', role !== 'client');
+  }
+  if (boosterBtn) {
+    boosterBtn.classList.toggle('active', role === 'booster');
+    boosterBtn.classList.toggle('btn-outline-cyan', role === 'booster');
+    boosterBtn.classList.toggle('btn-outline', role !== 'booster');
+  }
+}
+
+function quickFillAuth(email, password) {
+  const emailInput = document.getElementById('auth-email');
+  const pwdInput = document.getElementById('auth-password');
+  if (emailInput) emailInput.value = email;
+  if (pwdInput) pwdInput.value = password;
+  const submitBtn = document.getElementById('auth-submit-btn');
+  if (submitBtn) submitBtn.click();
+}
+
+async function quickVerifyBoosterSelf() {
+  if (!currentUser) return;
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({ boosterVerification: 'Verified' })
+    });
+    const data = await res.json();
+    if (res.ok && data.user) {
+      currentUser = data.user;
+      renderBoosterVerificationUI();
+      if (typeof loadBoosterData === 'function') loadBoosterData();
+      notify.show({
+        title: 'Верифікацію активовано! ⚡',
+        message: 'Ваш акаунт підтверджено. Тепер ви можете вільно приймати замовлення на біржі!',
+        type: 'success',
+        sound: 'rankup'
+      });
+    }
+  } catch (e) {
+    console.error('Quick verify error:', e);
+  }
+}
+
+window.selectAuthRole = selectAuthRole;
+window.quickFillAuth = quickFillAuth;
+window.quickVerifyBoosterSelf = quickVerifyBoosterSelf;
+
+// /* hashchange-profile-handler */
+window.addEventListener('hashchange', () => {
+  if (window.location.hash === '#profile') {
+    openUserProfileModal('settings');
+  }
+});
+if (window.location.hash === '#profile') {
+  setTimeout(() => openUserProfileModal('settings'), 350);
+}
+
+
+window.renderProfileStatusOptions = renderProfileStatusOptions;
+window.selectProfileStatus = selectProfileStatus;
+window.getGameIcon = window.getGameIcon || getGameIcon;

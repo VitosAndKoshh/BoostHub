@@ -39,5 +39,8 @@ internal sealed class BoosterEntityConfiguration : IEntityTypeConfiguration<Boos
             .WithMany()
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(x => x.AccountId)
+            .IsUnique();
     }
 }

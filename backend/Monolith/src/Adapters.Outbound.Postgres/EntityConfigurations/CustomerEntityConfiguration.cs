@@ -27,5 +27,8 @@ internal sealed class CustomerEntityConfiguration : IEntityTypeConfiguration<Cus
             .WithMany()
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(x => x.AccountId)
+            .IsUnique();
     }
 }

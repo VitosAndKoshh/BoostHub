@@ -3,267 +3,339 @@ name: feature-implementation
 description: Implement or extend backend features in BoostHub Core.Features, following the current architecture, feature conventions, application flow, domain behavior, persistence abstractions, Wolverine dispatching, transaction ownership, and error handling. Use when creating a new API feature or modifying an existing feature's use case.
 ---
 
-# Feature Implementation
+# Feature Implementing
 
 ## Purpose
 
-Implement backend features consistently with the established BoostHub architecture and conventions.
+This skill defines how to implement backend features in BoostHub.
 
-This skill covers feature-level implementation in `Core.Features` and coordination with the existing domain, application, HTTP, security, and persistence layers.
+The objective is to deliver complete, maintainable, production-minded features that follow the established architecture and project conventions.
 
-It does not authorize unrelated architectural changes or override `AGENTS.md`, `architecture.md`, or repository-specific instructions.
+A feature must not be reduced to the smallest implementation that merely makes its primary operation work.
 
-## 1. Read the Relevant Context
+A successful happy path is necessary, but it is not sufficient. Implement the relevant validation, error handling, logging, persistence behavior, domain rules, and edge cases required for a complete feature.
+
+The goal is appropriate implementation quality, not maximum code volume or unnecessary abstraction.
+
+## 1. Context and Preparation
 
 Before implementing a feature:
 
-1. Follow the repository's `AGENTS.md` instructions.
-2. Read `architecture.md`.
-3. Read the relevant documentation under `docs/backend/`, particularly:
-   - `application-flow.md`
-   - `domain-modeling.md` when domain behavior is involved
-   - `persistence.md` when repositories, read ports, or transactions are involved
-   - `error-handling.md` when handling errors or operation results
-   - `messaging.md` when the task explicitly involves messaging or handler composition
-4. Inspect the relevant projects, existing feature implementations, and similar endpoints or handlers.
-5. Inspect existing abstractions, implementations, dependency registrations, and their actual signatures before using them.
+1. Read the repository's `AGENTS.md`, `README.md`, and `architecture.md` if they have not already been reviewed in the current task or may have changed.
+2. Identify and read the relevant backend documentation.
+3. Read this skill and any other directly relevant skills.
+4. Inspect the existing implementation patterns in the affected feature and neighboring features.
+5. Inspect the relevant domain entities, application ports, repository implementations, validators, DI registrations, and persistence configurations.
+6. Identify the complete execution flow and the architectural boundaries involved.
 
-Do not assume a class, interface, registration method, project, or capability exists merely because it is mentioned in documentation.
+### Avoiding redundant inspection
 
-When documentation and implementation disagree, inspect the actual code and identify the discrepancy. Follow the established implementation unless an architectural change is explicitly requested or approved.
+- Reuse information already obtained during the current task.
+- Do not reread documents or reinspect files whose contents are already known and remain relevant.
+- Do not repeat successful builds or verification commands when no relevant code has changed.
+- Revisit previously inspected files only when a dependency, requirement, or implementation detail makes it necessary.
+- Prefer targeted inspection over exploring unrelated parts of the repository.
 
-## 2. Establish the Feature Scope
+Do not start implementation if a material architectural decision is unclear. Ask for clarification rather than inventing requirements or silently choosing a design that changes established conventions.
 
-Before editing code, determine:
+## 2. Feature Design
 
-- The requested business behavior and acceptance criteria.
-- Whether the operation is a command, a query, or both.
-- The API endpoint and transport contracts required.
-- Which domain entities, aggregate roots, and value objects are involved.
-- Which application ports or persistence implementations are required.
-- Whether the operation participates in an existing transaction or requires its own transaction.
-- Whether the use case composes or invokes other handlers.
-- Which existing components can be reused.
+Before writing code, understand the feature as a complete application use case.
 
-Identify the owning project for every new or modified type.
+Identify:
 
-If a business rule, authorization requirement, API contract, transaction boundary, or architectural decision materially affects the implementation and remains unresolved, ask for clarification rather than inventing behavior.
+- Its purpose and expected behavior.
+- Its entry point (HTTP endpoint, message, scheduled operation, or another trigger).
+- Its command or query.
+- Its handler and required dependencies.
+- Its input validation requirements.
+- Its domain operations and invariants.
+- Its application ports and persistence requirements.
+- Its expected success result.
+- Its possible failure scenarios.
+- Its transaction boundaries.
+- Its logging and observability requirements.
+- Its interaction with other features, if applicable.
 
-Do not expand the feature into unrelated functionality.
+Do not assume every feature requires every component. For example, a read-only query may not need a transaction, while a command with no externally supplied input may not need a dedicated validator.
 
-## 3. Follow Project Responsibilities
+Choose components according to actual responsibilities.
 
-Respect the established project boundaries:
+Before implementation, make sure the proposed design respects the existing dependency direction and does not introduce unnecessary project references or circular dependencies.
 
-- `Core.Features`: feature endpoints, commands, queries, handlers, validators, HTTP request/response contracts, and feature-specific mapping definitions.
-- `Core.Application`: application ports, repository abstractions, read-port interfaces and their projection types, Result abstractions, unit-of-work contracts, security abstractions, and the established Wolverine application integration.
-- `Core.Domain`: domain entities, aggregate roots, value objects, business invariants, domain events, and domain errors.
-- `Adapters.Inbound.Http`: `IEndpoint`, Minimal API infrastructure, endpoint discovery, middleware, HTTP error mapping, and shared Mapster integration.
-- `Adapters.Outbound.Postgres`: EF Core, database queries, repository implementations, persistence mappings, and unit-of-work implementation.
-- `Adapters.Outbound.Security`: implementations of security abstractions, including JWT generation and password hashing.
-- `Bootstrap.Api`: application composition, dependency registration orchestration, and startup pipeline.
+## 3. Implementation Quality
 
-Preserve the established dependency rules, including the intentional `Core.Features` references to `Core.Application` and `Adapters.Inbound.Http`.
+Implement complete features rather than minimal happy-path solutions.
 
-Never make `Adapters.Outbound.Postgres` depend on `Core.Features`.
+### 3.1 Validation
 
-Do not introduce a separate Wolverine adapter or `IMessageDispatcher` abstraction. Wolverine is used directly as the established application dispatch foundation through the existing integration in `Core.Application`.
+Use FluentValidation for appropriate application input validation.
 
-Do not move Wolverine integration into a new project or introduce another dispatch abstraction unless an architectural change is explicitly requested and approved.
+Consider:
 
-Do not introduce new projects or project references unless the task requires an architectural change and that change is sufficiently established or explicitly approved.
+- Required values.
+- Empty or whitespace-only strings.
+- String length and format constraints.
+- Numeric ranges.
+- Enum validity.
+- Collection constraints.
+- Cross-field validation.
+- Other relevant input constraints.
 
-## 4. Implement the Feature
+Validation should happen at the appropriate application boundary, before executing the use case.
 
-### 4.1. Reuse Existing Conventions
+Rules:
 
-Find the closest existing feature and follow its established:
+- Do not rely exclusively on domain factories to validate all incoming application input.
+- Do not duplicate domain invariants unnecessarily in validators.
+- Do not use validators as a replacement for domain integrity.
+- Do not add validators that provide no meaningful validation.
+- Use established error codes and validation conventions.
+- Follow existing Wolverine and FluentValidation integration.
 
-- Folder and namespace structure.
-- Naming conventions.
-- Endpoint and handler patterns.
-- Request and response contract conventions.
-- Command/query dispatching mechanism.
-- Mapping approach.
-- Dependency injection and assembly discovery mechanisms.
-- Validation and error conventions.
+A validator must provide meaningful feedback and use the project's established error-code conventions.
 
-Do not create a parallel implementation style when an existing convention already satisfies the requirement.
+### 3.2 Logging and Observability
 
-Do not assume every feature needs a command, query, handler, mapper, or additional abstraction. Add only the components required by the use case.
+Use structured logging through `ILogger<T>` where logging provides meaningful operational value.
 
-### 4.2. Endpoint and Transport Contracts
+Consider logging:
 
-- Follow the existing `IEndpoint` implementation convention.
-- Keep HTTP-specific concerns in the endpoint and inbound HTTP layer.
-- Keep request and response contracts appropriate to the API boundary.
-- Delegate application behavior to the established command/query dispatching mechanism.
-- Do not put business logic, database access, or transaction management directly in endpoints.
-- Preserve existing API versioning, route, validation, and response conventions.
+- Important application operations.
+- Significant state transitions.
+- Expected business-operation failures when operationally useful.
+- Unexpected failures.
+- Missing or inconsistent application state.
+- Important integration or persistence failures.
 
-Do not introduce controllers or another endpoint framework in place of the established Minimal API approach.
+Logging should:
 
-### 4.3. Commands and Handlers
+- Include useful contextual identifiers when available, such as AccountId, UserId, OrderId, or other relevant entity identifiers.
+- Use structured message templates rather than string interpolation.
+- Use appropriate log levels.
+- Avoid logging the same failure repeatedly at multiple layers.
+- Avoid logging expected business outcomes as errors.
+- Never expose passwords, password hashes, access tokens, refresh tokens, secrets, or other sensitive information.
 
-For state-changing operations:
+Do not add meaningless logs merely to make a handler appear complete.
 
-- Represent the use case using the established command and handler conventions.
-- Apply business changes through domain entities and aggregate roots.
-- Preserve domain invariants and encapsulation.
-- Use application-facing repositories and `IUnitOfWork` where appropriate.
-- Use the established transaction mechanism when transactional consistency is required.
-- Return results using the existing Result abstractions.
-- Avoid putting HTTP-specific behavior into application or domain code.
+If a lower-level component already logs an exception and the upper layer only propagates the failure, avoid redundant logging.
 
-Do not inject `DbContext` directly into feature handlers.
+### 3.3 Error Handling
 
-Do not bypass domain behavior by directly modifying persistence state when an aggregate or domain operation should enforce the relevant invariant.
+Use the established `Result` and error abstractions.
 
-Do not add dependencies to a handler that it does not actually use.
+Rules:
 
-### 4.4. Handler Composition and Wolverine
+- Represent expected business failures using appropriate application or domain errors.
+- Preserve established error codes.
+- Propagate failures from nested operations correctly.
+- Do not silently ignore failed results.
+- Do not convert meaningful errors into generic failures.
+- Do not use exceptions for ordinary business control flow.
+- Do not catch exceptions unless the current layer can meaningfully handle, translate, or enrich them.
+- Do not swallow unexpected exceptions.
+- Avoid redundant error handling when the established middleware or application infrastructure already handles the situation.
 
-Use the existing Wolverine integration and dispatching conventions when one feature use case needs to invoke another handler.
+Consider relevant failure cases, including:
 
-Before composing handlers:
+- Missing entities.
+- Duplicate records.
+- Invalid relationships.
+- Invalid state transitions.
+- Unauthorized operations.
+- Conflicting operations.
+- Persistence failures.
+- Failed nested commands.
 
-1. Determine whether the invoked operation is an independent use case or an internal part of a larger use case.
-2. Inspect how existing handlers dispatch commands or queries.
-3. Determine whether the invoked handler participates in the caller's transaction.
-4. Verify the DI lifetimes and whether both handlers use the same scoped persistence context.
-5. Preserve the established Result propagation behavior.
+Do not invent new error abstractions or response formats when established conventions already cover the scenario.
 
-When a handler invokes another handler through Wolverine:
+### 3.4 Domain Integrity
 
-- Do not assume that the nested handler automatically owns an independent transaction.
-- Do not create a second transaction or independently commit an outer transaction.
-- Do not assume that invoking a handler automatically persists its changes.
-- Follow the actual `IUnitOfWork` and repository implementation.
-- Propagate cancellation tokens through nested dispatches and persistence operations.
-- Propagate expected failures using the existing Result abstractions.
+Keep business rules in the domain model.
 
-Avoid using handler dispatch merely to split a few lines of implementation into another class. Use it when the invoked operation represents a meaningful use case or reusable application operation.
+Rules:
 
-Do not introduce a generic mediator, dispatcher, or additional messaging abstraction alongside the existing Wolverine integration.
+- Use domain factories to create entities.
+- Use domain methods to perform state changes.
+- Preserve encapsulation.
+- Respect aggregate boundaries.
+- Enforce invariants in the domain model.
+- Use value objects for concepts that have meaningful intrinsic constraints.
+- Avoid exposing mutable collections or unrestricted setters.
+- Do not bypass domain methods by directly manipulating entity state from handlers or repositories.
+- Do not move business rules into HTTP endpoints, validators, or persistence configurations merely for convenience.
 
-### 4.5. Queries and Handlers
+Application handlers coordinate use cases. They should not become containers for domain logic.
 
-For read operations:
+Do not introduce abstractions or domain concepts that are not justified by actual business requirements.
 
-- Use the established query and handler conventions.
-- Use application-facing read ports for database reads.
-- Place read-port interfaces and their returned projection types in `Core.Application`.
-- Implement database queries in `Adapters.Outbound.Postgres`.
-- Keep feature-specific HTTP contracts in `Core.Features`.
-- Use purpose-specific projections rather than loading full aggregates when unnecessary.
-- Prefer a single database query where practical.
+### 3.5 Persistence and Transactions
 
-Do not create a universal repository, introduce a separate read store, or add a read-model project for a feature without an established architectural requirement.
+Follow the established persistence architecture.
 
-Do not make the PostgreSQL adapter reference feature-specific DTOs or handlers.
+Rules:
 
-### 4.6. Mapping
+- Use application ports rather than depending directly on EF Core or PostgreSQL from application features.
+- Use existing repositories and query abstractions where appropriate.
+- Do not introduce generic repositories or universal abstractions without a concrete need.
+- Respect entity relationships and aggregate boundaries.
+- Ensure required uniqueness and referential integrity constraints are represented in persistence configuration.
+- Do not assume application-level existence checks guarantee uniqueness under concurrent requests.
+- Handle relevant persistence conflicts according to existing error conventions.
 
-- Keep shared Mapster registration in `Adapters.Inbound.Http`.
-- Keep feature-specific mapping definitions with the corresponding feature in `Core.Features`.
-- Follow the existing mapping registration and discovery mechanism.
-- Reuse existing mappings when appropriate.
-- Do not duplicate mapping logic unnecessarily.
-- Do not use HTTP response DTOs as domain entities or persistence projections merely to avoid creating distinct types.
+#### Transaction ownership
 
-Inspect actual mapping configuration before adding or changing mappings.
+Understand which operation owns the transaction.
 
-### 4.7. Validation and Errors
+For nested application operations:
 
-- Follow the existing validation approach and layer boundaries.
-- Perform primitive input validation in the appropriate HTTP/application validation layer.
-- Enforce domain invariants in the domain model.
-- Let value objects enforce constraints intrinsic to their values.
-- Do not duplicate validation already performed by value objects or upstream validation.
-- Represent expected failures using the existing Result and error abstractions.
-- Use domain errors for domain-level failures.
-- Leave HTTP status mapping to the inbound HTTP layer.
-- Do not expose infrastructure exceptions as ordinary business errors.
+- The outer operation owns the transaction.
+- Nested handlers must participate in the existing scoped persistence context.
+- Nested handlers must not independently commit or create conflicting transactions.
+- Nested handlers must not call `SaveChanges` when the established Unit of Work contract assigns persistence to the outer operation.
+- Failures from nested operations must propagate to the outer operation.
+- The outer operation must not report success if a required nested operation fails.
 
-When adding FluentValidation rules:
+Do not perform external side effects inside retryable transaction callbacks unless the existing architecture explicitly guarantees safe execution.
 
-- Follow the existing validator registration and execution mechanism.
-- Use established error codes rather than inventing arbitrary strings.
-- Ensure error codes and messages correspond to the actual rule that failed.
-- Consider the underlying type's semantics. For example, enum validation should verify that a value is a declared enum member; do not assume that `NotEmpty()` is sufficient for a non-nullable enum.
-- Avoid redundant rules when an existing domain type or validator already guarantees the constraint.
+Do not introduce unnecessary transactions for operations that do not require them.
 
-Do not introduce a second validation or error-handling mechanism for the same use case.
+### 3.6 Dependency Injection
 
-### 4.8. Transactions and Side Effects
+Register new dependencies through the established DI conventions.
 
-When a feature requires transactional consistency:
+Rules:
 
-- Use the established `IUnitOfWork` contract and transaction mechanism.
-- Respect transaction ownership and avoid independently committing an outer transaction.
-- Inspect the actual `UnitOfWorkBase` implementation before changing transaction behavior.
-- Account for EF Core execution-strategy retries.
-- Do not perform external side effects inside retryable database transaction callbacks.
-- Do not introduce messaging infrastructure, outbox/inbox processing, or external integrations unless explicitly required and sufficiently designed.
+- Place registrations in the project responsible for owning the implementation.
+- Respect project boundaries.
+- Use appropriate service lifetimes.
+- Avoid duplicate registrations.
+- Do not register services in unrelated projects merely for convenience.
+- Ensure new repositories, validators, handlers, and infrastructure services are discoverable through the existing registration mechanisms.
 
-The current unit-of-work implementation has specific nested transaction behavior:
+Do not introduce service locators or manual service resolution as a substitute for proper dependency injection.
 
-- An outer operation owns the transaction, persistence, commit, and rollback.
-- When an active transaction already exists, a nested unit-of-work operation executes within that transaction rather than creating and committing another one.
-- The nested operation does not independently call `SaveChanges` or commit the outer transaction.
-- Changes made by nested handlers and repositories must be persisted by the outer transaction owner.
+## 4. Application Flow and Wolverine
 
-Verify these assumptions against the current implementation before relying on them. Do not silently change transaction ownership or persistence semantics.
+Follow the existing Wolverine integration.
 
-Do not assume that a repository call alone commits changes. Inspect its implementation and the surrounding unit-of-work flow.
+Rules:
 
-Follow `docs/backend/persistence.md` and `docs/backend/messaging.md` when relevant.
+- Use the established command/query dispatch mechanism.
+- Keep handlers focused on one application operation.
+- Prefer explicit command and query types.
+- Propagate `Result` values consistently.
+- Respect cancellation tokens.
+- Do not introduce a second dispatcher abstraction.
+- Do not manually invoke handlers when the established architecture expects Wolverine dispatch.
+- Do not create unnecessary nested commands when a direct domain operation or existing application abstraction is sufficient.
 
-## 5. Configuration and Dependencies
+When one use case requires another application operation, determine whether it should be invoked through Wolverine based on the existing feature conventions and transaction requirements.
 
-- Reuse existing dependency injection and application composition mechanisms.
-- Place registrations in the project that owns the integration.
-- Follow established constants and configuration conventions.
-- Avoid magic strings and duplicated configuration values when named constants are appropriate.
-- Do not add packages or infrastructure without concrete justification.
-- Do not add feature-specific registrations if the existing assembly-scanning mechanism already discovers the relevant types.
-- Do not introduce redundant abstractions for dependencies already provided by the established application integration.
+Do not split operations into multiple handlers merely to increase the number of classes.
 
-Do not modify the composition root or project references unnecessarily.
+Each handler should represent a meaningful application responsibility.
 
-## 6. Documentation and Testing
+## 5. HTTP Endpoints and Contracts
 
-Update documentation when the feature changes an architectural rule, established convention, or documented workflow.
+When implementing an HTTP-facing feature, follow the existing Minimal API conventions.
 
-Do not duplicate documentation for ordinary implementation details that are already clear from the code.
+Consider:
 
-Automated testing is deferred until after the MVP:
+- Request and response contracts.
+- Endpoint registration through `IEndpoint`.
+- Correct HTTP methods and routes.
+- API versioning conventions.
+- Endpoint tags and OpenAPI metadata.
+- Appropriate request validation.
+- Correct mapping of application results to HTTP responses.
+- Authentication and authorization requirements.
+- Cancellation token propagation.
 
-- Do not create test projects or add automated tests unless explicitly requested.
-- Do not treat the absence of tests as a defect.
-- Use available build, static-analysis, and validation tooling as appropriate and permitted.
-- Do not run infrastructure operations without the approval required by `AGENTS.md`.
+Rules:
 
-Do not claim that a check succeeded unless its result was actually inspected.
+- Keep endpoints thin.
+- Do not implement business logic in endpoints.
+- Do not expose domain entities directly as HTTP responses.
+- Use established Mapster mapping conventions.
+- Use the existing error-to-HTTP response mapping.
+- Do not invent a new endpoint registration mechanism.
+- Do not add authorization assumptions that are not supported by the current authentication and authorization implementation.
 
-## 7. Final Review
+If an endpoint changes the public API contract, ensure its metadata accurately describes the behavior.
 
-Before reporting completion, verify the following:
+## 6. Feature Completeness Review
 
-- [ ] The implementation satisfies the requested behavior without adding unrelated functionality.
-- [ ] Types reside in the correct projects.
-- [ ] Project dependencies follow the established architecture.
-- [ ] Existing conventions and abstractions have been reused where appropriate.
-- [ ] No obsolete project or abstraction has been introduced.
-- [ ] Domain invariants and validation boundaries are preserved.
-- [ ] Commands and queries use the correct application and persistence paths.
-- [ ] Nested handler calls follow the established dispatching and transaction ownership rules.
-- [ ] Mapping, error handling, and transactions follow established conventions.
-- [ ] Cancellation tokens are propagated where supported.
-- [ ] No unrequested projects, packages, infrastructure, or integrations were introduced.
-- [ ] Relevant available verification commands were run and their results inspected.
-- [ ] Documentation was updated if an architectural rule or established convention changed.
+Before considering implementation complete, review the entire feature flow.
 
-In the final report, summarize the implementation, important design decisions, verification results, and known limitations.
+Use the following checklist as a review guide. Apply only the items relevant to the feature.
 
-If a requirement could not be implemented without an unresolved business or architectural decision, explain the issue and ask for clarification instead of silently choosing a behavior.
+- [ ] The feature follows the established architecture and dependency rules.
+- [ ] The application flow is complete, not limited to the happy path.
+- [ ] Appropriate input validation exists.
+- [ ] Domain invariants are enforced by the domain model.
+- [ ] Expected failures are represented using established errors.
+- [ ] Failed nested operations propagate correctly.
+- [ ] Meaningful structured logging is present.
+- [ ] Sensitive information is not logged.
+- [ ] Persistence and transaction ownership are correct.
+- [ ] Relevant uniqueness and relationship constraints are enforced.
+- [ ] Cancellation tokens are propagated.
+- [ ] Required services are registered correctly.
+- [ ] HTTP contracts and metadata follow existing conventions, when applicable.
+- [ ] No unnecessary abstractions, duplicated logic, or speculative functionality were introduced.
+
+Do not mark an applicable requirement as complete merely because the happy path works.
+
+If an item is not applicable, do not add code solely to satisfy the checklist.
+
+## 7. Verification
+
+After implementation:
+
+1. Review the complete diff.
+2. Check for accidental changes outside the requested scope.
+3. Build the affected project or the narrowest relevant project set.
+4. Review compiler output and resolve relevant errors and warnings introduced by the changes.
+5. Verify that the implementation is consistent with the existing architecture and conventions.
+6. Update relevant documentation only when the implementation changes documented behavior, architecture, or conventions.
+
+Tests are currently deferred until the MVP is complete. Do not add or run tests unless explicitly requested.
+
+Do not run Docker, Docker Compose, external services, or other restricted operations without explicit approval.
+
+Avoid repeating successful verification when no relevant code has changed.
+
+## 8. Scope Control
+
+Quality does not mean implementing unrelated functionality.
+
+Rules:
+
+- Implement the requested feature completely within its intended scope.
+- Do not silently expand the task into adjacent features.
+- Do not introduce speculative future requirements.
+- Do not refactor unrelated code.
+- Do not add abstractions for hypothetical future use cases.
+- Reuse existing infrastructure and conventions where appropriate.
+- If a necessary architectural change exceeds the requested scope, explain why and ask before proceeding.
+
+A smaller implementation is acceptable when it is genuinely sufficient. A deliberately incomplete implementation is not.
+
+## 9. Completion Report
+
+After implementation, provide a concise but informative report containing:
+
+1. What was implemented.
+2. Which important files or components were added or modified.
+3. How the feature flow works.
+4. How validation, error handling, and logging are handled.
+5. How persistence and transaction ownership work, if applicable.
+6. Any relevant architectural decisions or limitations.
+7. Which verification commands were executed and their results.
+8. Any remaining issues or decisions requiring user input.
+
+Do not claim that something was verified if it was not.
+
+Do not describe planned functionality as implemented.

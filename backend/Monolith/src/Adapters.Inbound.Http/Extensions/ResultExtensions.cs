@@ -1,61 +1,68 @@
-using System;
 using Adapters.Inbound.Http.Contracts.Responses;
 using Core.Application.Results;
 using MapsterMapper;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace Adapters.Inbound.Http.Extensions;
 
-internal static class ResultExtensions
+public static class ResultExtensions
 {
-    public static ActionResult ToResponse(
-        this Result from,
+    public static IResult ToResponse(
+        this Result result,
         Action? successAction = null)
     {
-        if (from.IsFailure)
-            return from.ToErrorResponse();
+        if (result.IsFailure)
+            return result.ToErrorResponse();
         
         successAction?.Invoke();
         
-        return new OkResult();
+        return Results.Ok();
     }
 
-    public static ActionResult ToResponse<TResult>(
-        this Result<TResult> from,
+    public static IResult ToResponse<TResult>(
+        this Result<TResult> result,
         Action<TResult>? successAction = null)
     {
-        if (from.IsFailure)
-            return from.ToErrorResponse();
+        if (result.IsFailure)
+            return result.ToErrorResponse();
 
-        var value = from.Value!;
+        var value = result.Value!;
         successAction?.Invoke(value);
         
-        return new OkResult();
+        return Results.Ok();
     }
     
-    public static ActionResult<TResponse> ToResponse<TResult, TResponse>(
-        this Result<TResult> from,
+    public static IResult ToResponse<TResult, TResponse>(
+        this Result<TResult> result,
         IMapper mapper,
         Action<TResult>? successAction = null)
     {
-        if (from.IsFailure)
-            return from.ToErrorResponse();
+        if (result.IsFailure)
+            return result.ToErrorResponse();
 
-        var value = from.Value!;
+        var value = result.Value!;
         successAction?.Invoke(value);
         
-        return mapper.Map<TResponse>(value);
+        var response = mapper.Map<TResponse>(value);
+        return Results.Ok(response);
     }
 
-    private static ActionResult ToErrorResponse(this Result from)
+    private static IResult ToErrorResponse(this Result result)
     {
-        var error = from.Error!;
+        var error = result.Error!;
 
-        var response = new ErrorResponse(error.Description, error.Code.Value);
+        var response = new ErrorResponse(
+            Code: error.Code.Value,
+            Message: error.Description,
+            Errors:
+            [
+                new ErrorDetailResponse(
+                    Code: error.Code.Value,
+                    Message: error.Description)
+            ]);
 
-        return new ObjectResult(response)
-        {
-            StatusCode = (int)error.ToStatusCode()
-        };
+        return Results.Json(
+            response,
+            statusCode: (int)error.ToStatusCode());
     }
 }

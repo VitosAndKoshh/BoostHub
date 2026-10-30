@@ -1,6 +1,6 @@
 # Persistence and Transactions
 
-This document defines the persistence boundaries and implementation rules for BustHub.
+This document defines the persistence boundaries and implementation rules for BoostHub.
 
 ## 1. Current Persistence Architecture
 
@@ -100,10 +100,11 @@ The current implementation provides `SaveChangesAsync` and `ExecuteInTransaction
 
 The established transaction behavior is:
 
-- The execution strategy wraps the transaction operation.
-- If an existing EF Core transaction is active, the nested operation participates in it and does not independently commit it.
-- Otherwise, the operation creates a transaction, executes the callback, saves changes, and commits.
-- On failure, the owned transaction is rolled back and the failure is propagated.
+- The EF Core execution strategy wraps the transaction operation.
+- If an existing EF Core transaction is active, the nested operation executes its callback without creating, committing, or rolling back its own transaction. It also does not independently call `SaveChangesAsync`.
+- Otherwise, the operation creates a transaction, executes the callback, saves changes through `SaveChangesAsync`, and commits the transaction.
+- If an exception occurs while executing an operation that owns the transaction, that transaction is rolled back and the exception is propagated.
+- The outer operation remains responsible for saving changes and committing when nested operations participate in its transaction.
 
 Inspect the actual implementation before changing these semantics.
 
@@ -127,10 +128,12 @@ External effects that must follow a successful database commit require an approp
 
 Domain-event dispatching through the unit-of-work is a planned capability and must not be assumed to be implemented.
 
-When implementing it:
+The current `UnitOfWorkBase` saves changes through EF Core without dispatching domain events. The domain-event dispatching code is not active.
+
+When implementing domain-event dispatching:
 
 - Collect domain events from the relevant tracked aggregate roots.
-- Dispatch/map events according to the established domain-event handling design.
+- Dispatch or map events according to the established domain-event handling design.
 - Persist any outbox records in the same transaction as the business state changes.
 - Do not publish directly to RabbitMQ inside the transaction callback.
 - Do not clear events before the corresponding handling and persistence work has succeeded according to the design.
@@ -165,16 +168,18 @@ For money movement, wallet balances, transfers, holds, and order settlement, ver
 
 Ask for clarification if the required atomicity, allowed state transitions, or failure behavior is not specified.
 
-## 11. Testing
+## 11. Verification and Future Testing
 
-Test persistence behavior at the appropriate level.
+Automated testing is deferred until after the MVP. Do not create test projects or add automated tests unless explicitly requested.
+
+When testing is introduced, persistence behavior should be verified at the appropriate level:
 
 - Unit tests verify domain behavior without a database.
 - Integration tests verify EF Core mappings, query behavior, transaction semantics, and PostgreSQL-specific behavior where relevant.
-- Test concurrent or retry-sensitive operations when they are important to correctness.
-- Verify that migrations and model configuration remain consistent.
+- Concurrent and retry-sensitive operations should be tested when they are important to correctness.
+- Migrations and model configuration should be verified for consistency.
 
-Use the existing test infrastructure. Do not replace a required PostgreSQL integration test with a mock that cannot verify database behavior.
+Use the established test infrastructure when it becomes available. Do not replace a required PostgreSQL integration test with a mock that cannot verify database behavior.
 
 ## 12. Related Documentation
 

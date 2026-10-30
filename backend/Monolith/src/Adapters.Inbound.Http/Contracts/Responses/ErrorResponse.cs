@@ -1,3 +1,11 @@
 namespace Adapters.Inbound.Http.Contracts.Responses;
 
-internal sealed record ErrorResponse(string Message, string Code);
+public sealed record ErrorResponse(
+    string Code,
+    string Message,
+    IReadOnlyList<ErrorDetailResponse> Errors);
+
+public sealed record ErrorDetailResponse(
+    string Code,
+    string Message,
+    string? Property = null);

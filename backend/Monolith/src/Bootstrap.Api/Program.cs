@@ -9,6 +9,6 @@ builder.Services.AddApplicationBuilder(builder.Configuration, featuresAssembly);
 
 var app = builder.Build();
 
-app.Configure(featuresAssembly);
+await app.Configure(featuresAssembly);
 
-app.Run();
+await app.RunAsync();

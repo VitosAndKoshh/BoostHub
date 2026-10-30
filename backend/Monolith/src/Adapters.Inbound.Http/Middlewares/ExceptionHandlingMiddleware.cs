@@ -1,10 +1,9 @@
-using System;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Adapters.Inbound.Http.Extensions;
 using Adapters.Inbound.Http.Contracts.Responses;
+using Adapters.Inbound.Http.Extensions;
 using Core.Domain.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -15,13 +14,15 @@ public sealed class ExceptionHandlingMiddleware
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+    public ExceptionHandlingMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionHandlingMiddleware> logger)
     {
         _next = next;
         _logger = logger;
     }
 
-    public async Task Invoke(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
         try
         {
@@ -29,40 +30,107 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            await ExceptionMiddlewareHandler(context, ex);
+            if (context.Response.HasStarted)
+                throw;
+
+            await HandleExceptionAsync(context, ex);
         }
     }
 
-    private async Task ExceptionMiddlewareHandler(HttpContext context, Exception exception)
+    private async Task HandleExceptionAsync(
+        HttpContext context,
+        Exception exception)
     {
         HttpStatusCode statusCode;
-        string errorCode = "UNKNOWN_ERROR";
-        string message;
+        ErrorResponse response;
 
         if (exception is DomainException domainException)
         {
-            errorCode = domainException.Error.Code.Value;
-            statusCode = domainException.Error.ToStatusCode();
-            message = domainException.Error.Description;
+            var error = domainException.Error;
+
+            statusCode = error.ToStatusCode();
+
+            response = new ErrorResponse(
+                Code: error.Code.Value,
+                Message: error.Description,
+                Errors:
+                [
+                    new ErrorDetailResponse(
+                        Code: error.Code.Value,
+                        Message: error.Description)
+                ]);
+        }
+        else if (exception is ValidationException validationException)
+        {
+            statusCode = HttpStatusCode.BadRequest;
+
+            var errors = validationException.Errors
+                .Select(error => new ErrorDetailResponse(
+                    Code: error.ErrorCode,
+                    Message: error.ErrorMessage,
+                    Property: error.PropertyName))
+                .ToArray();
+
+            response = new ErrorResponse(
+                Code: "validation",
+                Message: "One or more validation errors occurred.",
+                Errors: errors);
         }
         else
         {
             statusCode = HttpStatusCode.InternalServerError;
+
 #if DEBUG
-            message = exception.Message;
+            var message = exception.Message;
 #else
-            message = "An unexpected error occurred.";
+            var message = "An unexpected error occurred.";
 #endif
+
+            response = new ErrorResponse(
+                Code: "unknown",
+                Message: message,
+                Errors:
+                [
+                    new ErrorDetailResponse(
+                        Code: "unknown",
+                        Message: message)
+                ]);
         }
 
-        var result = JsonSerializer.Serialize(new ErrorResponse(
-            Message: message,
-            Code: errorCode
-        ));
+        LogException(exception);
 
-        _logger.LogError(exception, "An error occurred: {Message}", message);
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;
-        await context.Response.WriteAsync(result);
+
+        await context.Response.WriteAsync(
+            JsonSerializer.Serialize(response),
+            context.RequestAborted);
+    }
+    
+    private void LogException(Exception exception)
+    {
+        switch (exception)
+        {
+            case ValidationException validationException:
+                _logger.LogWarning(
+                    "Request validation failed. Errors: {Errors}",
+                    string.Join(
+                        "; ",
+                        validationException.Errors.Select(error =>
+                            $"{error.PropertyName}: {error.ErrorMessage}")));
+                break;
+
+            case DomainException domainException:
+                _logger.LogWarning(
+                    "Domain operation failed. ErrorCode: {ErrorCode}",
+                    domainException.Error.Code.Value);
+                break;
+
+            default:
+                _logger.LogError(
+                    exception,
+                    "An unexpected error occurred while processing the request.");
+                break;
+        }
     }
 }

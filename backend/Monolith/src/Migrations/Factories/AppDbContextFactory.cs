@@ -11,9 +11,8 @@ public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
     public AppDbContext CreateDbContext(string[] args)
     {
         var configuration = new ConfigurationBuilder()
-#if DEBUG
-            .AddJsonFile("appsettings.Development.json", optional: true)
-#endif
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.Development.json", optional: false)
             .AddEnvironmentVariables()
             .Build();
     

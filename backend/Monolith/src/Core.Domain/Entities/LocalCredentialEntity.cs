@@ -1,5 +1,6 @@
 using Core.Abstractions.Errors;
 using Core.Abstractions.Primitives;
+using Core.Domain.Errors.Credentials;
 using Core.Domain.Exceptions;
 
 namespace Core.Domain.Entities;
@@ -36,19 +37,4 @@ public sealed class LocalCredentialEntity : EntityBase<Guid>
 
         return new LocalCredentialEntity(email.Trim(), passwordHash, roleId);
     }
-}
-
-public sealed class CredentialCodes
-{
-    public static readonly ErrorCode InvalidEmail = new ("account.invalid-email");
-    public static readonly ErrorCode InvalidPassword = new ("account.invalid-password");
-}
-
-public static class CredentialErrors
-{
-    public static Error InvalidEmail =>
-            new (CredentialCodes.InvalidEmail, ErrorType.Conflict, "Invalid email.");
-
-    public static Error InvalidPassword =>
-            new (CredentialCodes.InvalidPassword, ErrorType.Conflict, "Invalid password.");
 }

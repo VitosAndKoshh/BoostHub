@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
     
     <ItemGroup>

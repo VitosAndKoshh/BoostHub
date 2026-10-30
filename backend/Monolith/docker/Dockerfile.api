@@ -10,7 +10,7 @@ COPY Directory.Packages.props .
 
 COPY src/Core.Abstractions/Core.Abstractions.csproj Core.Abstractions/
 COPY src/Migrations/Migrations.csproj Migrations/
-COPY src/Adapters.Wolverine/Adapters.Wolverine.csproj Adapters.Wolverine/
+COPY src/Adapters.Outbound.Security/Adapters.Outbound.Security.csproj Adapters.Outbound.Security/
 COPY src/Bootstrap.Api/Bootstrap.Api.csproj Bootstrap.Api/
 COPY src/Core.Domain/Core.Domain.csproj Core.Domain/
 COPY src/Core.Application/Core.Application.csproj Core.Application/

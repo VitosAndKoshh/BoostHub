@@ -1,6 +1,6 @@
 # Architecture and Implementation Rules
 
-This document defines the architectural constraints and implementation rules for the BustHub repository. Follow it when creating, modifying, or reviewing backend code.
+This document defines the architectural constraints and implementation rules for the BoostHub repository. Follow it when creating, modifying, or reviewing backend code.
 
 Repository-wide workflow, branching rules, and tool permissions are defined in `AGENTS.md`. Detailed backend implementation conventions are documented under `docs/backend/`.
 
@@ -30,7 +30,7 @@ After implementation, run the relevant verification commands that are available 
 
 ## 2. Repository Boundaries
 
-BustHub is a repository containing separate application areas:
+BoostHub is a repository containing separate application areas:
 
 - `backend/` — .NET 10 backend monolith.
 - `frontend/` — frontend application whose architecture and implementation conventions are outside the scope of this document.
@@ -42,7 +42,7 @@ The current backend infrastructure layout is:
 ```text
 backend/Monolith/
 ├── docker/
-│   └── Dockerfile
+│   └── Dockerfile.api
 ├── infra/
 │   ├── docker-compose.yml
 │   ├── .env
@@ -71,11 +71,11 @@ The backend currently uses one PostgreSQL database for both read and write opera
 |---|---|
 | `Core.Abstractions` | Small shared primitives and contracts |
 | `Core.Domain` | Domain entities, aggregate roots, value objects, business rules, domain errors, and domain-specific types |
-| `Core.Application` | Application ports, repository abstractions, read-port projections, Result pattern, and unit-of-work contracts |
-| `Core.Features` | Feature endpoints, commands, queries, handlers, HTTP request/response contracts, and feature-specific mapping definitions |
+| `Core.Application` | Application ports, repository abstractions, read-port projections, Result pattern, unit-of-work contracts, and application-facing security abstractions |
+| `Core.Features` | Feature endpoints, commands, queries, handlers, HTTP request/response contracts, validators, and feature-specific mapping definitions |
 | `Adapters.Inbound.Http` | `IEndpoint`, Minimal API infrastructure, endpoint discovery, HTTP middleware, HTTP error mapping, and shared Mapster integration |
 | `Adapters.Outbound.Postgres` | EF Core `DbContext`, entity configurations, PostgreSQL queries, repository implementations, and unit-of-work implementation |
-| `Adapters.Wolverine` | Wolverine-specific internal handler dispatching |
+| `Adapters.Outbound.Security` | Implementations of application-facing security abstractions, including JWT generation and password hashing, with their configuration and dependency injection registration |
 | `Migrations` | EF Core migrations and the design-time `DbContext` factory |
 | `Bootstrap.Api` | Application startup, composition root, dependency injection composition, and HTTP pipeline configuration |
 
@@ -93,7 +93,7 @@ Follow the established project dependency direction:
 - `Core.Application` defines application-facing ports and abstractions; adapters implement them.
 - `Core.Features` uses `Core.Application` and `Core.Domain`.
 - `Adapters.Outbound.Postgres` must not reference `Core.Features`.
-- `Adapters.Wolverine` owns Wolverine-specific integration.
+- `Adapters.Outbound.Security` implements security abstractions defined by the application layer and must not move security infrastructure into domain types.
 - `Adapters.Inbound.Http` owns shared HTTP infrastructure.
 - `Bootstrap.Api` composes implementations and registrations.
 - Do not introduce circular project references.
@@ -106,17 +106,32 @@ Before introducing or changing project references, inspect the existing `.csproj
 
 ### 3.3. Application Composition
 
-- Keep infrastructure-specific registration in the project that owns the integration.
 - Keep `Bootstrap.Api` as the composition root.
-- Register Wolverine dispatching through the existing `AddWolverineDispatching` extension from `Adapters.Wolverine`.
+- Register application services, Wolverine, and FluentValidation through the existing `AddApplication` registration mechanism.
+- Keep infrastructure-specific registration in the project that owns the integration.
 - Keep HTTP endpoint discovery and registration in the existing `MapEndpoints` mechanism using assembly scanning.
 - Keep shared Mapster registration in `Adapters.Inbound.Http`.
 - Keep feature-specific Mapster mapping definitions with their respective features in `Core.Features`.
-- Do not register HTTP endpoints through Wolverine. Wolverine dispatches application operations to handlers, not HTTP endpoints.
+- Do not introduce a separate dispatcher abstraction such as `IDispatcher` when the existing Wolverine integration already provides the required dispatching behavior.
+- Do not register HTTP endpoints through Wolverine. HTTP endpoint discovery and application handler dispatching are separate responsibilities.
 
 Inspect the existing registration, assembly scanning, and dependency injection conventions before modifying application composition.
 
 Do not introduce duplicate registration mechanisms when an existing extension or discovery mechanism already serves the requirement.
+
+### 3.4. Authentication and Security
+
+The current backend includes application-facing security abstractions and infrastructure implementations for JWT generation and password hashing.
+
+- Keep security abstractions such as `IJwtProvider` and `IPasswordHasher` in `Core.Application`.
+- Keep their implementations and security-specific configuration in `Adapters.Outbound.Security`.
+- Keep authentication use cases, including registration and login, in `Core.Features`.
+- Keep HTTP authentication configuration and request-pipeline integration in the appropriate existing infrastructure and composition projects.
+- Do not place password-hashing or JWT implementation details in domain entities.
+- Do not expose password hashes, secrets, signing keys, or tokens in logs or error responses.
+- Inspect the existing authentication flow and configuration before changing token claims, token lifetime, password-hashing behavior, or credential persistence.
+
+Keycloak integration and any dedicated authorization service remain planned unless the current implementation confirms otherwise. Do not introduce either as part of an unrelated feature.
 
 ## 4. Feature Implementation Rules
 
@@ -128,6 +143,7 @@ A feature typically contains the types required to implement its use case:
 - HTTP request and response contracts.
 - Command or query.
 - Handler.
+- Validator, when validation is required.
 - Feature-specific mapping definitions.
 - Supporting feature-specific types.
 
@@ -172,7 +188,7 @@ Before creating or substantially modifying domain models, read `docs/backend/dom
 
 ## 6. Read and Write Operations
 
-BustHub uses Light CQRS with one PostgreSQL database. There is no separate read store.
+BoostHub uses Light CQRS with one PostgreSQL database. There is no separate read store.
 
 ### 6.1. Write Operations
 
@@ -220,7 +236,7 @@ See `docs/backend/persistence.md` for persistence conventions.
 - Do not inject `DbContext` directly into feature handlers.
 - Use application-facing repository and unit-of-work abstractions.
 - Use `IUnitOfWork.ExecuteInTransactionAsync` for operations requiring the established explicit transaction mechanism.
-- Respect existing transactions. Nested operations must not independently commit a transaction owned by an outer operation.
+- Respect existing transactions. Nested operations must not independently save or commit a transaction owned by an outer operation.
 - Account for EF Core execution-strategy retries when writing transaction callbacks.
 - Do not perform external side effects inside retryable database transaction callbacks.
 - Keep database schema changes in the `Migrations` project and follow the established migration workflow.
@@ -240,7 +256,7 @@ Use the existing Result pattern and centralized HTTP error mapping.
 - Do not expose infrastructure exceptions as ordinary business errors.
 - Keep HTTP status mapping in the inbound HTTP layer.
 - Do not add HTTP-specific behavior to domain errors.
-- Follow the existing `ExceptionMiddleware` and error-mapping conventions.
+- Follow the existing `ExceptionHandlingMiddleware` and shared error-status mapping conventions.
 - Preserve the established error contracts and avoid introducing a second error-handling mechanism for the same feature.
 
 Domain errors describe domain failures. HTTP status codes and transport-specific error responses belong to the inbound HTTP layer.
@@ -255,9 +271,11 @@ Do not introduce these integrations into a feature unless the task explicitly re
 
 ### 9.1. Intended Messaging Boundaries
 
+The current application uses Wolverine for internal application handler dispatching, registered through `AddApplication`. Do not introduce a separate dispatcher abstraction unless a concrete requirement justifies it.
+
 The planned messaging responsibilities are:
 
-- `Adapters.Wolverine` — internal handler dispatching.
+- Internal application handler dispatching — the existing Wolverine integration.
 - `Adapters.Inbound.Messaging` — future inbound message consumption and inbox processing.
 - `Adapters.Outbound.RabbitMq` — future outbound broker publication and outbox processing.
 - `Contracts.Messaging` — future integration-event contracts, separated into `IntegrationEvents/In` and `IntegrationEvents/Out`.
@@ -284,7 +302,9 @@ See `docs/backend/messaging.md` when implementing messaging functionality.
 
 Authentication and authorization are evolving areas.
 
+- The current code includes JWT generation and password hashing. Inspect the existing registration, login, and authentication configuration before changing their behavior.
 - Do not assume Keycloak or a dedicated authorization service is already implemented.
+- Do not assume that a complete authorization policy or permission system exists merely because authentication is configured.
 - Follow the existing code and the explicitly established requirements for the requested task.
 - Do not introduce a new authentication or authorization architecture without a concrete requirement and sufficient design decisions.
 

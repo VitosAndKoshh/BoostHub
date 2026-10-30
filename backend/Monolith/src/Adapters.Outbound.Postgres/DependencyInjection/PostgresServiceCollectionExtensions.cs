@@ -1,5 +1,6 @@
 using Adapters.Outbound.Postgres.Constants;
 using Adapters.Outbound.Postgres.DbContext;
+using Adapters.Outbound.Postgres.Seeder;
 using Adapters.Outbound.Postgres.UnitOfWork;
 using Core.Application.Ports.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ public static class PostgresServiceCollectionExtensions
                         errorCodesToAdd: null);
                 }));
     
+        services.AddScoped<DbSeeder>();
         services.AddScoped<IUnitOfWork, UnitOfWorkBase>();
         services.AddRepositories();
         return services;

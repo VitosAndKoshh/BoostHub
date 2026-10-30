@@ -6,7 +6,7 @@ namespace Bootstrap.Api.Extensions;
 
 internal static class ApplicationBuilderExtensions
 {
-    public static void Configure(this WebApplication app, Assembly featuresAssembly)
+    public static async Task Configure(this WebApplication app, Assembly featuresAssembly)
     {
         app.UseSwagger();
         app.UseSwaggerUI(options =>
@@ -18,12 +18,18 @@ internal static class ApplicationBuilderExtensions
         
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+        await app.SeedDbAsync();
+
+        app.Logger.LogInformation("Database seeding completed.");
+
         app.UseCors();
-
         app.UseAuthentication();
-
         app.UseAuthorization();
 
         app.MapEndpoints(featuresAssembly);
+
+        app.Logger.LogInformation(
+            "Features assembly: {Assembly}",
+            featuresAssembly.FullName);
     }
 }

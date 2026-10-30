@@ -11,8 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Repositories\Read\" />
-      <Folder Include="Repositories\Write\" />
+      <Folder Include="Queries\" />
     </ItemGroup>
 
 </Project>

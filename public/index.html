@@ -133,8 +133,6 @@
       <nav class="nav-links" id="main-nav-links">
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
-        <a class="nav-link text-cyan" href="javascript:void(0)" onclick="openAllUsersModal('all')">👥 Профілі користувачів</a>
-        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openUserProfileModal('settings')">👤 Мій профіль</a>
       </nav>
 
       <div class="nav-actions">
@@ -249,8 +247,8 @@
     </div>
   </section>
 
-  <!-- 4. Interactive Rank Calculator Section -->
-  <section id="calculator" class="section-wrapper">
+  <!-- 4. Interactive Rank Calculator Section (Visible AFTER /reg or /login) -->
+  <section id="calculator" class="section-wrapper" style="display: none;">
     <div class="section-header">
       <h2 class="section-title" data-i18n="calc_title">ІНТЕРАКТИВНИЙ КАЛЬКУЛЯТОР РАНГІВ</h2>
       <p class="section-subtitle" data-i18n="calc_subtitle">
@@ -371,8 +369,8 @@
     </div>
   </section>
 
-  <!-- 5. Services Catalog Section -->
-  <section id="catalog" class="section-wrapper">
+  <!-- 5. Services Catalog Section (Visible AFTER /reg or /login) -->
+  <section id="catalog" class="section-wrapper" style="display: none;">
     <div class="section-header">
       <h2 class="section-title" data-i18n="catalog_title">КАТАЛОГ ГОТОВИХ ПОСЛУГ</h2>
       <p class="section-subtitle" data-i18n="catalog_subtitle">

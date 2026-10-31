@@ -95,7 +95,19 @@ function updateUserAuthUI() {
   const authNav = document.getElementById('nav-user-area');
   const navLinksContainer = document.getElementById('main-nav-links');
 
-  // Update navbar links: only show Бустинг, Акаунти, Скіни CS2, Профілі користувачів AFTER registration and login!
+  // Toggle calculator & catalog visibility: ONLY visible AFTER /reg or /login!
+  const calcSection = document.getElementById('calculator');
+  const catalogSection = document.getElementById('catalog');
+
+  if (currentUser) {
+    if (calcSection) calcSection.style.display = 'block';
+    if (catalogSection) catalogSection.style.display = 'block';
+  } else {
+    if (calcSection) calcSection.style.display = 'none';
+    if (catalogSection) catalogSection.style.display = 'none';
+  }
+
+  // Update navbar links: only show Бустинг, Акаунти, Скіни CS2, Мій профіль AFTER registration and login!
   if (navLinksContainer) {
     if (currentUser) {
       navLinksContainer.innerHTML = `
@@ -104,15 +116,12 @@ function updateUserAuthUI() {
         <a class="nav-link" href="#catalog" onclick="filterHeroCatalog('skins')">🗡️ Скіни CS2</a>
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
-        <a class="nav-link text-cyan" href="javascript:void(0)" onclick="openAllUsersModal('all')">👥 Профілі користувачів</a>
         <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openUserProfileModal('settings')">👤 Мій профіль</a>
       `;
     } else {
       navLinksContainer.innerHTML = `
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
-        <a class="nav-link text-cyan" href="javascript:void(0)" onclick="openAllUsersModal('all')">👥 Профілі користувачів</a>
-        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openUserProfileModal('settings')">👤 Мій профіль</a>
       `;
     }
   }
@@ -515,22 +524,27 @@ async function handleAuthFormSubmit(event) {
 
       if (isReg) {
         notify.show({
-          title: 'Акаунт успішно створено!',
-          message: 'Заповніть особисту інформацію та ігри у вашому Account',
+          title: 'Акаунт успішно створено! 🚀',
+          message: 'Калькулятор рангів та каталог послуг розблоковано!',
           type: 'success',
           sound: 'success'
         });
-        // Registration flow: Landing -> Register -> Email+Password -> Account Created -> Account/Profile
-        openUserProfileModal('settings');
+        const calc = document.getElementById('calculator');
+        if (calc) {
+          calc.scrollIntoView({ behavior: 'smooth' });
+        }
       } else {
         const roleDisplay = getRoleDisplay(currentUser.role);
         notify.show({
-          title: 'Успішний вхід! 👤',
-          message: `Переходимо у ваш профіль: ${currentUser.name} (${roleDisplay.full})`,
+          title: 'Успішний вхід! 🚀',
+          message: `Калькулятор та каталог послуг розблоковано! Ви увійшли як: ${currentUser.name} (${roleDisplay.full})`,
           type: 'success',
           sound: 'success'
         });
-        openUserProfileModal('settings');
+        const calc = document.getElementById('calculator');
+        if (calc) {
+          calc.scrollIntoView({ behavior: 'smooth' });
+        }
       }
     } else {
       const errMsg = data.error || 'Помилка авторизації. Перевірте введені дані.';
@@ -1842,6 +1856,18 @@ function selectSearchGame(gameId, gameName) {
 function selectSearchPill(gameId, serviceType, param, label) {
   closeHeroSearchDropdown();
 
+  if (!currentUser) {
+    if (typeof notify !== 'undefined' && notify.show) {
+      notify.show({
+        title: '🔒 Потрібна авторизація',
+        message: 'Послуги бустингу та каталог доступні після швидкої реєстрації (/reg) або входу (/login)!',
+        type: 'info'
+      });
+    }
+    openAuthModal('register');
+    return;
+  }
+
   if (param === 'accounts' || param === 'skins') {
     if (typeof filterHeroCatalog === 'function') {
       filterHeroCatalog(param);
@@ -1959,6 +1985,18 @@ function selectSiteGame(gameKey) {
     item.classList.toggle('active', onclickStr.includes(`'${gameKey}'`));
   });
 
+  if (!currentUser) {
+    if (typeof notify !== 'undefined' && notify.show) {
+      notify.show({
+        title: '🔒 Потрібна авторизація',
+        message: `Калькулятор бусту ${gameName} доступний після швидкої реєстрації (/reg) або входу (/login)!`,
+        type: 'info'
+      });
+    }
+    openAuthModal('register');
+    return;
+  }
+
   // Check if this game is supported by the boost calculator
   const calculatorGames = ['dota2', 'valorant', 'cs2_faceit', 'cs2'];
   if (calculatorGames.includes(gameKey)) {
@@ -2005,6 +2043,18 @@ function selectSiteGame(gameKey) {
 
 // 5. Hero Category Quick Action Buttons
 function filterHeroCatalog(category) {
+  if (!currentUser) {
+    if (typeof notify !== 'undefined' && notify.show) {
+      notify.show({
+        title: '🔒 Потрібна авторизація',
+        message: 'Калькулятор рангів та каталог послуг відкриваються після реєстрації (/reg) або входу (/login)!',
+        type: 'info'
+      });
+    }
+    openAuthModal('register');
+    return;
+  }
+
   if (category === 'boost') {
     const calc = document.getElementById('calculator');
     if (calc) calc.scrollIntoView({ behavior: 'smooth' });
@@ -2166,3 +2216,19 @@ if (window.location.hash === '#profile') {
 window.renderProfileStatusOptions = renderProfileStatusOptions;
 window.selectProfileStatus = selectProfileStatus;
 window.getGameIcon = window.getGameIcon || getGameIcon;
+
+
+function checkUrlAuthTriggers() {
+  const path = (window.location.pathname || '').toLowerCase();
+  const hash = (window.location.hash || '').toLowerCase();
+
+  if (path === '/reg' || path === '/register' || hash === '#reg' || hash === '#register') {
+    setTimeout(() => openAuthModal('register'), 180);
+  } else if (path === '/login' || hash === '#login') {
+    setTimeout(() => openAuthModal('login'), 180);
+  }
+}
+
+window.addEventListener('popstate', checkUrlAuthTriggers);
+window.addEventListener('hashchange', checkUrlAuthTriggers);
+checkUrlAuthTriggers();

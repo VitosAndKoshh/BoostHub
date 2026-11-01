@@ -13,6 +13,9 @@ public static class AccountErrors
     public static Error IdentityAlreadyExist =>
             new (AccountCodes.IdentityAlreadyExist, ErrorType.Conflict, "Identity already exist");
 
+    public static Error GamePlatformAccountAlreadyExist =>
+            new (AccountCodes.GamePlatformAccountAlreadyExist, ErrorType.Conflict, "Game platform account already exist");
+
     public static Error InvalidSteamId =>
         new (AccountCodes.InvalidSteamId, ErrorType.Validation, "Invalid steam id");
     

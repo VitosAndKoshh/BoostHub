@@ -5,27 +5,23 @@ namespace Core.Domain.Entities;
 
 public sealed class AccountEntity : EntityBase<Guid>
 {
-    // For EF Core
-    private AccountEntity(){}
 
-    private AccountEntity(string? steamId)
+    private AccountEntity()
     {
-        SteamId = steamId;
         CreatedAt = DateTime.UtcNow;
     }
     
-    public string? SteamId { get; private set; }
     public DateTime CreatedAt { get; init; }
     
     private readonly IList<AccountIdentityEntity> _identities = new List<AccountIdentityEntity>();
     public IReadOnlyCollection<AccountIdentityEntity> Identities => _identities.AsReadOnly();
 
-    public static AccountEntity Create(string? steamId)
+    private readonly IList<GamePlatformAccountEntity> _gamePlatformAccounts = new List<GamePlatformAccountEntity>();
+    public IReadOnlyCollection<GamePlatformAccountEntity> GamePlatformAccounts => _gamePlatformAccounts.AsReadOnly();
+
+    public static AccountEntity Create()
     {
-        if (!string.IsNullOrEmpty(steamId) && string.IsNullOrWhiteSpace(steamId))
-            throw new DomainException(AccountErrors.InvalidSteamId);
-        
-        return new AccountEntity(steamId);
+        return new AccountEntity();
     }
     
     public void AddIdentity(AccountIdentityEntity identity)
@@ -36,10 +32,11 @@ public sealed class AccountEntity : EntityBase<Guid>
         _identities.Add(identity);
     }
 
-    public void SetSteamId(string steamId)
+    public void AddGamePlatformAccount(GamePlatformAccountEntity gamePlatformAccount)
     {
-        if (string.IsNullOrWhiteSpace(steamId))
-            throw new DomainException(AccountErrors.InvalidSteamId);
-        SteamId = steamId;
+        if (_gamePlatformAccounts.Any(gpa => Equals(gpa.Platform, gamePlatformAccount.Platform)))
+            throw new DomainException(AccountErrors.GamePlatformAccountAlreadyExist);
+
+        _gamePlatformAccounts.Add(gamePlatformAccount);
     }
 }

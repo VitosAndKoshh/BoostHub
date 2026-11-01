@@ -14,6 +14,7 @@ public sealed class AppDbContext :  Microsoft.EntityFrameworkCore.DbContext
     public DbSet<BoosterEntity> Boosters => Set<BoosterEntity>();
     public DbSet<CustomerEntity> Customers => Set<CustomerEntity>();
     public DbSet<GameEntity> Games => Set<GameEntity>();
+    public DbSet<GamePlatformAccountEntity> GamePlatformAccounts => Set<GamePlatformAccountEntity>();
     public DbSet<LocalCredentialEntity> LocalCredentials => Set<LocalCredentialEntity>();
     public DbSet<OfferEntity> Offers => Set<OfferEntity>();
     public DbSet<OrderEntity> Orders => Set<OrderEntity>();

@@ -16,15 +16,16 @@ internal sealed class AccountEntityConfiguration : IEntityTypeConfiguration<Acco
             .ValueGeneratedNever()
             .IsRequired();
 
-        builder.Property(x => x.SteamId)
-            .HasColumnName("steam_id")
-            .IsRequired(false);
-
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();
 
         builder.HasMany(x => x.Identities)
+            .WithOne()
+            .HasForeignKey(x => x.AccountId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.GamePlatformAccounts)
             .WithOne()
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Cascade);

@@ -32,10 +32,6 @@ namespace Migrations.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("SteamId")
-                        .HasColumnType("text")
-                        .HasColumnName("steam_id");
-
                     b.HasKey("Id");
 
                     b.ToTable("accounts", (string)null);
@@ -185,6 +181,36 @@ namespace Migrations.Migrations
                         .IsUnique();
 
                     b.ToTable("games", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Domain.Entities.GamePlatformAccountEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("platform");
+
+                    b.Property<string>("PlatformUserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("platform_user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("Platform", "PlatformUserId")
+                        .IsUnique();
+
+                    b.ToTable("game_platform_accounts", (string)null);
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.LocalCredentialEntity", b =>
@@ -505,6 +531,15 @@ namespace Migrations.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Core.Domain.Entities.GamePlatformAccountEntity", b =>
+                {
+                    b.HasOne("Core.Domain.Entities.AccountEntity", null)
+                        .WithMany("GamePlatformAccounts")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Core.Domain.Entities.LocalCredentialEntity", b =>
                 {
                     b.HasOne("Core.Domain.Entities.RoleEntity", null)
@@ -632,6 +667,8 @@ namespace Migrations.Migrations
 
             modelBuilder.Entity("Core.Domain.Entities.AccountEntity", b =>
                 {
+                    b.Navigation("GamePlatformAccounts");
+
                     b.Navigation("Identities");
                 });
 #pragma warning restore 612, 618

@@ -12,18 +12,18 @@ public sealed class BoostSnapshotEntity : EntityBase<Guid>
         Rating = null!;
     }
 
-    private BoostSnapshotEntity(Guid orderId, RatingValue rating, DateTime createdAt)
+    private BoostSnapshotEntity(Guid orderId, RatingValue rating)
     {
         OrderId = orderId;
         Rating = rating;
-        CreatedAt = createdAt;
+        CreatedAt = DateTimeOffset.UtcNow;       
     }
 
     public Guid OrderId { get; init; }
     public RatingValue Rating { get; init; }
-    public DateTime CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
 
-    public static BoostSnapshotEntity Create(Guid orderId, RatingValue rating, DateTime createdAt)
+    public static BoostSnapshotEntity Create(Guid orderId, RatingValue rating)
     {
         if (orderId == Guid.Empty)
             throw new DomainException(BoostSnapshotErrors.InvalidOrderId);
@@ -31,9 +31,6 @@ public sealed class BoostSnapshotEntity : EntityBase<Guid>
         if (rating is null)
             throw new DomainException(BoostSnapshotErrors.InvalidRating);
 
-        if (createdAt == default || createdAt.Kind != DateTimeKind.Utc)
-            throw new DomainException(BoostSnapshotErrors.InvalidCreatedAt);
-
-        return new BoostSnapshotEntity(orderId, rating, createdAt);
+        return new BoostSnapshotEntity(orderId, rating);
     }
 }

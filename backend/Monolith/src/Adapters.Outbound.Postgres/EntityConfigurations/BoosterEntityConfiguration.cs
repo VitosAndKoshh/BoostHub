@@ -10,23 +10,28 @@ internal sealed class BoosterEntityConfiguration : IEntityTypeConfiguration<Boos
     {
         builder.ToTable("boosters")
             .HasKey(x => x.Id);
-        
+
         builder.Property(x => x.Id)
             .HasColumnName("id")
             .ValueGeneratedNever()
             .IsRequired();
-        
+
         builder.Property(x => x.AccountId)
             .HasColumnName("account_id")
             .IsRequired();
-        
+
         builder.Property(x => x.Status)
             .HasColumnName("status")
             .HasConversion<string>()
             .IsRequired();
+
+        builder.Property(x => x.StatusChangedAt)
+            .HasColumnName("status_changed_at")
+            .IsRequired();
         
-        builder.HasIndex(x => x.AccountId)
-            .IsUnique();
+        builder.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
 
         builder.OwnsOne(x => x.DiscordNickname, nickname =>
         {
@@ -40,7 +45,5 @@ internal sealed class BoosterEntityConfiguration : IEntityTypeConfiguration<Boos
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(x => x.AccountId)
-            .IsUnique();
     }
 }

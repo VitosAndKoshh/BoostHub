@@ -18,4 +18,13 @@ public static class WalletErrors
     
     public static Error NegativeBalance =>
         new (WalletCodes.NegativeBalance, ErrorType.Conflict, "Balance cannot be negative");
+
+    public static Error InvalidAmount =>
+        new (WalletCodes.InvalidAmount, ErrorType.Validation, "Wallet amount must be greater than zero");
+
+    public static Error InsufficientFunds =>
+        new (WalletCodes.InsufficientFunds, ErrorType.Conflict, "Insufficient wallet funds");
+
+    public static Error BalanceOverflow =>
+        new (WalletCodes.BalanceOverflow, ErrorType.Conflict, "Wallet balance overflow");
 }

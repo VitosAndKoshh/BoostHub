@@ -5,4 +5,5 @@ namespace Core.Domain.Errors.Consumer;
 public sealed class ConsumerCodes
 {
     public static readonly ErrorCode InvalidAccountId = new ("consumer.invalid-account-id");
+    public static readonly ErrorCode InvalidStatusTransition = new ("consumer.invalid-status-transition");
 }

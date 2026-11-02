@@ -27,7 +27,7 @@ public sealed class OfferEntity : EntityBase<Guid>
         Price = price;
         Description = description;
         MaxCompletionDuration = maxCompletionDuration;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = DateTimeOffset.UtcNow;
         Status = OfferStatus.Pending;
     }
 
@@ -36,7 +36,7 @@ public sealed class OfferEntity : EntityBase<Guid>
     public Price Price { get; init; }
     public string Description { get; init; }
     public MaxCompletionDuration MaxCompletionDuration { get; init; }
-    public DateTime CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
     public OfferStatus Status { get; private set; }
 
     public static OfferEntity Create(

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261030191954_AddUniqueCustomerAndBooster")]
-    partial class AddUniqueCustomerAndBooster
+    [Migration("20261102202137_AddCreatedAtToBoosterAndCustomer")]
+    partial class AddCreatedAtToBoosterAndCustomer
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,13 +31,18 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("SteamId")
+                    b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("steam_id");
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("StatusChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_changed_at");
 
                     b.HasKey("Id");
 
@@ -86,7 +91,7 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("game_id");
 
-                    b.Property<DateTime>("RequestedAt")
+                    b.Property<DateTimeOffset>("RequestedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("requested_at");
 
@@ -110,7 +115,7 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
@@ -125,6 +130,54 @@ namespace Migrations.Migrations
                     b.ToTable("boost_snapshots", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Domain.Entities.BoosterApplicationEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("AppliedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("applied_at");
+
+                    b.Property<Guid>("BoosterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("booster_id");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("text")
+                        .HasColumnName("rejection_reason");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reviewed_at");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reviewed_by_user_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("VerificationGamePlatformAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verification_game_platform_account_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BoosterId");
+
+                    b.HasIndex("ReviewedByUserId");
+
+                    b.HasIndex("VerificationGamePlatformAccountId");
+
+                    b.HasIndex("Status", "AppliedAt");
+
+                    b.ToTable("booster_applications", (string)null);
+                });
+
             modelBuilder.Entity("Core.Domain.Entities.BoosterEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -135,15 +188,22 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("status");
 
+                    b.Property<DateTimeOffset>("StatusChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_changed_at");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId")
-                        .IsUnique();
+                    b.HasIndex("AccountId");
 
                     b.ToTable("boosters", (string)null);
                 });
@@ -157,6 +217,19 @@ namespace Migrations.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("StatusChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_changed_at");
 
                     b.HasKey("Id");
 
@@ -190,38 +263,34 @@ namespace Migrations.Migrations
                     b.ToTable("games", (string)null);
                 });
 
-            modelBuilder.Entity("Core.Domain.Entities.LocalCredentialEntity", b =>
+            modelBuilder.Entity("Core.Domain.Entities.GamePlatformAccountEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("password_hash");
-
-                    b.Property<Guid>("RoleId")
+                    b.Property<Guid>("AccountId")
                         .HasColumnType("uuid")
-                        .HasColumnName("role_id");
+                        .HasColumnName("account_id");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("platform");
+
+                    b.Property<string>("PlatformUserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("platform_user_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
+                    b.HasAlternateKey("AccountId", "Id");
+
+                    b.HasIndex("Platform", "PlatformUserId")
                         .IsUnique();
 
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("local_credentials", (string)null);
+                    b.ToTable("game_platform_accounts", (string)null);
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.OfferEntity", b =>
@@ -238,7 +307,7 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("booster_id");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
@@ -271,15 +340,15 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("booster_id");
 
-                    b.Property<DateTime?>("CancelledAt")
+                    b.Property<DateTimeOffset?>("CancelledAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("cancelled_at");
 
-                    b.Property<DateTime?>("CompletedAt")
+                    b.Property<DateTimeOffset?>("CompletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completed_at");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
@@ -287,7 +356,7 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("customer_id");
 
-                    b.Property<DateTime?>("DisputedAt")
+                    b.Property<DateTimeOffset?>("DisputedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("disputed_at");
 
@@ -295,7 +364,7 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("offer_id");
 
-                    b.Property<DateTime?>("StartedAt")
+                    b.Property<DateTimeOffset?>("StartedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("started_at");
 
@@ -304,7 +373,7 @@ namespace Migrations.Migrations
                         .HasColumnType("text")
                         .HasColumnName("status");
 
-                    b.Property<DateTime?>("SubmittedForConfirmationAt")
+                    b.Property<DateTimeOffset?>("SubmittedForConfirmationAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("submitted_for_confirmation_at");
 
@@ -338,15 +407,60 @@ namespace Migrations.Migrations
                     b.ToTable("roles", (string)null);
                 });
 
-            modelBuilder.Entity("Core.Domain.Entities.TransferEntity", b =>
+            modelBuilder.Entity("Core.Domain.Entities.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
+
                     b.HasKey("Id");
 
-                    b.ToTable("transfers", (string)null);
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Domain.Entities.UserRoleEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("GrantedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("granted_at");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId", "RoleId")
+                        .IsUnique();
+
+                    b.ToTable("user_roles", (string)null);
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.WalletEntity", b =>
@@ -355,20 +469,24 @@ namespace Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("numeric(19,4)")
+                        .HasColumnName("balance");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId")
+                        .IsUnique();
 
                     b.ToTable("wallets", (string)null);
-                });
-
-            modelBuilder.Entity("Core.Domain.Entities.WalletTransactionEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("wallet_transactions", (string)null);
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.AccountIdentityEntity", b =>
@@ -417,7 +535,8 @@ namespace Migrations.Migrations
                                 .HasColumnType("uuid");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric")
+                                .HasPrecision(19, 4)
+                                .HasColumnType("numeric(19,4)")
                                 .HasColumnName("price_amount");
 
                             b1.HasKey("BoostRequestEntityId");
@@ -469,6 +588,26 @@ namespace Migrations.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Core.Domain.Entities.BoosterApplicationEntity", b =>
+                {
+                    b.HasOne("Core.Domain.Entities.BoosterEntity", null)
+                        .WithMany()
+                        .HasForeignKey("BoosterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Core.Domain.Entities.UserEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ReviewedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Core.Domain.Entities.GamePlatformAccountEntity", null)
+                        .WithMany()
+                        .HasForeignKey("VerificationGamePlatformAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Core.Domain.Entities.BoosterEntity", b =>
                 {
                     b.HasOne("Core.Domain.Entities.AccountEntity", null)
@@ -508,12 +647,12 @@ namespace Migrations.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Core.Domain.Entities.LocalCredentialEntity", b =>
+            modelBuilder.Entity("Core.Domain.Entities.GamePlatformAccountEntity", b =>
                 {
-                    b.HasOne("Core.Domain.Entities.RoleEntity", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("Core.Domain.Entities.AccountEntity", null)
+                        .WithMany("GamePlatformAccounts")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -554,7 +693,8 @@ namespace Migrations.Migrations
                                 .HasColumnType("uuid");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric")
+                                .HasPrecision(19, 4)
+                                .HasColumnType("numeric(19,4)")
                                 .HasColumnName("price_amount");
 
                             b1.HasKey("OfferEntityId");
@@ -598,7 +738,8 @@ namespace Migrations.Migrations
                                 .HasColumnType("uuid");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric")
+                                .HasPrecision(19, 4)
+                                .HasColumnType("numeric(19,4)")
                                 .HasColumnName("agreed_price_amount");
 
                             b1.HasKey("OrderEntityId");
@@ -633,9 +774,40 @@ namespace Migrations.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Core.Domain.Entities.UserRoleEntity", b =>
+                {
+                    b.HasOne("Core.Domain.Entities.RoleEntity", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Core.Domain.Entities.UserEntity", null)
+                        .WithMany("Roles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Core.Domain.Entities.WalletEntity", b =>
+                {
+                    b.HasOne("Core.Domain.Entities.AccountEntity", null)
+                        .WithOne()
+                        .HasForeignKey("Core.Domain.Entities.WalletEntity", "AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Core.Domain.Entities.AccountEntity", b =>
                 {
+                    b.Navigation("GamePlatformAccounts");
+
                     b.Navigation("Identities");
+                });
+
+            modelBuilder.Entity("Core.Domain.Entities.UserEntity", b =>
+                {
+                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

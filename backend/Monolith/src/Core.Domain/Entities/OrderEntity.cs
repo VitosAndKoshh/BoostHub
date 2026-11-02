@@ -26,7 +26,7 @@ public sealed class OrderEntity : EntityBase<Guid>
         BoosterId = boosterId;
         AgreedPrice = agreedPrice;
         MaxCompletionDuration = maxCompletionDuration;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = DateTimeOffset.UtcNow;
         Status = OrderStatus.Pending;
     }
 
@@ -35,12 +35,12 @@ public sealed class OrderEntity : EntityBase<Guid>
     public Guid BoosterId { get; init; }
     public Price AgreedPrice { get; init; }
     public MaxCompletionDuration MaxCompletionDuration { get; init; }
-    public DateTime CreatedAt { get; init; }
-    public DateTime? StartedAt { get; private set; }
-    public DateTime? SubmittedForConfirmationAt { get; private set; }
-    public DateTime? DisputedAt { get; private set; }
-    public DateTime? CompletedAt { get; private set; }
-    public DateTime? CancelledAt { get; private set; }
+    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset? StartedAt { get; private set; }
+    public DateTimeOffset? SubmittedForConfirmationAt { get; private set; }
+    public DateTimeOffset? DisputedAt { get; private set; }
+    public DateTimeOffset? CompletedAt { get; private set; }
+    public DateTimeOffset? CancelledAt { get; private set; }
     public OrderStatus Status { get; private set; }
 
     public static OrderEntity Create(
@@ -76,21 +76,21 @@ public sealed class OrderEntity : EntityBase<Guid>
     public void Start()
     {
         EnsureStatus(OrderStatus.Pending);
-        StartedAt = DateTime.UtcNow;
+        StartedAt = DateTimeOffset.UtcNow;
         Status = OrderStatus.InProgress;
     }
 
     public void SubmitForConfirmation()
     {
         EnsureStatus(OrderStatus.InProgress);
-        SubmittedForConfirmationAt = DateTime.UtcNow;
+        SubmittedForConfirmationAt = DateTimeOffset.UtcNow;
         Status = OrderStatus.AwaitingConfirmation;
     }
 
     public void ConfirmCompletion()
     {
         EnsureStatus(OrderStatus.AwaitingConfirmation);
-        CompletedAt = DateTime.UtcNow;
+        CompletedAt = DateTimeOffset.UtcNow;
         Status = OrderStatus.Completed;
     }
 
@@ -99,28 +99,28 @@ public sealed class OrderEntity : EntityBase<Guid>
         if (Status is not (OrderStatus.InProgress or OrderStatus.AwaitingConfirmation))
             throw new DomainException(OrderErrors.InvalidStatusTransition);
 
-        DisputedAt = DateTime.UtcNow;
+        DisputedAt = DateTimeOffset.UtcNow;
         Status = OrderStatus.Disputed;
     }
 
     public void ResolveDisputeAsCompleted()
     {
         EnsureStatus(OrderStatus.Disputed);
-        CompletedAt = DateTime.UtcNow;
+        CompletedAt = DateTimeOffset.UtcNow;
         Status = OrderStatus.Completed;
     }
 
     public void ResolveDisputeAsCancelled()
     {
         EnsureStatus(OrderStatus.Disputed);
-        CancelledAt = DateTime.UtcNow;
+        CancelledAt = DateTimeOffset.UtcNow;
         Status = OrderStatus.Cancelled;
     }
 
     public void Cancel()
     {
         EnsureStatus(OrderStatus.Pending);
-        CancelledAt = DateTime.UtcNow;
+        CancelledAt = DateTimeOffset.UtcNow;
         Status = OrderStatus.Cancelled;
     }
 

@@ -16,6 +16,9 @@ public static class AccountErrors
     public static Error GamePlatformAccountAlreadyExist =>
             new (AccountCodes.GamePlatformAccountAlreadyExist, ErrorType.Conflict, "Game platform account already exist");
 
+    public static Error InvalidStatusTransition =>
+        new (AccountCodes.InvalidStatusTransition, ErrorType.Conflict, "Invalid account status transition");
+
     public static Error InvalidSteamId =>
         new (AccountCodes.InvalidSteamId, ErrorType.Validation, "Invalid steam id");
     

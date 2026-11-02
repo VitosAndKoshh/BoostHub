@@ -1,7 +1,7 @@
 using Core.Application.Ports.Persistence.Repositories;
 using Core.Application.Ports.Security;
 using Core.Application.Results;
-using Core.Domain.Errors.Credentials;
+using Core.Domain.Errors.User;
 using Core.Features.Auth.Services;
 using Microsoft.Extensions.Logging;
 
@@ -33,7 +33,7 @@ public sealed class LoginHandler
     {
         var userResult = await _userService.GetUserByEmailAsync(command.Email, cancellationToken);
         if (userResult.IsFailure)
-            return CredentialErrors.NotFound;
+            return UserErrors.NotFound;
         var user = userResult.Value!;
         
         var verifyPasswordResult = _passwordHasher.VerifyHashedPassword(command.Password, user.PasswordHash);
@@ -43,15 +43,14 @@ public sealed class LoginHandler
             return verifyPasswordResult.Error!;
         }
         
-        var role = await _roleRepository.GetByIdAsync(user.RoleId, cancellationToken);
-        if (role is null)
+        var roleNames = await _roleRepository.GetByUserIdAsync(user.Id, cancellationToken);
+        if (!roleNames.Any())
         {
-            _logger.LogWarning("Role not found. RoleId: {RoleId}", user.RoleId);
-            return CredentialErrors.InvalidRole;
+            _logger.LogWarning("Roles not found. UserId: {UserId}", user.Id);
+            return UserErrors.InvalidRole;
         }
 
-        var token = _jwtProvider.Generate(user.Id, user.RoleId.ToString());
-        var result = new LoginResult(token);
-        return result;
+        var token = _jwtProvider.Generate(user.Id, roleNames);
+        return new LoginResult(token);
     }
 }

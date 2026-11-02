@@ -15,5 +15,26 @@ internal sealed class WalletEntityConfiguration : IEntityTypeConfiguration<Walle
             .HasColumnName("id")
             .ValueGeneratedNever()
             .IsRequired();
+
+        builder.Property(x => x.AccountId)
+            .HasColumnName("account_id")
+            .IsRequired();
+
+        builder.Property(x => x.Balance)
+            .HasColumnName("balance")
+            .HasColumnType("numeric(19,4)")
+            .IsRequired();
+
+        builder.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+
+        builder.HasIndex(x => x.AccountId)
+            .IsUnique();
+
+        builder.HasOne<AccountEntity>()
+            .WithOne()
+            .HasForeignKey<WalletEntity>(x => x.AccountId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

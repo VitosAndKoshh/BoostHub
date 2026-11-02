@@ -9,6 +9,9 @@ public static class BoosterErrors
     
     public static Error InvalidStatus =>
         new (BoosterCodes.InvalidStatus, ErrorType.Validation, "Invalid status");
+
+    public static Error InvalidStatusTransition =>
+        new (BoosterCodes.InvalidStatusTransition, ErrorType.Conflict, "Invalid booster status transition");
     
     public static Error InvalidDiscordNickname =>
         new (BoosterCodes.InvalidDiscordNickname, ErrorType.Validation, "Invalid discord nickname");

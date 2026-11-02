@@ -15,13 +15,13 @@ public sealed class AppDbContext :  Microsoft.EntityFrameworkCore.DbContext
     public DbSet<CustomerEntity> Customers => Set<CustomerEntity>();
     public DbSet<GameEntity> Games => Set<GameEntity>();
     public DbSet<GamePlatformAccountEntity> GamePlatformAccounts => Set<GamePlatformAccountEntity>();
-    public DbSet<LocalCredentialEntity> LocalCredentials => Set<LocalCredentialEntity>();
+    public DbSet<BoosterApplicationEntity> BoosterApplications => Set<BoosterApplicationEntity>();
+    public DbSet<UserEntity> Users => Set<UserEntity>();
     public DbSet<OfferEntity> Offers => Set<OfferEntity>();
     public DbSet<OrderEntity> Orders => Set<OrderEntity>();
     public DbSet<RoleEntity> Roles => Set<RoleEntity>();
-    public DbSet<TransferEntity> Transfers => Set<TransferEntity>();
     public DbSet<WalletEntity> Wallets => Set<WalletEntity>();
-    public DbSet<WalletTransactionEntity> WalletTransactions => Set<WalletTransactionEntity>();
+    public DbSet<UserRoleEntity> UserRoles => Set<UserRoleEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

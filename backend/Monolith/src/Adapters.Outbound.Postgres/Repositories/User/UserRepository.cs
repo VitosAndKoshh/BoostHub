@@ -14,14 +14,14 @@ public sealed class UserRepository : IUserRepository
         _dbContext = dbContext;
     }
 
-    public async Task<LocalCredentialEntity?> GetByEmailAsync(string email, CancellationToken cancellationToken)
-        => await _dbContext.LocalCredentials
+    public async Task<UserEntity?> GetByEmailAsync(string email, CancellationToken cancellationToken)
+        => await _dbContext.Users
             .Where(x => x.Email == email)
             .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<bool> IsEmailExistsAsync(string email, CancellationToken cancellationToken)
-        => await _dbContext.LocalCredentials.AnyAsync(x => x.Email == email, cancellationToken);
+        => await _dbContext.Users.AnyAsync(x => x.Email == email, cancellationToken);
 
-    public async Task AddAsync(LocalCredentialEntity user, CancellationToken cancellationToken)
-        => await _dbContext.LocalCredentials.AddAsync(user, cancellationToken);
+    public async Task AddAsync(UserEntity user, CancellationToken cancellationToken)
+        => await _dbContext.Users.AddAsync(user, cancellationToken);
 }

@@ -19,15 +19,24 @@ internal sealed class CustomerEntityConfiguration : IEntityTypeConfiguration<Cus
         builder.Property(x => x.AccountId)
             .HasColumnName("account_id")
             .IsRequired();
+
+        builder.Property(x => x.Status)
+            .HasColumnName("status")
+            .HasConversion<string>()
+            .IsRequired();
+
+        builder.Property(x => x.StatusChangedAt)
+            .HasColumnName("status_changed_at")
+            .IsRequired();
         
-        builder.HasIndex(x => x.AccountId)
-            .IsUnique();
-        
+        builder.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+
         builder.HasOne<AccountEntity>()
             .WithMany()
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Cascade);
-
         
         builder.HasIndex(x => x.AccountId)
             .IsUnique();

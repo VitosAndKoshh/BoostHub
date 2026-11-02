@@ -1,6 +1,6 @@
 using Core.Application.Ports.Security;
 using Core.Application.Results;
-using Core.Domain.Errors.Credentials;
+using Core.Domain.Errors.User;
 
 namespace Adapters.Outbound.Security.Password;
 
@@ -15,8 +15,8 @@ public class PasswordHasher : IPasswordHasher
     public Result VerifyHashedPassword(string password, string hashedPassword)
     {
         var result = BCrypt.Net.BCrypt.Verify(password, hashedPassword);
-        if (result)
-            return CredentialErrors.InvalidPasswordValidation;
+        if (!result)
+            return UserErrors.InvalidPasswordValidation;
         
         return Result.Success();
     }

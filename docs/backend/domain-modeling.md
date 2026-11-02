@@ -154,7 +154,25 @@ Prioritize tests for:
 
 Follow the existing test-project and assertion conventions.
 
-## 11. Related Rules
+## 11. MVP Wallet Model
+
+`WalletEntity` is a temporary MVP balance model owned by an `AccountEntity`.
+
+- Each wallet belongs to exactly one account through `AccountId`.
+- The persistence model allows at most one wallet per account through a unique foreign-key index; the intended business model is exactly one wallet for an account that has been provisioned.
+- A wallet stores the current balance and starts at zero.
+- Balance changes are available only through `Credit(decimal)` and `Debit(decimal)`.
+- Both operations require a strictly positive amount.
+- A debit cannot exceed the current balance, and the balance cannot become negative.
+- Credits reject decimal overflow rather than wrapping or producing an invalid balance.
+
+The MVP deliberately does not provide transaction history, an immutable financial ledger, wallet-to-wallet transfers, escrow or reserved balances, payment-provider integration, deposits, withdrawals, booster payouts, platform commissions, payment idempotency, or full financial auditability. The current balance therefore cannot be reconstructed from historical operations. These are deferred technical debt and must not be inferred from this model.
+
+Concurrent balance modifications require database-level concurrency protection. The in-memory domain checks alone do not make financial operations safe under concurrent writes.
+
+Wallet creation is not performed by `AccountEntity.Create()` or the current account creation handler. If registration must provision a wallet, the account-creation application workflow is the appropriate orchestration point; that integration is outside the MVP wallet model change.
+
+## 12. Related Rules
 
 - Application flow and handler responsibilities: `application-flow.md`.
 - Persistence mapping and transaction behavior: `persistence.md`.

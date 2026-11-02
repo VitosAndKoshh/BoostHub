@@ -27,7 +27,7 @@ public sealed class BoostRequestEntity : EntityBase<Guid>
         Price = price;
         Description = description;
         MaxCompletionDuration = maxCompletionDuration;
-        RequestedAt = DateTime.UtcNow;
+        RequestedAt = DateTimeOffset.UtcNow;
         Status = BoostRequestStatus.Open;
     }
 
@@ -36,7 +36,7 @@ public sealed class BoostRequestEntity : EntityBase<Guid>
     public Price Price { get; init; }
     public string Description { get; init; }
     public MaxCompletionDuration MaxCompletionDuration { get; init; }
-    public DateTime RequestedAt { get; init; }
+    public DateTimeOffset RequestedAt { get; init; }
     public BoostRequestStatus Status { get; private set; }
 
     public static BoostRequestEntity Create(

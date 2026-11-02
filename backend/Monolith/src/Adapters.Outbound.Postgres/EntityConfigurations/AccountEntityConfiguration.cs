@@ -16,6 +16,15 @@ internal sealed class AccountEntityConfiguration : IEntityTypeConfiguration<Acco
             .ValueGeneratedNever()
             .IsRequired();
 
+        builder.Property(x => x.Status)
+            .HasColumnName("status")
+            .HasConversion<string>()
+            .IsRequired();
+
+        builder.Property(x => x.StatusChangedAt)
+            .HasColumnName("status_changed_at")
+            .IsRequired();
+
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();

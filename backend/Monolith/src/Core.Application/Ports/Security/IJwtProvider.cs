@@ -1,6 +1,8 @@
+using Core.Domain.Enums;
+
 namespace Core.Application.Ports.Security;
 
 public interface IJwtProvider
 {
-    string Generate(Guid userId, string role);
+    string Generate(Guid userId, IEnumerable<AccountRole> roleNames);
 }

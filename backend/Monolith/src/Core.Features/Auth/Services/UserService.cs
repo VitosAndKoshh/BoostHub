@@ -1,7 +1,7 @@
 using Core.Application.Ports.Persistence.Repositories;
 using Core.Application.Results;
 using Core.Domain.Entities;
-using Core.Domain.Errors.Credentials;
+using Core.Domain.Errors.User;
 using Microsoft.Extensions.Logging;
 
 namespace Core.Features.Auth.Services;
@@ -18,13 +18,13 @@ public sealed class UserService
         _logger = logger;
     }
 
-    public async Task<Result<LocalCredentialEntity>> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
+    public async Task<Result<UserEntity>> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
         if (user is null)
         {
             _logger.LogWarning("User not found.");
-            return CredentialErrors.NotFound;
+            return UserErrors.NotFound;
         }
         return user;
     }

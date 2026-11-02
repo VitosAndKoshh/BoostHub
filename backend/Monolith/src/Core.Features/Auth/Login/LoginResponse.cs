@@ -1,3 +1,3 @@
 namespace Core.Features.Auth.Login;
 
-public record LoginResponse();
+public record LoginResponse(string AccessToken);

@@ -56,6 +56,7 @@ internal sealed class OrderEntityConfiguration : IEntityTypeConfiguration<OrderE
         {
             price.Property(x => x.Amount)
                 .HasColumnName("agreed_price_amount")
+                .HasPrecision(19, 4)
                 .IsRequired();
         });
         builder.OwnsOne(x => x.MaxCompletionDuration, duration =>

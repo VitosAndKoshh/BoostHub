@@ -31,5 +31,7 @@ internal sealed class GamePlatformAccountEntityConfiguration : IEntityTypeConfig
 
         builder.HasIndex(x => new { x.Platform, x.PlatformUserId })
             .IsUnique();
+
+        builder.HasAlternateKey(x => new { x.AccountId, x.Id });
     }
 }

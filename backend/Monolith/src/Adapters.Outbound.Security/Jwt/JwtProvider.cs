@@ -4,6 +4,7 @@ using System.Text;
 using Adapters.Outbound.Security.Options;
 using Core.Application;
 using Core.Application.Ports.Security;
+using Core.Domain.Enums;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -19,18 +20,20 @@ public class JwtProvider : IJwtProvider
         _accessOptions = accessOptions.Value;
     }
 
-    public string Generate(Guid userId, string role)
+    public string Generate(Guid userId, IEnumerable<AccountRole> roleNames)
     {
+        var claims = new List<Claim>
+        {
+            new(JwtClaims.Subject, userId.ToString())
+        };
+        
+        claims.AddRange(roleNames
+            .Distinct()
+            .Select(role => new Claim(JwtClaims.Role, role.ToString())));
+
         var signingCredentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_accessOptions.SecretKey)),
             SecurityAlgorithms.HmacSha256);
-
-        var claims = new List<Claim>
-        {
-            new(JwtClaims.Subject, userId.ToString()),
-            new(JwtClaims.Role, role),
-        };
-        
 
         var token = new JwtSecurityToken(
             issuer: null,
@@ -41,8 +44,6 @@ public class JwtProvider : IJwtProvider
             notBefore: null
         );
 
-        var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
-
-        return jwtToken;
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

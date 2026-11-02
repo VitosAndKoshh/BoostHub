@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Adapters.Outbound.Postgres.EntityConfigurations;
 
-internal sealed class LocalCredentialEntityConfiguration : IEntityTypeConfiguration<LocalCredentialEntity>
+internal sealed class UserEntityConfiguration : IEntityTypeConfiguration<UserEntity>
 {
-    public void Configure(EntityTypeBuilder<LocalCredentialEntity> builder)
+    public void Configure(EntityTypeBuilder<UserEntity> builder)
     {
-        builder.ToTable("local_credentials")
+        builder.ToTable("users")
             .HasKey(x => x.Id);
         
         builder.Property(x => x.Id)
@@ -24,20 +24,11 @@ internal sealed class LocalCredentialEntityConfiguration : IEntityTypeConfigurat
             .HasColumnName("password_hash")
             .IsRequired();
         
-        builder.Property(x => x.RoleId)
-            .HasColumnName("role_id")
-            .IsRequired();
-        
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();
         
         builder.HasIndex(x => x.Email)
             .IsUnique();
-        
-        builder.HasOne<RoleEntity>()
-            .WithMany()
-            .HasForeignKey(x => x.RoleId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

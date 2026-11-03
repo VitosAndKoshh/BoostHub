@@ -1,7 +1,6 @@
 using Adapters.Outbound.Postgres.DbContext;
 using Core.Application.Ports.Persistence.Repositories;
 using Core.Domain.Entities;
-using Microsoft.Extensions.Logging;
 
 namespace Adapters.Outbound.Postgres.Repositories;
 

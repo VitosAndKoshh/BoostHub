@@ -16,15 +16,16 @@ public sealed class RegisterHandler
     private readonly IRoleRepository _roleRepository;
     private readonly IAccountRepository _accountRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IWalletRepository _walletRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtProvider _jwtProvider;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RegisterHandler> _logger;
-    
     public RegisterHandler(IUserRepository userRepository,
         IRoleRepository roleRepository,
         IAccountRepository accountRepository,
         ICustomerRepository customerRepository,
+        IWalletRepository walletRepository,
         IPasswordHasher passwordHasher,
         IJwtProvider jwtProvider,
         IUnitOfWork unitOfWork,
@@ -34,6 +35,7 @@ public sealed class RegisterHandler
         _roleRepository = roleRepository;
         _accountRepository = accountRepository;
         _customerRepository = customerRepository;
+        _walletRepository = walletRepository;
         _passwordHasher = passwordHasher;
         _jwtProvider = jwtProvider;
         _unitOfWork = unitOfWork;
@@ -76,12 +78,14 @@ public sealed class RegisterHandler
         account.AddIdentity(accountIdentity);
         
         var customer = CustomerEntity.Create(account.Id);
+        var wallet = WalletEntity.Create(account.Id);
 
         await _unitOfWork.ExecuteInTransactionAsync(async ct =>
         {
             await _userRepository.AddAsync(user, ct);
             await _accountRepository.AddAsync(account, ct);
             await _customerRepository.AddAsync(customer, ct);
+            await _walletRepository.AddAsync(wallet, ct);
         }, cancellationToken);
 
         var token = _jwtProvider.Generate(user.Id, [role.Name]);

@@ -8,19 +8,12 @@ namespace Adapters.Outbound.Postgres.Repositories;
 public sealed class CustomerRepository : ICustomerRepository
 {
     private readonly AppDbContext _dbContext;
-    private readonly ILogger<CustomerRepository> _logger;
 
-    public CustomerRepository(AppDbContext dbContext, ILogger<CustomerRepository> logger)
+    public CustomerRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
-        _logger = logger;
     }
 
     public async Task AddAsync(CustomerEntity customer, CancellationToken cancellationToken)
-    {
-        _logger.LogInformation(
-            "Adding Customer. DbContextId: {DbContextId}",
-            _dbContext.ContextId.InstanceId);
-        await _dbContext.Customers.AddAsync(customer, cancellationToken);
-    }
+        => await _dbContext.Customers.AddAsync(customer, cancellationToken);
 }

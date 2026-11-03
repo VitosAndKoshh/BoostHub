@@ -33,6 +33,9 @@ internal sealed class BoosterEntityConfiguration : IEntityTypeConfiguration<Boos
             .HasColumnName("created_at")
             .IsRequired();
 
+        builder.HasIndex(x => x.AccountId)
+            .IsUnique();
+
         builder.OwnsOne(x => x.DiscordNickname, nickname =>
         {
             nickname.Property(x => x.Nickname)

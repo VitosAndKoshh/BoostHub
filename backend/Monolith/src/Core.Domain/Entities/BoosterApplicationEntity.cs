@@ -11,33 +11,26 @@ public sealed class BoosterApplicationEntity : EntityBase<Guid>
     {
     }
 
-    private BoosterApplicationEntity(Guid boosterId, Guid verificationGamePlatformAccountId)
+    private BoosterApplicationEntity(Guid boosterId)
     {
         BoosterId = boosterId;
-        VerificationGamePlatformAccountId = verificationGamePlatformAccountId;
         Status = BoosterApplicationStatus.Pending;
         AppliedAt = DateTimeOffset.UtcNow;
     }
 
     public Guid BoosterId { get; init; }
-    public Guid VerificationGamePlatformAccountId { get; init; }
     public BoosterApplicationStatus Status { get; private set; }
     public DateTimeOffset AppliedAt { get; init; }
     public DateTimeOffset? ReviewedAt { get; private set; }
     public Guid? ReviewedByUserId { get; private set; }
     public string? RejectionReason { get; private set; }
 
-    public static BoosterApplicationEntity Create(
-        Guid boosterId,
-        Guid verificationGamePlatformAccountId)
+    public static BoosterApplicationEntity Create(Guid boosterId)
     {
         if (boosterId == Guid.Empty)
             throw new DomainException(BoosterApplicationErrors.InvalidBoosterId);
 
-        if (verificationGamePlatformAccountId == Guid.Empty)
-            throw new DomainException(BoosterApplicationErrors.InvalidVerificationGamePlatformAccountId);
-
-        return new BoosterApplicationEntity(boosterId, verificationGamePlatformAccountId);
+        return new BoosterApplicationEntity(boosterId);
     }
 
     public void Approve(Guid reviewerUserId)

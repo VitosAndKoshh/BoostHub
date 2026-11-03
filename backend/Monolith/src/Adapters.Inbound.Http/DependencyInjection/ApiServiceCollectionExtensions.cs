@@ -1,4 +1,6 @@
 using System.Reflection;
+using Adapters.Inbound.Http.Security;
+using Core.Application.Ports.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +14,8 @@ public static class ApiServiceCollectionExtensions
         Assembly assembly)
     {
         services.AddHttpContextAccessor();
-        services.AddAuthorization();
+        services.AddScoped<IUserContext, HttpUserContext>();
+        services.AddRoleAuthorization();
         services.AddEndpointsApiExplorer();
         services.AddMapper(assembly)
             .AddAppCors(configuration)

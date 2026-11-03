@@ -11,4 +11,6 @@ public sealed class AccountCodes
     public static readonly ErrorCode GamePlatformAccountAlreadyExist = new ("account.game-platform-account-already-exist");
     public static readonly ErrorCode InvalidStatusTransition = new ("account.invalid-status-transition");
     public static readonly ErrorCode InvalidIdentityProvider = new ("account.invalid-identity-provider");
+    public static readonly ErrorCode NotFound = new ("account.not-found");
+    public static readonly ErrorCode NotActive = new ("account.not-active");
 }

@@ -24,4 +24,10 @@ public static class AccountErrors
     
     public static Error InvalidIdentityProvider =>
         new (AccountCodes.InvalidIdentityProvider, ErrorType.Validation, "Invalid identity provider");
+
+    public static Error NotFound =>
+        new (AccountCodes.NotFound, ErrorType.NotFound, "Account not found");
+
+    public static Error NotActive =>
+        new (AccountCodes.NotActive, ErrorType.Conflict, "Account is not active");
 }

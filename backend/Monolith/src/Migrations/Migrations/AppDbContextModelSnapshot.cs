@@ -158,17 +158,11 @@ namespace Migrations.Migrations
                         .HasColumnType("text")
                         .HasColumnName("status");
 
-                    b.Property<Guid>("VerificationGamePlatformAccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("verification_game_platform_account_id");
-
                     b.HasKey("Id");
 
                     b.HasIndex("BoosterId");
 
                     b.HasIndex("ReviewedByUserId");
-
-                    b.HasIndex("VerificationGamePlatformAccountId");
 
                     b.HasIndex("Status", "AppliedAt");
 
@@ -200,7 +194,8 @@ namespace Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("AccountId")
+                        .IsUnique();
 
                     b.ToTable("boosters", (string)null);
                 });
@@ -597,12 +592,6 @@ namespace Migrations.Migrations
                         .WithMany()
                         .HasForeignKey("ReviewedByUserId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Core.Domain.Entities.GamePlatformAccountEntity", null)
-                        .WithMany()
-                        .HasForeignKey("VerificationGamePlatformAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.BoosterEntity", b =>

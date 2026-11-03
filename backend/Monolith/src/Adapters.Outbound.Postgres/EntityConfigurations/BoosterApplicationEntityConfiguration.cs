@@ -20,10 +20,6 @@ internal sealed class BoosterApplicationEntityConfiguration : IEntityTypeConfigu
             .HasColumnName("booster_id")
             .IsRequired();
 
-        builder.Property(x => x.VerificationGamePlatformAccountId)
-            .HasColumnName("verification_game_platform_account_id")
-            .IsRequired();
-
         builder.Property(x => x.Status)
             .HasColumnName("status")
             .HasConversion<string>()
@@ -51,11 +47,6 @@ internal sealed class BoosterApplicationEntityConfiguration : IEntityTypeConfigu
         builder.HasOne<BoosterEntity>()
             .WithMany()
             .HasForeignKey(x => x.BoosterId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne<GamePlatformAccountEntity>()
-            .WithMany()
-            .HasForeignKey(x => x.VerificationGamePlatformAccountId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<UserEntity>()

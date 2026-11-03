@@ -14,6 +14,11 @@ public sealed class UserRepository : IUserRepository
         _dbContext = dbContext;
     }
 
+    public async Task<UserEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+        => await _dbContext.Users
+            .Include(x => x.Roles)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
     public async Task<UserEntity?> GetByEmailAsync(string email, CancellationToken cancellationToken)
         => await _dbContext.Users
             .Where(x => x.Email == email)

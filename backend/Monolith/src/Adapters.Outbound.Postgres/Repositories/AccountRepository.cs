@@ -1,6 +1,8 @@
 using Adapters.Outbound.Postgres.DbContext;
 using Core.Application.Ports.Persistence.Repositories;
 using Core.Domain.Entities;
+using Core.Domain.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Adapters.Outbound.Postgres.Repositories;
@@ -8,19 +10,23 @@ namespace Adapters.Outbound.Postgres.Repositories;
 public sealed class AccountRepository : IAccountRepository
 {
     private readonly AppDbContext _dbContext;
-    private readonly ILogger<AccountRepository> _logger;
 
-    public AccountRepository(AppDbContext dbContext, ILogger<AccountRepository> logger)
+    public AccountRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
-        _logger = logger;
     }
-    
+
+    public async Task<AccountEntity?> GetByIdentityAsync(
+        IdentityProvider identityProvider,
+        string identityId,
+        CancellationToken cancellationToken)
+        => await _dbContext.Accounts
+            .FirstOrDefaultAsync(
+                account => account.Identities.Any(identity =>
+                    identity.IdentityId == identityId &&
+                    identity.IdentityProvider == identityProvider),
+                cancellationToken);
+
     public async Task AddAsync(AccountEntity account, CancellationToken cancellationToken)
-    {
-        _logger.LogInformation(
-        "Adding Account. DbContextId: {DbContextId}",
-        _dbContext.ContextId.InstanceId);
-        await _dbContext.Accounts.AddAsync(account, cancellationToken);
-    }
+        => await _dbContext.Accounts.AddAsync(account, cancellationToken);
 }

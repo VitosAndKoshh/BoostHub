@@ -7,9 +7,6 @@ public static class BoosterApplicationErrors
     public static Error InvalidBoosterId =>
         new(BoosterApplicationCodes.InvalidBoosterId, ErrorType.Validation, "Invalid booster id");
 
-    public static Error InvalidVerificationGamePlatformAccountId =>
-        new(BoosterApplicationCodes.InvalidVerificationGamePlatformAccountId, ErrorType.Validation, "Invalid verification game platform account id");
-
     public static Error InvalidReviewerUserId =>
         new(BoosterApplicationCodes.InvalidReviewerUserId, ErrorType.Validation, "Invalid reviewer user id");
 

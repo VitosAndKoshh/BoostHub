@@ -15,4 +15,7 @@ public static class BoosterErrors
     
     public static Error InvalidDiscordNickname =>
         new (BoosterCodes.InvalidDiscordNickname, ErrorType.Validation, "Invalid discord nickname");
+
+    public static Error AlreadyExists =>
+        new (BoosterCodes.AlreadyExists, ErrorType.Conflict, "Booster already exists for account");
 }

@@ -1,6 +1,26 @@
 {
   "users": [
     {
+      "id": "usr_1793451959078",
+      "email": "client1@boost.gg",
+      "passwordHash": "$2a$10$QuSajHg30yzWXbsJHjzr3ejkob79.UFCzAqaNl.zCqYux0ryg6lom",
+      "name": "client1",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-10-31T13:05:59.152Z",
+      "updatedAt": "2026-10-31T13:05:59.152Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
       "id": "usr_1793287717708",
       "email": "toh155812@gmail.com",
       "passwordHash": "$2a$10$gvT4mdlnr2W54bUpE396WuzqT6bXMfjEo9dh9aaMN0Y39LbaqzWxu",

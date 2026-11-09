@@ -885,6 +885,8 @@ class SqliteDatabase {
       boosterAgreedPrice: opts.boosterAgreedPrice || row.boosterAgreedPrice || null,
       boosterAgreedAt: opts.boosterAgreedAt || row.boosterAgreedAt || null,
       declinedBoosters: opts.declinedBoosters || [],
+      partialClose: opts.partialClose || null,
+      closedBy: opts.closedBy || null,
       options: opts,
       accountCredentials: safeJsonParse(row.accountCredentials, {}),
       timeline: safeJsonParse(row.timeline, [])
@@ -1185,6 +1187,8 @@ class SqliteDatabase {
     if (updates.boosterAgreedPrice !== undefined) mergedOptions.boosterAgreedPrice = updates.boosterAgreedPrice;
     if (updates.boosterAgreedAt !== undefined) mergedOptions.boosterAgreedAt = updates.boosterAgreedAt;
     if (updates.declinedBoosters !== undefined) mergedOptions.declinedBoosters = updates.declinedBoosters;
+    if (updates.partialClose !== undefined) mergedOptions.partialClose = updates.partialClose;
+    if (updates.closedBy !== undefined) mergedOptions.closedBy = updates.closedBy;
 
     const merged = { ...existing, ...updates, options: mergedOptions, updatedAt: new Date().toISOString() };
 

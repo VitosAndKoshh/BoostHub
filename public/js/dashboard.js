@@ -653,7 +653,9 @@ async function loadBoosterData() {
     boosterMyOrders = orders.filter(o => o.boosterId === currentUser.id);
     boosterAvailableOrders = orders.filter(o => !o.boosterId && o.status === 'paid');
 
-    // Update badge counts in tabs
+    const activeInWork = boosterMyOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+
+    // Update badge counts in tabs: ONLY count active orders in progress!
     const availCountEl = document.getElementById('booster-tab-avail-count');
     if (availCountEl) {
       availCountEl.textContent = boosterAvailableOrders.length;
@@ -662,8 +664,8 @@ async function loadBoosterData() {
 
     const myCountEl = document.getElementById('booster-tab-my-count');
     if (myCountEl) {
-      myCountEl.textContent = boosterMyOrders.length;
-      myCountEl.style.display = boosterMyOrders.length > 0 ? 'inline-block' : 'none';
+      myCountEl.textContent = activeInWork.length;
+      myCountEl.style.display = activeInWork.length > 0 ? 'inline-block' : 'none';
     }
 
     const navBadge = document.getElementById('nav-booster-avail-badge');
@@ -679,13 +681,14 @@ async function loadBoosterData() {
 
     const profileMyCountEl = document.getElementById('profile-booster-my-count');
     if (profileMyCountEl) {
-      profileMyCountEl.textContent = boosterMyOrders.length;
+      profileMyCountEl.textContent = activeInWork.length;
     }
 
     renderBoosterStats();
     renderBoosterAvailableOrders();
     renderBoosterMyOrders();
     renderBoosterSettings();
+    renderBoosterWalletUI();
   } catch (err) {
     console.error('Failed to load booster data:', err);
   }
@@ -784,8 +787,7 @@ function renderBoosterAvailableOrders() {
             💬 Чат
           </button>
         </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 
   if (container) container.innerHTML = ordersHtml;
@@ -797,23 +799,75 @@ function renderBoosterMyOrders() {
   const profileContainer = document.getElementById('profile-booster-my-list');
   if (!container && !profileContainer) return;
 
-  if (boosterMyOrders.length === 0) {
-    const emptyHtml = `<div class="empty-state p-4 text-center" style="grid-column: 1 / -1;"><p>У вас немає активних замовлень у роботі. Оберіть замовлення у вкладці "⚡ Прийняти замовлення"!</p></div>`;
+  // Filter ONLY active orders in work! Completed orders are removed from this list.
+  const activeOrders = (boosterMyOrders || []).filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+  const completedOrders = (boosterMyOrders || []).filter(o => o.status === 'completed');
+
+  if (activeOrders.length === 0) {
+    const emptyHtml = `
+      <div class="empty-state p-4 text-center" style="grid-column: 1 / -1;">
+        <div style="font-size: 2.2rem; margin-bottom: 8px;">🎮</div>
+        <h4>Немає активних замовлень у роботі</h4>
+        <p class="text-muted text-xs mb-3">Усі взяті бусти успішно завершено! Їх виплати зараховано до вашого гаманця.</p>
+        <button class="btn btn-primary btn-sm" onclick="if(typeof switchClientTab==='function') switchClientTab('booster-avail'); if(typeof switchBoosterTab==='function') switchBoosterTab('available');">
+          ⚡ Взяти нове буст-замовлення
+        </button>
+      </div>
+      ${completedOrders.length > 0 ? `
+        <div class="col-12 mt-4" style="grid-column: 1 / -1;">
+          <details class="cyber-box p-3">
+            <summary class="text-xs text-muted cursor-pointer d-flex justify-content-between align-items-center">
+              <span>📜 <strong>Архів завершених замовлень (${completedOrders.length})</strong></span>
+              <span class="text-cyan">Показати завершені бусти ▾</span>
+            </summary>
+            <div class="catalog-grid mt-3">
+              ${renderCompletedBoosterCards(completedOrders)}
+            </div>
+          </details>
+        </div>
+      ` : ''}
+    `;
     if (container) container.innerHTML = emptyHtml;
     if (profileContainer) profileContainer.innerHTML = emptyHtml;
     return;
   }
 
-  const myOrdersHtml = boosterMyOrders.map(order => `
-    <div class="booster-order-card cyber-card ${order.status === 'completed' ? 'border-success' : 'border-cyan'}">
+  const activeOrdersHtml = activeOrders.map(order => {
+    const payoutUSD = Math.round((order.price || 0) * 0.8);
+    const payoutUAH = Math.round((order.priceUAH || (order.price || 0) * 41.5) * 0.8);
+    const initialPct = order.progressPercent || 0;
+    const basePrice = order.originalPrice || order.price || 0;
+    const initialCalcPrice = Math.max(1, Math.round(basePrice * (Math.max(1, initialPct) / 100)));
+
+    let partialAlert = '';
+    if (order.partialClose && order.partialClose.status === 'pending') {
+      partialAlert = `
+        <div class="p-3 mb-3 cyber-box border-warning" style="background: rgba(234, 179, 8, 0.1);">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span style="font-size: 1.1rem;">⏳</span>
+            <strong class="text-warning text-xs">Запит на дострокове закриття надіслано клієнту</strong>
+          </div>
+          <div class="text-xs text-muted">
+            Ви запропонували завершити буст на <strong>${order.partialClose.progressPercent}%</strong> за зменшеною сумою <strong>$${order.partialClose.proposedPrice} (${order.partialClose.proposedPriceUAH} ₴)</strong>. Очікуємо підтвердження клієнта.
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+    <div class="booster-order-card cyber-card border-cyan">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="badge ${order.status === 'completed' ? 'badge-success' : 'badge-info'}">
-          ${order.status === 'completed' ? '✅ Виконано' : '⚡ В процесі'}
-        </span>
-        <span class="fw-bold text-success">$${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</span>
+        <span class="badge badge-info">⚡ В процесі</span>
+        <span class="text-xs text-muted">Ціна: $${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</span>
       </div>
-      <h4>${order.title}</h4>
+      <h4 style="margin-bottom: 4px;">${order.title}</h4>
       <div class="text-muted text-xs mb-2">Клієнт: <strong>${order.clientName}</strong> (${order.accountCredentials?.login || 'Login'})</div>
+
+      <!-- Booster Payout Highlight for this order -->
+      <div class="p-2 mb-3 cyber-box d-flex justify-content-between align-items-center" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm);">
+        <span class="text-xs text-muted">💰 Ви отримаєте за цей буст (80%):</span>
+        <span class="text-sm fw-bold text-success">+${payoutUSD} (${payoutUAH} ₴)</span>
+      </div>
 
       <div class="progress-bar-container my-3">
         <div class="d-flex justify-content-between text-xs mb-1">
@@ -825,31 +879,44 @@ function renderBoosterMyOrders() {
         </div>
       </div>
 
-      ${order.status !== 'completed' ? `
-        <div class="booster-control-box p-3 mb-3">
-          <div class="mb-2">
-            <label class="form-label text-xs">Оновити поточний ранг / статус:</label>
-            <input type="text" id="booster-rank-input-${order.id}" class="form-control form-control-sm" placeholder="Напр: Gold 3 (+45 RR)" value="${order.progressRank || ''}" />
-          </div>
-          <div class="mb-2">
-            <label class="form-label text-xs">Відсоток виконання (%):</label>
-            <input type="range" id="booster-slider-${order.id}" class="form-range" min="0" max="100" value="${order.progressPercent || 0}" oninput="document.getElementById('slider-val-${order.id}').textContent = this.value + '%'" />
-            <div class="text-end text-xs text-muted"><span id="slider-val-${order.id}">${order.progressPercent || 0}%</span></div>
-          </div>
-          <div class="mb-2">
-            <label class="form-label text-xs">Посилання на стрім (Twitch / Discord):</label>
-            <input type="text" id="booster-stream-${order.id}" class="form-control form-control-sm" placeholder="https://twitch.tv/..." value="${order.streamUrl || ''}" />
-          </div>
-          <div class="d-flex gap-2 mt-3">
-            <button class="btn btn-primary btn-sm flex-grow-1" onclick="submitBoosterProgress('${order.id}')">
-              💾 Зберегти прогрес
-            </button>
-            <button class="btn btn-success btn-sm" onclick="completeBoosterOrder('${order.id}')">
-              🎉 Завершити на 100%
-            </button>
+      ${partialAlert}
+      <div class="booster-control-box p-3 mb-3">
+        <div class="mb-2">
+          <label class="form-label text-xs">Оновити поточний ранг / статус:</label>
+          <input type="text" id="booster-rank-input-${order.id}" class="form-control form-control-sm" placeholder="Напр: Gold 3 (+45 RR)" value="${order.progressRank || ''}" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label text-xs">Відсоток виконання (%):</label>
+          <input type="range" id="booster-slider-${order.id}" class="form-range" min="0" max="100" value="${initialPct}" oninput="updateBoosterSliderDisplay('${order.id}', this.value, ${basePrice})" />
+          <div class="d-flex justify-content-between text-xs text-muted mt-1">
+            <span>Прогрес: <strong id="slider-val-${order.id}" class="text-cyan">${initialPct}%</strong></span>
+            <span id="slider-price-calc-${order.id}" class="text-warning">Сума при закритті: $${initialCalcPrice}</span>
           </div>
         </div>
-      ` : ''}
+
+        <!-- Partial Boost Close Proposal Button -->
+        <div class="mb-3">
+          <button type="button" class="btn btn-outline-warning btn-sm w-100" id="btn-partial-close-${order.id}" onclick="requestBoosterPartialClose('${order.id}')" title="Запропонувати клієнту закрити буст на поточному відсотку за зменшеною ціною">
+            ⏹️ Запропонувати закрити на <span id="btn-partial-pct-${order.id}">${initialPct}%</span> (за <span id="btn-partial-price-${order.id}">$${initialCalcPrice}</span>)
+          </button>
+          <div class="text-muted text-dim mt-1" style="font-size: 0.7rem;">
+            *Якщо клієнт погодиться, ціна замовлення зменшиться пропорційно. Якщо відхилить — буст продовжиться.
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label text-xs">Посилання на стрім (Twitch / Discord):</label>
+          <input type="text" id="booster-stream-${order.id}" class="form-control form-control-sm" placeholder="https://twitch.tv/..." value="${order.streamUrl || ''}" />
+        </div>
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-primary btn-sm flex-grow-1" onclick="submitBoosterProgress('${order.id}')">
+            💾 Зберегти прогрес
+          </button>
+          <button class="btn btn-success btn-sm" onclick="completeBoosterOrder('${order.id}')">
+            🎉 Завершити на 100%
+          </button>
+        </div>
+      </div>
 
       <div class="d-flex gap-2">
         <button class="btn btn-outline btn-sm flex-grow-1" onclick="openLiveChat('${order.id}', '${order.title}')">
@@ -860,10 +927,66 @@ function renderBoosterMyOrders() {
         </button>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
-  if (container) container.innerHTML = myOrdersHtml;
-  if (profileContainer) profileContainer.innerHTML = myOrdersHtml;
+  const completedAccordionHtml = completedOrders.length > 0 ? `
+    <div class="col-12 mt-4" style="grid-column: 1 / -1;">
+      <details class="cyber-box p-3">
+        <summary class="text-xs text-muted cursor-pointer d-flex justify-content-between align-items-center">
+          <span>📜 <strong>Архів завершених замовлень (${completedOrders.length})</strong></span>
+          <span class="text-cyan">Показати завершені бусти ▾</span>
+        </summary>
+        <div class="catalog-grid mt-3">
+          ${renderCompletedBoosterCards(completedOrders)}
+        </div>
+      </details>
+    </div>
+  ` : '';
+
+  const fullHtml = activeOrdersHtml + completedAccordionHtml;
+
+  if (container) container.innerHTML = fullHtml;
+  if (profileContainer) profileContainer.innerHTML = fullHtml;
+}
+
+function renderCompletedBoosterCards(completedOrders) {
+  return completedOrders.map(order => {
+    const payoutUSD = Math.round((order.price || 0) * 0.8);
+    const payoutUAH = Math.round((order.priceUAH || (order.price || 0) * 41.5) * 0.8);
+
+    let closedLabel = '🎉 Завершено на 100%';
+    if (order.closedBy === 'client') {
+      closedLabel = '✅ Прийнято та закрито клієнтом';
+    } else if (order.closedBy === 'client_partial_agreement') {
+      closedLabel = `🤝 Закрито за взаємною згодою на ${order.progressPercent}%`;
+    }
+
+    return `
+      <div class="booster-order-card cyber-card border-success" style="opacity: 0.94;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="badge badge-success">✅ Виконано</span>
+          <span class="text-xs text-muted">ID: ${order.id}</span>
+        </div>
+        <h4 style="margin-bottom: 4px;">${order.title}</h4>
+        <div class="text-muted text-xs mb-2">Клієнт: <strong>${order.clientName}</strong></div>
+
+        <div class="p-2 mb-2 cyber-box text-xs border-success" style="background: rgba(16, 185, 129, 0.1);">
+          <div class="text-success fw-bold">${closedLabel}</div>
+          <div class="text-muted mt-1">Виплачено бустеру: <strong class="text-success">+$${payoutUSD} (${payoutUAH} ₴)</strong></div>
+        </div>
+
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-outline btn-xs flex-grow-1" onclick="openLiveChat('${order.id}', '${order.title}')">
+            💬 Чат
+          </button>
+          <button class="btn btn-dark btn-xs" onclick="openOrderTrackerModal('${order.id}')">
+            📊 Трекер
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 async function claimBoosterOrder(orderId) {
@@ -974,6 +1097,76 @@ async function completeBoosterOrder(orderId) {
     }
   } catch (err) {
     console.error('Complete error:', err);
+  }
+}
+
+function updateBoosterSliderDisplay(orderId, val, basePrice) {
+  const numVal = parseInt(val, 10) || 0;
+  const valEl = document.getElementById(`slider-val-${orderId}`);
+  if (valEl) valEl.textContent = numVal + '%';
+
+  const priceCalc = Math.max(1, Math.round(basePrice * (Math.max(1, numVal) / 100)));
+  const priceCalcEl = document.getElementById(`slider-price-calc-${orderId}`);
+  if (priceCalcEl) priceCalcEl.textContent = `Сума при закритті: $${priceCalc}`;
+
+  const btnPct = document.getElementById(`btn-partial-pct-${orderId}`);
+  if (btnPct) btnPct.textContent = numVal + '%';
+
+  const btnPrice = document.getElementById(`btn-partial-price-${orderId}`);
+  if (btnPrice) btnPrice.textContent = `$${priceCalc}`;
+}
+
+async function requestBoosterPartialClose(orderId) {
+  const slider = document.getElementById(`booster-slider-${orderId}`);
+  const pct = parseInt(slider?.value, 10) || 50;
+
+  if (pct <= 0) {
+    notify.show({ title: 'Помилка', message: 'Відсоток виконання має бути більше 0% для дострокового закриття!', type: 'warning' });
+    return;
+  }
+  if (pct >= 100) {
+    completeBoosterOrder(orderId);
+    return;
+  }
+
+  const order = (boosterMyOrders || []).find(o => o.id === orderId);
+  const basePrice = order ? (order.originalPrice || order.price) : 0;
+  const calcPrice = Math.max(1, Math.round(basePrice * (pct / 100)));
+  const calcPriceUAH = Math.round(calcPrice * 41.5);
+
+  const confirmed = confirm(`Ви бажаєте запропонувати клієнту закрити буст на ${pct}% виконання за зменшеною ціною $${calcPrice} (${calcPriceUAH} ₴ замість $${basePrice})?`);
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`/api/orders/${orderId}/partial-close-request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        progressPercent: pct,
+        note: `Бустер запропонував завершити буст на ${pct}% за $${calcPrice} (${calcPriceUAH} ₴)`
+      })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      notify.show({
+        title: 'Запит надіслано клієнту! 📨',
+        message: `Запропоновано закрити на ${pct}% за ціною $${calcPrice} (${calcPriceUAH} ₴). Очікуємо підтвердження клієнта.`,
+        type: 'info'
+      });
+      if (socket && socket.connected) {
+        socket.emit('order_progress_sync', data.order);
+      }
+      loadBoosterData();
+    } else {
+      const data = await res.json();
+      notify.show({ title: 'Помилка', message: data.error || 'Не вдалося надіслати запит', type: 'warning' });
+    }
+  } catch (err) {
+    console.error('Partial close request error:', err);
   }
 }
 
@@ -1137,3 +1330,235 @@ window.selectBoosterStatusOption = selectBoosterStatusOption;
 window.submitBoosterProfileUpdate = submitBoosterProfileUpdate;
 window.changeBoosterPeriod = changeBoosterPeriod;
 window.adminUpdateBoosterVerification = adminUpdateBoosterVerification;
+
+
+// ---------------- BOOSTER WALLET & EARNINGS BREAKDOWN ----------------
+
+function renderBoosterWalletUI() {
+  if (!currentUser || (currentUser.role !== 'booster' && currentUser.role !== 'admin')) return;
+
+  const completedOrders = (boosterMyOrders || []).filter(o => o.status === 'completed');
+  const inProgressOrders = (boosterMyOrders || []).filter(o => o.status !== 'completed');
+
+  const earnedUSD = completedOrders.reduce((sum, o) => sum + Math.round((o.price || 0) * 0.8), 0);
+  const earnedUAH = completedOrders.reduce((sum, o) => sum + Math.round((o.priceUAH || (o.price || 0) * 41.5) * 0.8), 0);
+
+  const pendingUSD = inProgressOrders.reduce((sum, o) => sum + Math.round((o.price || 0) * 0.8), 0);
+  const pendingUAH = inProgressOrders.reduce((sum, o) => sum + Math.round((o.priceUAH || (o.price || 0) * 41.5) * 0.8), 0);
+
+  const totalEarnedUSD = earnedUSD + pendingUSD;
+  const totalEarnedUAH = earnedUAH + pendingUAH;
+
+  // 1. Update wallet badge in profile tab
+  const walletBadge = document.getElementById('profile-booster-wallet-badge');
+  if (walletBadge) {
+    walletBadge.textContent = `$${earnedUSD}`;
+  }
+
+  // 2. Hide hero right-side badge in booster profile as requested
+  const heroBadge = document.getElementById('profile-hero-right-badge');
+  if (heroBadge) {
+    heroBadge.style.display = 'none';
+  }
+
+  // 3. Update quick banner in Tab 1 (Settings)
+  const quickBanner = document.getElementById('profile-booster-wallet-banner');
+  if (quickBanner) {
+    quickBanner.innerHTML = `
+      <div class="cyber-box p-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(14, 18, 34, 0.9)); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-md);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div style="font-size: 2rem; background: rgba(16, 185, 129, 0.2); border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+              💳
+            </div>
+            <div>
+              <div class="text-xs text-muted">Гаманець бустера (Виплата 80%):</div>
+              <div class="d-flex align-items-baseline gap-2">
+                <span class="text-xl fw-bold text-success">$${earnedUSD}</span>
+                <span class="text-sm text-muted">(${earnedUAH} ₴)</span>
+                <span class="badge badge-success text-xs">Доступно</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="text-end">
+              <div class="text-xs text-warning fw-bold">⏳ За бусти в роботі:</div>
+              <div class="text-md fw-bold text-gold">+$${pendingUSD} <small class="text-xs text-muted">(${pendingUAH} ₴)</small></div>
+              <div class="text-xs text-muted">ви отримаєте після виконання</div>
+            </div>
+            <button type="button" class="btn btn-success btn-sm" onclick="switchClientTab('booster-wallet')">
+              💸 Деталі та виплата
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 4. Update full wallet container in Tab 6
+  const walletContainer = document.getElementById('profile-booster-wallet-content');
+  if (walletContainer) {
+    walletContainer.innerHTML = `
+      <div class="booster-wallet-view">
+        <!-- 3 Balance Cards -->
+        <div class="row g-3 mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+          <!-- Card 1: Available Balance -->
+          <div class="cyber-card p-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(14, 18, 34, 0.9)); border: 1px solid rgba(16, 185, 129, 0.5);">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-xs text-muted">💰 Доступно до виплати:</span>
+              <span class="badge badge-success text-xs">Готово до виводу</span>
+            </div>
+            <div class="d-flex align-items-baseline gap-2 my-2">
+              <span class="text-2xl fw-bold text-success">$${earnedUSD}</span>
+              <span class="text-sm text-muted">(${earnedUAH} ₴)</span>
+            </div>
+            <div class="text-xs text-muted">Зароблені кошти за завершені замовлення (${completedOrders.length} вик.)</div>
+          </div>
+
+          <!-- Card 2: Pending Payout ("за скільки він получить денгов") -->
+          <div class="cyber-card p-3" style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(14, 18, 34, 0.9)); border: 1px solid rgba(234, 179, 8, 0.5);">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-xs text-warning fw-bold">⏳ За замовлення в роботі:</span>
+              <span class="badge badge-warning text-xs">${inProgressOrders.length} активних</span>
+            </div>
+            <div class="d-flex align-items-baseline gap-2 my-2">
+              <span class="text-2xl fw-bold text-gold">+$${pendingUSD}</span>
+              <span class="text-sm text-muted">(${pendingUAH} ₴)</span>
+            </div>
+            <div class="text-xs text-warning">Ви отримаєте ці кошти одразу після виконання поточних бустів</div>
+          </div>
+
+          <!-- Card 3: Total Earnings & Rate -->
+          <div class="cyber-card p-3" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(14, 18, 34, 0.9)); border: 1px solid rgba(0, 240, 255, 0.35);">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-xs text-muted">⚡ Загальний оборот:</span>
+              <span class="badge badge-info text-xs">Ставка: 80%</span>
+            </div>
+            <div class="d-flex align-items-baseline gap-2 my-2">
+              <span class="text-2xl fw-bold text-cyan">$${totalEarnedUSD}</span>
+              <span class="text-sm text-muted">(${totalEarnedUAH} ₴)</span>
+            </div>
+            <div class="text-xs text-muted">Всього зароблено та очікується в роботі</div>
+          </div>
+        </div>
+
+        <!-- Breakdown per Active Order -->
+        <div class="cyber-box p-3 mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="text-cyan mb-1" style="font-size: 1.1rem; margin: 0;">🎮 За скільки грошей ви отримаєте за активні замовлення</h4>
+              <div class="text-xs text-muted">Детальний розрахунок вашої виплати (80%) за кожне прийняте замовлення:</div>
+            </div>
+            <span class="badge badge-gold">${inProgressOrders.length} у роботі</span>
+          </div>
+
+          ${inProgressOrders.length === 0 ? `
+            <div class="p-4 text-center text-muted text-xs">
+              <div style="font-size: 1.8rem; margin-bottom: 6px;">⏳</div>
+              У вас наразі немає активних замовлень у процесі виконання.<br />
+              Перейдіть у вкладку <strong>«⚡ Буст замовлення»</strong> та прийміть вільне замовлення в роботу!
+            </div>
+          ` : `
+            <div class="d-flex flex-column gap-2">
+              ${inProgressOrders.map(order => {
+                const payoutUSD = Math.round((order.price || 0) * 0.8);
+                const payoutUAH = Math.round((order.priceUAH || (order.price || 0) * 41.5) * 0.8);
+                return `
+                  <div class="p-3 cyber-card d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: var(--radius-sm);">
+                    <div>
+                      <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <span class="badge badge-info text-xs">${order.gameName}</span>
+                        <strong style="font-size: 0.95rem;">${order.title}</strong>
+                        <span class="text-xs text-muted">ID: ${order.id}</span>
+                      </div>
+                      <div class="text-xs text-muted">
+                        Клієнт: <strong>${order.clientName}</strong> | Прогрес: <strong class="text-gold">${order.progressPercent || 0}%</strong> (${order.progressRank || order.currentRank})
+                        ${(order.isCustomPrice || order.options?.isCustomPrice) ? '<span class="custom-price-badge-tag ml-1">💰 Ціна клієнта</span>' : ''}
+                      </div>
+                    </div>
+
+                    <div class="text-end">
+                      <span class="text-xs text-muted">Ваша чиста виплата (80%):</span>
+                      <div class="text-lg fw-bold text-success">
+                        +$${payoutUSD} <small class="text-muted" style="font-size: 0.85rem;">(${payoutUAH} ₴)</small>
+                      </div>
+                      <span class="text-xs text-dim">Ціна клієнта: $${order.price}</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `}
+        </div>
+
+        <!-- Withdrawal Form -->
+        <div class="cyber-box p-3">
+          <h4 class="text-cyan mb-2" style="font-size: 1.1rem; margin: 0;">💸 Замовити виведення зароблених коштів</h4>
+          <div class="text-xs text-muted mb-3">Виплати на картки українських банків (Monobank, PrivatBank) та USDT зараховуються протягом 5-15 хвилин.</div>
+
+          <form onsubmit="handleBoosterPayoutRequest(event)">
+            <div class="row-2-col mb-3">
+              <div>
+                <label class="form-label text-xs">Спосіб виплати:</label>
+                <select id="payout-method" class="form-control text-xs">
+                  <option value="card_ua">💳 Банківська картка UA (Monobank / PrivatBank / Visa / MC)</option>
+                  <option value="usdt">💎 USDT (TRC-20 / BEP-20)</option>
+                  <option value="iban">🏦 IBAN рахунок (UAH)</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-xs">Реквізити (Номер картки або USDT гаманець):</label>
+                <input type="text" id="payout-address" class="form-control text-xs" placeholder="4149 4991 .... або T..." required />
+              </div>
+            </div>
+
+            <div class="row-2-col mb-3">
+              <div>
+                <label class="form-label text-xs">Сума для виведення ($ USD):</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="number" id="payout-amount-usd" class="form-control text-xs fw-bold text-success" min="5" max="${Math.max(earnedUSD, 5)}" value="${earnedUSD > 0 ? earnedUSD : 0}" required />
+                  <button type="button" class="btn btn-outline-cyan btn-xs" onclick="document.getElementById('payout-amount-usd').value = ${earnedUSD};">Вся сума</button>
+                </div>
+              </div>
+              <div class="d-flex align-items-end">
+                <button type="submit" class="btn btn-success btn-sm w-100" ${earnedUSD <= 0 ? 'disabled' : ''}>
+                  🚀 Підтвердити виплату $${earnedUSD > 0 ? earnedUSD : 0}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function handleBoosterPayoutRequest(event) {
+  if (event) event.preventDefault();
+  const address = document.getElementById('payout-address')?.value?.trim();
+  const amount = parseFloat(document.getElementById('payout-amount-usd')?.value);
+
+  if (!address) {
+    notify.show({ title: 'Помилка', message: 'Вкажіть реквізити картки чи гаманця!', type: 'warning' });
+    return;
+  }
+  if (isNaN(amount) || amount <= 0) {
+    notify.show({ title: 'Помилка', message: 'Вкажіть коректну суму для виведення!', type: 'warning' });
+    return;
+  }
+
+  notify.show({
+    title: 'Запит на виплату створено! 💸',
+    message: `Суму $${amount} (${Math.round(amount * 41.5)} ₴) відправлено на ${address.slice(0, 6)}... Зарахування протягом 5-15 хвилин.`,
+    type: 'success',
+    sound: 'rankup'
+  });
+}
+
+window.renderBoosterWalletUI = renderBoosterWalletUI;
+window.handleBoosterPayoutRequest = handleBoosterPayoutRequest;
+window.updateBoosterSliderDisplay = updateBoosterSliderDisplay;
+window.requestBoosterPartialClose = requestBoosterPartialClose;
+window.renderCompletedBoosterCards = renderCompletedBoosterCards;
+window.renderBoosterMyOrders = renderBoosterMyOrders;

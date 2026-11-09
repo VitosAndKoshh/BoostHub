@@ -262,16 +262,6 @@
         <!-- Injected by calculator.js -->
       </div>
 
-      <!-- Crypto Bonus Banner (From photo) -->
-      <div class="crypto-bonus-banner mb-4">
-        <div class="crypto-bonus-tag">CRYPTO BONUS</div>
-        <div class="crypto-bonus-content">
-          <div class="crypto-bonus-title">Знижка при оплаті криптовалютою 10%</div>
-          <div class="crypto-bonus-desc">Оплачуй замовлення криптовалютою та отримуй додаткову знижку і кешбек.</div>
-        </div>
-        <div class="crypto-bonus-badge">10% OFF</div>
-      </div>
-
       <!-- Top Dual-Card Grid (Starting Rank vs Target Rank matching exact UI) -->
       <div class="faceit-calc-top-grid">
         <!-- Left Starting Rank Card -->
@@ -923,25 +913,8 @@
               </div>
             </div>
 
-            <!-- Avatar Presets -->
-            <div class="mb-3">
-              <label class="form-label">Оберіть аватар бустера:</label>
-              <div class="avatar-presets-grid mb-2">
-                <div class="avatar-preset-item" onclick="selectBoosterAvatar('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')">
-                  <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" />
-                </div>
-                <div class="avatar-preset-item" onclick="selectBoosterAvatar('https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150')">
-                  <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100" />
-                </div>
-                <div class="avatar-preset-item" onclick="selectBoosterAvatar('https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150')">
-                  <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100" />
-                </div>
-                <div class="avatar-preset-item" onclick="selectBoosterAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')">
-                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" />
-                </div>
-              </div>
-              <input type="url" id="booster-settings-avatar-input" class="form-control text-xs" placeholder="Або вставте свій URL аватарки" />
-            </div>
+            <!-- Avatar Presets (hidden) -->
+            <input type="hidden" id="booster-settings-avatar-input" />
 
             <div class="d-flex justify-content-end gap-2 mt-4">
               <button type="submit" class="btn btn-primary">💾 Зберегти дані бустера</button>
@@ -1053,23 +1026,14 @@
             <div id="profile-display-email" class="text-xs text-muted"></div>
             <div id="profile-display-joined" class="text-xs text-dim mt-1"></div>
           </div>
-          <div class="client-vip-pill ml-auto p-2 cyber-box d-flex align-items-center gap-2">
-            <span style="font-size: 1.5rem;">💎</span>
-            <div>
-              <div class="fw-bold text-gold" style="font-size: 0.85rem;">CyberBoost Account</div>
-              <div class="text-xs text-muted" id="profile-hero-status-subtitle">Особисті дані та ігри</div>
-            </div>
+          <div class="ml-auto d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="closeUserProfileModal(); logoutUser();" style="border-radius: var(--radius-full); font-weight: 700; white-space: nowrap; padding: 7px 16px; border: 1px solid rgba(239,68,68,0.7); background: rgba(239,68,68,0.15);">
+              🚪 Вийти з акаунту
+            </button>
           </div>
         </div>
 
-        <!-- Quick Role Switch Toolbar inside Profile -->
-        <div class="p-2 mb-3 cyber-box d-flex justify-content-between align-items-center flex-wrap gap-2 text-xs">
-          <span class="text-muted">Швидке перемикання ролі для перевірки кабінету:</span>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-cyan btn-xs" onclick="switchDemoRole('client'); setTimeout(() => openUserProfileModal('settings'), 200);">👤 Тест як Клієнт</button>
-            <button type="button" class="btn btn-outline-cyan btn-xs" onclick="switchDemoRole('booster'); setTimeout(() => openUserProfileModal('settings'), 200);">⚡ Тест як Бустер</button>
-          </div>
-        </div>
+        
 
         <!-- Account Nav Tabs -->
         <div class="d-flex gap-2 mb-4 border-bottom pb-3 flex-wrap" style="border-color: var(--border-color) !important;">
@@ -1085,6 +1049,9 @@
           <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="booster-my" id="profile-tab-booster-my" onclick="switchClientTab('booster-my')" style="display:none;">
             🎮 Замовлення в роботі <span id="profile-booster-my-count" class="badge badge-success ml-1">0</span>
           </button>
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="booster-wallet" id="profile-tab-booster-wallet" onclick="switchClientTab('booster-wallet')" style="display:none;">
+            💳 Гаманець бустера <span id="profile-booster-wallet-badge" class="badge badge-success ml-1">$0</span>
+          </button>
           <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="newboost" id="profile-tab-newboost" onclick="switchClientTab('newboost')">
             🚀 Замовити новий буст
           </button>
@@ -1092,6 +1059,9 @@
 
         <!-- Tab 1: Account / Profile Page -->
         <div id="client-tab-settings" class="client-tab-content">
+          <!-- Booster Wallet Quick Widget (Shown only for boosters) -->
+          <div id="profile-booster-wallet-banner" class="mb-4" style="display: none;"></div>
+
           <!-- 1. Common Account Information -->
           <div class="cyber-box p-4 mb-4">
             <h4 class="mb-3 text-cyan" style="font-size: 1.15rem;">👤 Common Account Information</h4>
@@ -1119,25 +1089,8 @@
                 <input type="text" id="profile-status-message-input" class="form-control text-xs" placeholder="Повідомлення до статусу (напр: Очікую на бустера / Граю)" />
               </div>
 
-              <!-- Avatar selection -->
-              <div class="mb-3">
-                <label class="form-label">Avatar (Оберіть або вкажіть URL):</label>
-                <div class="avatar-presets-grid mb-2">
-                  <div class="avatar-preset-item" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" />
-                  </div>
-                  <div class="avatar-preset-item" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150')">
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" />
-                  </div>
-                  <div class="avatar-preset-item" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150')">
-                    <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100" />
-                  </div>
-                  <div class="avatar-preset-item" onclick="selectPresetAvatar('https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150')">
-                    <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100" />
-                  </div>
-                </div>
-                <input type="url" id="profile-avatar-input" class="form-control text-xs" placeholder="Або вставте посилання на своє фото (URL)" oninput="updateProfileAvatarPreview(this.value)" />
-              </div>
+              <!-- Avatar selection (hidden) -->
+              <input type="hidden" id="profile-avatar-input" />
 
               <!-- Password change -->
               <div class="accordion-box mb-3">
@@ -1283,6 +1236,13 @@
           </div>
           <div id="profile-booster-my-list" class="catalog-grid">
             <!-- Rendered dynamically by dashboard.js -->
+          </div>
+        </div>
+
+        <!-- Tab 6: Booster Wallet & Earnings -->
+        <div id="client-tab-booster-wallet" class="client-tab-content" style="display: none;">
+          <div id="profile-booster-wallet-content">
+            <!-- Rendered dynamically by dashboard.js renderBoosterWalletUI() -->
           </div>
         </div>
       </div>

@@ -237,11 +237,171 @@ router.post('/:id/progress', authMiddleware, staffMiddleware, (req, res) => {
   if (updates.progressPercent >= 100 || status === 'completed') {
     updates.status = 'completed';
     updates.completedAt = order.completedAt || new Date().toISOString();
-    updates.timeline.push({ time: new Date().toISOString(), text: '🎉 Буст успішно виконано на 100%!' });
+    updates.closedBy = 'booster';
+    updates.timeline.push({ time: new Date().toISOString(), text: `🎉 Буст успішно виконано на 100% бустером ${req.user.name || ''}!` });
   }
 
   const updated = db.updateOrder(req.params.id, updates);
   res.json({ order: updated });
+});
+
+// POST /api/orders/:id/partial-close-request - Booster requests to close early at X% progress with reduced price
+router.post('/:id/partial-close-request', authMiddleware, staffMiddleware, (req, res) => {
+  const order = db.getOrderById(req.params.id);
+  if (!order) {
+    return res.status(404).json({ error: 'Замовлення не знайдено' });
+  }
+
+  if (order.boosterId && order.boosterId !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Тільки призначений бустер або адмін може запропонувати дострокове закриття' });
+  }
+
+  const { progressPercent, note } = req.body;
+  const percent = Math.min(99, Math.max(1, parseInt(progressPercent, 10) || 50));
+  const basePrice = order.originalPrice || order.price;
+  const proposedPrice = Math.max(1, Math.round(basePrice * (percent / 100)));
+  const proposedPriceUAH = Math.round(proposedPrice * 41.5);
+
+  const partialClose = {
+    status: 'pending',
+    requestedBy: req.user.id,
+    requestedByName: req.user.name,
+    requestedAt: new Date().toISOString(),
+    progressPercent: percent,
+    originalPrice: basePrice,
+    proposedPrice: proposedPrice,
+    proposedPriceUAH: proposedPriceUAH,
+    note: note || `Бустер запропонував закрити замовлення на ${percent}% за зменшеною ціною $${proposedPrice} (${proposedPriceUAH} ₴).`
+  };
+
+  const timelineMsg = `⏹️ Бустер ${req.user.name} запропонував достроково завершити буст на ${percent}% виконання. Запропонована нова ціна: $${proposedPrice} (${proposedPriceUAH} ₴ замість $${basePrice}). Очікується відповідь клієнта.`;
+
+  const updates = {
+    progressPercent: percent,
+    partialClose: partialClose,
+    timeline: [...order.timeline, { time: new Date().toISOString(), text: timelineMsg }]
+  };
+
+  try {
+    db.addChatMessage(order.id, {
+      senderRole: 'system',
+      senderName: 'CyberBoost Arbitrage',
+      message: `🔔 Бустер запропонував завершити буст на ${percent}% за зменшеною ціною $${proposedPrice} (${proposedPriceUAH} ₴). Клієнт може погодитися або відхилити пропозицію в трекері замовлення.`
+    });
+  } catch (e) {
+    console.error('Chat message error:', e);
+  }
+
+  const updated = db.updateOrder(req.params.id, updates);
+  res.json({ success: true, order: updated });
+});
+
+// POST /api/orders/:id/partial-close-respond - Client accepts or declines partial closure
+router.post('/:id/partial-close-respond', authMiddleware, (req, res) => {
+  const order = db.getOrderById(req.params.id);
+  if (!order) {
+    return res.status(404).json({ error: 'Замовлення не знайдено' });
+  }
+
+  if (order.clientId && order.clientId !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Лише замовник або адміністратор може відповісти на пропозицію' });
+  }
+
+  if (!order.partialClose || order.partialClose.status !== 'pending') {
+    return res.status(400).json({ error: 'Немає активної пропозиції дострокового закриття' });
+  }
+
+  const { accept } = req.body;
+  const updates = {};
+
+  if (accept) {
+    const finalPrice = order.partialClose.proposedPrice;
+    const finalPriceUAH = order.partialClose.proposedPriceUAH;
+    const finalPercent = order.partialClose.progressPercent;
+
+    updates.price = finalPrice;
+    updates.priceUAH = finalPriceUAH;
+    updates.progressPercent = finalPercent;
+    updates.status = 'completed';
+    updates.completedAt = new Date().toISOString();
+    updates.closedBy = 'client_partial_agreement';
+    updates.partialClose = {
+      ...order.partialClose,
+      status: 'accepted',
+      resolvedAt: new Date().toISOString(),
+      resolvedBy: req.user.id
+    };
+
+    const timelineMsg = `🤝 Клієнт ${req.user.name} погодився на дострокове закриття бусту на ${finalPercent}% за зменшеною ціною $${finalPrice} (${finalPriceUAH} ₴). Замовлення успішно завершено!`;
+    updates.timeline = [...order.timeline, { time: new Date().toISOString(), text: timelineMsg }];
+
+    try {
+      db.addChatMessage(order.id, {
+        senderRole: 'system',
+        senderName: 'CyberBoost Arbitrage',
+        message: `🤝 Умови дострокового закриття прийнято замовником! Ціну перераховано до $${finalPrice} (${finalPriceUAH} ₴). Буст завершено.`
+      });
+    } catch (e) {}
+  } else {
+    updates.partialClose = {
+      ...order.partialClose,
+      status: 'declined',
+      resolvedAt: new Date().toISOString(),
+      resolvedBy: req.user.id
+    };
+
+    const timelineMsg = `❌ Клієнт ${req.user.name} не погодився на дострокове закриття бусту. Буст продовжується у звичайному режимі.`;
+    updates.timeline = [...order.timeline, { time: new Date().toISOString(), text: timelineMsg }];
+
+    try {
+      db.addChatMessage(order.id, {
+        senderRole: 'system',
+        senderName: 'CyberBoost Arbitrage',
+        message: `❌ Клієнт не погодився на дострокове закриття за зменшеною ціною. Роботу над бустом буде продовжено.`
+      });
+    } catch (e) {}
+  }
+
+  const updated = db.updateOrder(req.params.id, updates);
+  res.json({ success: true, order: updated, accepted: !!accept });
+});
+
+// POST /api/orders/:id/client-complete - Client confirms completion and closes boost (Two-party completion)
+router.post('/:id/client-complete', authMiddleware, (req, res) => {
+  const order = db.getOrderById(req.params.id);
+  if (!order) {
+    return res.status(404).json({ error: 'Замовлення не знайдено' });
+  }
+
+  if (order.clientId && order.clientId !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Лише замовник або адміністратор може підтвердити виконання' });
+  }
+
+  if (order.status === 'completed') {
+    return res.status(400).json({ error: 'Замовлення вже завершено' });
+  }
+
+  const updates = {
+    status: 'completed',
+    progressPercent: 100,
+    completedAt: new Date().toISOString(),
+    closedBy: 'client',
+    timeline: [
+      ...order.timeline,
+      { time: new Date().toISOString(), text: `✅ Замовник ${req.user.name} підтвердив повне виконання робіт та успішно закрив замовлення!` }
+    ]
+  };
+
+  try {
+    db.addChatMessage(order.id, {
+      senderRole: 'system',
+      senderName: 'CyberBoost Arbitrage',
+      message: `✅ Замовник підтвердив завершення бусту! Роботу прийнято, буст офіційно закрито.`
+    });
+  } catch (e) {}
+
+  const updated = db.updateOrder(req.params.id, updates);
+  res.json({ success: true, order: updated });
 });
 
 // POST /api/orders/:id/verify-payment (Admin only)

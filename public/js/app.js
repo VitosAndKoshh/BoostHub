@@ -157,10 +157,6 @@ function updateUserAuthUI() {
 
     authNav.innerHTML = `
       <div class="user-profile-badge">
-        <div class="logged-role-badge ${roleInfo.class}">
-          <span class="logged-role-label">Ви увійшли як:</span>
-          <span class="logged-role-value">${roleInfo.full}</span>
-        </div>
         <button class="btn btn-profile-nav btn-sm" onclick="${profileClickAction}" title="Особистий профіль (${statusInfo.full})">
           <span class="status-dot status-${statusInfo.class}" title="Мій статус: ${statusInfo.full}"></span>
           <img src="${currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}" class="user-avatar-sm" />
@@ -292,6 +288,69 @@ function renderOrderDetailsView(order) {
 
   const statusInfo = statusMap[order.status] || { label: order.status, badgeClass: 'badge-info' };
 
+  let completionInfo = '';
+  if (order.status === 'completed') {
+    if (order.closedBy === 'client') {
+      completionInfo = `<div class="p-3 mb-3 cyber-box border-success" style="background: rgba(16, 185, 129, 0.12);"><span class="text-success fw-bold">✅ Роботу прийнято та закрито замовником!</span> Буст успішно виконано на 100%.</div>`;
+    } else if (order.closedBy === 'client_partial_agreement') {
+      completionInfo = `<div class="p-3 mb-3 cyber-box border-info" style="background: rgba(59, 130, 246, 0.12);"><span class="text-cyan fw-bold">🤝 Буст достроково закрито за взаємною згодою сторін!</span> Виконано на ${order.progressPercent || 50}%, фінальна сума: $${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴).</div>`;
+    } else {
+      completionInfo = `<div class="p-3 mb-3 cyber-box border-success" style="background: rgba(16, 185, 129, 0.12);"><span class="text-success fw-bold">🎉 Буст виконано бустером на 100%!</span> Замовлення завершено.</div>`;
+    }
+  }
+
+  let partialProposalHtml = '';
+  if (order.partialClose && order.partialClose.status === 'pending') {
+    const isClient = !currentUser || currentUser.role === 'client' || currentUser.id === order.clientId;
+    partialProposalHtml = `
+      <div class="cyber-box p-3 mb-4" style="background: rgba(234, 179, 8, 0.1); border: 2px solid var(--accent-gold); border-radius: var(--radius-md);">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span style="font-size: 1.5rem;">⚠️</span>
+          <div>
+            <div class="fw-bold text-warning" style="font-size: 1rem;">Пропозиція дострокового завершення бусту</div>
+            <div class="text-xs text-muted">Бустер <strong>${order.partialClose.requestedByName || 'бустер'}</strong> пропонує завершити виконання на <strong>${order.partialClose.progressPercent}%</strong>.</div>
+          </div>
+        </div>
+        <div class="p-2 mb-3 bg-dark rounded d-flex justify-content-between align-items-center">
+          <span class="text-xs text-muted">Нова зменшена вартість замовлення:</span>
+          <span class="fw-bold text-success" style="font-size: 1.15rem;">
+            $${order.partialClose.proposedPrice} (${order.partialClose.proposedPriceUAH} ₴)
+            <span class="text-xs text-muted text-decoration-line-through ml-2">($${order.partialClose.originalPrice || order.price})</span>
+          </span>
+        </div>
+        ${isClient ? `
+          <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-success btn-sm flex-grow-1" onclick="clientRespondPartialClose('${order.id}', true)">
+              🤝 Погодитися на $${order.partialClose.proposedPrice} та закрити буст
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="clientRespondPartialClose('${order.id}', false)">
+              ❌ Не погоджуватися (продовжити буст)
+            </button>
+          </div>
+        ` : `
+          <div class="text-xs text-warning">⏳ Очікується рішення замовника щодо дострокового завершення.</div>
+        `}
+      </div>
+    `;
+  }
+
+  let clientCompleteAction = '';
+  if (order.status !== 'completed' && order.status !== 'cancelled') {
+    clientCompleteAction = `
+      <div class="p-3 mb-4 cyber-box" style="background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.4);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <div class="fw-bold text-success text-sm">✅ Закриття бусту (Можуть закрити обидві сторони)</div>
+            <div class="text-xs text-muted">Коли буст закінчився, ви також можете прийняти роботу та закрити замовлення.</div>
+          </div>
+          <button type="button" class="btn btn-success btn-sm" onclick="clientConfirmOrderCompletion('${order.id}')">
+            ✅ Підтвердити та закрити буст
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
   container.innerHTML = `
     <div class="tracker-detail-card">
       <div class="d-flex justify-content-between align-items-start mb-3">
@@ -304,6 +363,9 @@ function renderOrderDetailsView(order) {
           💬 ${t('tracker_btn_chat')}
         </button>
       </div>
+
+      ${completionInfo}
+      ${partialProposalHtml}
 
       <div class="tracker-progress-section cyber-box my-4">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -319,6 +381,8 @@ function renderOrderDetailsView(order) {
         </div>
       </div>
 
+      ${clientCompleteAction}
+
       <div class="tracker-info-grid mb-4">
         <div class="tracker-info-item">
           <div class="info-label">${t('tracker_booster_assigned')}</div>
@@ -330,7 +394,7 @@ function renderOrderDetailsView(order) {
         <div class="tracker-info-item">
           <div class="info-label">Вартість:</div>
           <div class="info-val">
-            ${order.price} (${order.priceUAH} ₴)
+            $${order.price} (${order.priceUAH} ₴)
             ${(order.isCustomPrice || order.options?.isCustomPrice) ? `
               <div class="mt-1">
                 <span class="custom-price-badge-tag">
@@ -378,6 +442,104 @@ function renderOrderDetailsView(order) {
       </div>
     </div>
   `;
+}
+
+async function clientRespondPartialClose(orderId, accept) {
+  const actionText = accept ? 'погодитися на дострокове закриття та зменшену ціну' : 'відхилити пропозицію та продовжити буст у звичайному режимі';
+  const confirmed = confirm(`Ви впевнені, що бажаєте ${actionText}?`);
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`/api/orders/${orderId}/partial-close-respond`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({ accept })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (accept) {
+        notify.show({
+          title: 'Буст успішно закрито! 🤝',
+          message: `Ви погодилися на дострокове завершення за ціною $${data.order?.price} (${data.order?.priceUAH || Math.round(data.order?.price * 41.5)} ₴).`,
+          type: 'success',
+          sound: 'success'
+        });
+      } else {
+        notify.show({
+          title: 'Пропозицію відхилено ❌',
+          message: 'Бустер продовжить виконання вашого замовлення за стандартним планом.',
+          type: 'info'
+        });
+      }
+
+      if (socket && socket.connected) {
+        socket.emit('order_progress_sync', data.order);
+      }
+
+      if (typeof openOrderTrackerModal === 'function') {
+        openOrderTrackerModal(orderId);
+      }
+      if (typeof renderClientOrdersInProfile === 'function') {
+        renderClientOrdersInProfile();
+      }
+      if (typeof loadBoosterData === 'function' && currentUser?.role === 'booster') {
+        loadBoosterData();
+      }
+    } else {
+      const data = await res.json();
+      notify.show({ title: 'Помилка', message: data.error || 'Не вдалося зберегти відповідь', type: 'warning' });
+    }
+  } catch (err) {
+    console.error('Error responding to partial close:', err);
+  }
+}
+
+async function clientConfirmOrderCompletion(orderId) {
+  const confirmed = confirm('Підтвердити, що роботу виконано та закрити замовлення? Буст буде позначено як успішно завершений на 100%.');
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`/api/orders/${orderId}/client-complete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      notify.show({
+        title: 'Замовлення закрито! 🎉',
+        message: 'Ви успішно прийняли роботу та підтвердили виконання бусту.',
+        type: 'success',
+        sound: 'rankup'
+      });
+
+      if (socket && socket.connected) {
+        socket.emit('order_progress_sync', data.order);
+      }
+
+      if (typeof openOrderTrackerModal === 'function') {
+        openOrderTrackerModal(orderId);
+      }
+      if (typeof renderClientOrdersInProfile === 'function') {
+        renderClientOrdersInProfile();
+      }
+      if (typeof loadBoosterData === 'function' && currentUser?.role === 'booster') {
+        loadBoosterData();
+      }
+    } else {
+      const data = await res.json();
+      notify.show({ title: 'Помилка', message: data.error || 'Не вдалося закрити замовлення', type: 'warning' });
+    }
+  } catch (err) {
+    console.error('Error completing order by client:', err);
+  }
 }
 
 // ---------------- REVIEWS INIT ----------------
@@ -592,6 +754,8 @@ function switchClientTab(tabName) {
     if (typeof loadBoosterData === 'function') loadBoosterData();
   } else if (tabName === 'booster-my') {
     if (typeof loadBoosterData === 'function') loadBoosterData();
+  } else if (tabName === 'booster-wallet') {
+    if (typeof renderBoosterWalletUI === 'function') renderBoosterWalletUI();
   }
 }
 
@@ -645,11 +809,44 @@ async function renderClientOrdersInProfile() {
       const statusMap = {
         paid: { label: '⏳ Очікує бустера', badgeClass: 'badge-warning' },
         in_progress: { label: '⚡ В процесі', badgeClass: 'badge-info' },
-        completed: { label: '✅ Виконано (100%)', badgeClass: 'badge-success' },
+        completed: { label: '✅ Виконано', badgeClass: 'badge-success' },
         cancelled: { label: 'Скасовано', badgeClass: 'badge-danger' }
       };
       const st = statusMap[order.status] || { label: order.status, badgeClass: 'badge-info' };
-      const percent = order.status === 'completed' ? 100 : (order.progressPercent || 0);
+      const percent = order.status === 'completed' ? (order.progressPercent || 100) : (order.progressPercent || 0);
+
+      let closedByBadge = '';
+      if (order.status === 'completed') {
+        if (order.closedBy === 'client') {
+          closedByBadge = `<div class="badge badge-success text-xs w-100 p-1 mb-2">✅ Роботу прийнято та закрито вами</div>`;
+        } else if (order.closedBy === 'client_partial_agreement') {
+          closedByBadge = `<div class="badge badge-info text-xs w-100 p-1 mb-2">🤝 Закрито за згодою на ${order.progressPercent}% ($${order.price})</div>`;
+        } else {
+          closedByBadge = `<div class="badge badge-success text-xs w-100 p-1 mb-2">🎉 Закрито бустером на 100%</div>`;
+        }
+      }
+
+      let partialAlertClient = '';
+      if (order.partialClose && order.partialClose.status === 'pending') {
+        partialAlertClient = `
+          <div class="p-2 mb-2 cyber-box border-warning" style="background: rgba(234, 179, 8, 0.12); border-left: 3px solid var(--accent-gold);">
+            <div class="fw-bold text-warning text-xs mb-1">⚠️ Бустер пропонує завершити буст на ${order.partialClose.progressPercent}% за зменшеною ціною $${order.partialClose.proposedPrice} (${order.partialClose.proposedPriceUAH} ₴)!</div>
+            <div class="d-flex gap-2 mt-2">
+              <button type="button" class="btn btn-success btn-xs flex-grow-1" onclick="clientRespondPartialClose('${order.id}', true)">🤝 Прийняти ($${order.partialClose.proposedPrice})</button>
+              <button type="button" class="btn btn-outline-danger btn-xs" onclick="clientRespondPartialClose('${order.id}', false)">❌ Відхилити</button>
+            </div>
+          </div>
+        `;
+      }
+
+      let closeButtonClient = '';
+      if (order.status !== 'completed' && order.status !== 'cancelled') {
+        closeButtonClient = `
+          <button type="button" class="btn btn-outline-success btn-xs w-100 mt-2" onclick="clientConfirmOrderCompletion('${order.id}')" title="Підтвердити виконання та закрити замовлення">
+            ✅ Підтвердити та закрити буст (Прийняти роботу)
+          </button>
+        `;
+      }
 
       return `
         <div class="booster-order-card cyber-card ${order.status === 'completed' ? 'border-success' : 'border-cyan'}">
@@ -659,11 +856,14 @@ async function renderClientOrdersInProfile() {
           </div>
           <h4 style="margin-bottom: 4px;">${order.title}</h4>
           <div class="text-xs text-muted mb-2">
-            Гра: <strong>${order.gameName}</strong> | Вартість: <strong class="text-success">${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</strong>
+            Гра: <strong>${order.gameName}</strong> | Вартість: <strong class="text-success">$${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</strong>
             ${(order.isCustomPrice || order.options?.isCustomPrice) ? `
               <span class="custom-price-badge-tag ml-1">💰 Ваша ціна: ${order.boosterName ? '✓ Бустер погодився' : '⏳ Очікує згоди'}</span>
             ` : ''}
           </div>
+
+          ${closedByBadge}
+          ${partialAlertClient}
 
           <div class="p-2 cyber-box mb-2 text-xs">
             ${order.boosterName ? `
@@ -695,6 +895,8 @@ async function renderClientOrdersInProfile() {
               <a href="${order.streamUrl}" target="_blank" class="btn btn-xs btn-outline-cyan w-100">🎥 Дивитися стрім гри</a>
             </div>
           ` : ''}
+
+          ${closeButtonClient}
 
           <div class="d-flex gap-2 mt-3">
             <button class="btn btn-outline-cyan btn-sm flex-grow-1" onclick="closeUserProfileModal(); openLiveChat('${order.id}', '${order.title}')">
@@ -862,15 +1064,22 @@ async function openUserProfileModal(defaultTab = 'settings') {
   const isBooster = currentUser.role === 'booster';
   const tabBoosterAvail = document.getElementById('profile-tab-booster-avail');
   const tabBoosterMy = document.getElementById('profile-tab-booster-my');
+  const tabBoosterWallet = document.getElementById('profile-tab-booster-wallet');
   const tabClientOrders = document.getElementById('profile-tab-client-orders');
   const tabNewBoost = document.getElementById('profile-tab-newboost');
   const boosterSection = document.getElementById('profile-booster-section');
+  const boosterWalletBanner = document.getElementById('profile-booster-wallet-banner');
 
   if (tabBoosterAvail) tabBoosterAvail.style.display = isBooster ? 'inline-block' : 'none';
   if (tabBoosterMy) tabBoosterMy.style.display = isBooster ? 'inline-block' : 'none';
+  if (tabBoosterWallet) tabBoosterWallet.style.display = isBooster ? 'inline-block' : 'none';
   if (tabClientOrders) tabClientOrders.style.display = !isBooster ? 'inline-block' : 'none';
   if (tabNewBoost) tabNewBoost.style.display = !isBooster ? 'inline-block' : 'none';
   if (boosterSection) boosterSection.style.display = isBooster ? 'block' : 'none';
+  if (boosterWalletBanner) boosterWalletBanner.style.display = isBooster ? 'block' : 'none';
+
+  const heroRightBadge = document.getElementById('profile-hero-right-badge');
+  if (heroRightBadge) heroRightBadge.style.display = 'none';
 
   if (isBooster && typeof loadBoosterData === 'function') {
     loadBoosterData();
@@ -2228,6 +2437,8 @@ if (window.location.hash === '#profile') {
 window.renderProfileStatusOptions = renderProfileStatusOptions;
 window.selectProfileStatus = selectProfileStatus;
 window.getGameIcon = window.getGameIcon || getGameIcon;
+window.clientRespondPartialClose = clientRespondPartialClose;
+window.clientConfirmOrderCompletion = clientConfirmOrderCompletion;
 
 
 function checkUrlAuthTriggers() {

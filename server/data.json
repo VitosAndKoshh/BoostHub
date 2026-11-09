@@ -1,6 +1,26 @@
 {
   "users": [
     {
+      "id": "usr_1794240060567",
+      "email": "test22@gmail.com",
+      "passwordHash": "$2a$10$DHl4dgaG0OC9SmEAatCwmuuavErt2w3OJuLiUQte67iDQo4dJz.6y",
+      "name": "test22",
+      "role": "client",
+      "status": "online",
+      "statusMessage": "🟢 В мережі",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "discord": "",
+      "telegram": "",
+      "rating": 5,
+      "completedOrders": 0,
+      "rankTitle": "",
+      "games": [],
+      "createdAt": "2026-11-09T16:01:00.634Z",
+      "updatedAt": "2026-11-09T16:01:00.634Z",
+      "steamId": "",
+      "boosterVerification": "None"
+    },
+    {
       "id": "usr_1793451959078",
       "email": "client1@boost.gg",
       "passwordHash": "$2a$10$QuSajHg30yzWXbsJHjzr3ejkob79.UFCzAqaNl.zCqYux0ryg6lom",
@@ -1675,11 +1695,26 @@
       "features": [
         "вав"
       ]
+    },
+    {
+      "id": "srv_1794228947504",
+      "gameId": "valorant",
+      "gameName": "Custom Game",
+      "title": "ddd",
+      "category": "placement",
+      "price": 10,
+      "currency": "USD",
+      "priceUAH": 415,
+      "deliveryTime": "1d",
+      "badge": "NEW",
+      "icon": "⚡",
+      "description": "fgfgdf",
+      "features": []
     }
   ],
   "orders": [
     {
-      "id": "ORD-4824",
+      "id": "ORD-1404",
       "clientId": "usr_client",
       "clientName": "Alex_Gamer",
       "clientDiscord": "AlexGamer#7721",
@@ -1695,11 +1730,759 @@
       "targetRankValue": 21,
       "progressRank": "Архонт 2 (2550 Rating)",
       "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 199,
+      "currency": "USD",
+      "priceUAH": 8259,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "queueType": "solo",
+        "stream": false,
+        "priority": false,
+        "offlineMode": true,
+        "specificAgents": "Any",
+        "currentElo": 2550,
+        "targetElo": 3150,
+        "isCustomPrice": true,
+        "originalCalculatedPrice": 21,
+        "closedBy": "client"
+      },
+      "accountCredentials": {
+        "server": "EU West / Europe",
+        "login": "dsadasd",
+        "discord": "AlexGamer#7721",
+        "notes": "fds"
+      },
+      "streamUrl": null,
+      "createdAt": "2026-11-09T15:49:23.739Z",
+      "updatedAt": "2026-11-09T15:49:55.380Z",
+      "acceptedAt": null,
+      "completedAt": "2026-11-09T15:49:55.380Z",
+      "timeline": [
+        {
+          "time": "2026-11-09T15:49:23.739Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T15:49:23.739Z",
+          "text": "Оплату підтверджено (card). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T15:49:23.739Z",
+          "text": "💰 Клієнт запропонував свою ціну: 199 (Рекомендована: 21). Очікується згода бустера."
+        },
+        {
+          "time": "2026-11-09T15:49:55.380Z",
+          "text": "✅ Замовник Alex_Gamer підтвердив повне виконання робіт та успішно закрив замовлення!"
+        }
+      ],
+      "isCustomPrice": true,
+      "originalCalculatedPrice": 21,
+      "boosterAgreedPrice": null,
+      "boosterAgreedAt": null,
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": "client"
+    },
+    {
+      "id": "ORD-2752",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_1791640762166",
+      "boosterName": "lox",
+      "gameId": "dota2",
+      "gameName": "Dota 2",
+      "serviceType": "rank_boost",
+      "title": "Dota 2 Boost: Архонт 2 → Легенда 1",
+      "currentRank": "Архонт 2 (2550 Rating)",
+      "targetRank": "Легенда 1 (3150 Rating)",
+      "currentRankValue": 17,
+      "targetRankValue": 21,
+      "progressRank": "Архонт 2 (2550 Rating)",
+      "progressRankValue": 0,
+      "progressPercent": 0,
+      "price": 199,
+      "currency": "USD",
+      "priceUAH": 8259,
+      "status": "in_progress",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "queueType": "solo",
+        "stream": false,
+        "priority": false,
+        "offlineMode": true,
+        "specificAgents": "Any",
+        "currentElo": 2550,
+        "targetElo": 3150,
+        "isCustomPrice": true,
+        "originalCalculatedPrice": 21,
+        "boosterAgreedPrice": 199,
+        "boosterAgreedAt": "2026-11-09T15:55:08.607Z"
+      },
+      "accountCredentials": {
+        "server": "EU West / Europe",
+        "login": "dsadasd",
+        "discord": "AlexGamer#7721",
+        "notes": "fds"
+      },
+      "streamUrl": null,
+      "createdAt": "2026-11-09T15:37:14.178Z",
+      "updatedAt": "2026-11-09T15:55:08.607Z",
+      "acceptedAt": "2026-11-09T15:55:08.607Z",
+      "completedAt": null,
+      "timeline": [
+        {
+          "time": "2026-11-09T15:37:14.178Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T15:37:14.178Z",
+          "text": "Оплату підтверджено (card). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T15:37:14.178Z",
+          "text": "💰 Клієнт запропонував свою ціну: 199 (Рекомендована: 21). Очікується згода бустера."
+        },
+        {
+          "time": "2026-11-09T15:55:08.607Z",
+          "text": "🤝 Бустер lox погодився на запропоновану ціну 199 та взяв замовлення в роботу!"
+        }
+      ],
+      "isCustomPrice": true,
+      "originalCalculatedPrice": 21,
+      "boosterAgreedPrice": 199,
+      "boosterAgreedAt": "2026-11-09T15:55:08.607Z",
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
+    },
+    {
+      "id": "ORD-5772",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": null,
+      "boosterName": null,
+      "gameId": "cs2_faceit",
+      "gameName": "CS2 (Faceit ELO)",
+      "serviceType": "rank_boost",
+      "title": "CS2 (Faceit ELO) Boost: Level 5 → Level 10",
+      "currentRank": "Level 5 (1055 Rating)",
+      "targetRank": "Level 10 (2100 Rating)",
+      "currentRankValue": 5,
+      "targetRankValue": 10,
+      "progressRank": "Level 5 (1055 Rating)",
+      "progressRankValue": 0,
+      "progressPercent": 0,
+      "price": 12,
+      "currency": "USD",
+      "priceUAH": 498,
+      "status": "paid",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "queueType": "solo",
+        "stream": false,
+        "priority": false,
+        "offlineMode": true,
+        "specificAgents": "Any",
+        "currentElo": 1055,
+        "targetElo": 2100,
+        "isCustomPrice": true,
+        "originalCalculatedPrice": 96.14
+      },
+      "accountCredentials": {
+        "server": "EU West / Europe",
+        "login": "ddddd",
+        "discord": "AlexGamer#7721",
+        "notes": ""
+      },
+      "streamUrl": null,
+      "createdAt": "2026-11-09T13:02:18.058Z",
+      "updatedAt": "2026-11-09T13:02:18.058Z",
+      "acceptedAt": null,
+      "completedAt": null,
+      "timeline": [
+        {
+          "time": "2026-11-09T13:02:18.058Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T13:02:18.058Z",
+          "text": "Оплату підтверджено (card). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T13:02:18.058Z",
+          "text": "💰 Клієнт запропонував свою ціну: 12 (Рекомендована: 96.14). Очікується згода бустера."
+        }
+      ],
+      "isCustomPrice": true,
+      "originalCalculatedPrice": 96.14,
+      "boosterAgreedPrice": null,
+      "boosterAgreedAt": null,
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
+    },
+    {
+      "id": "ORD-1226",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": null,
+      "boosterName": null,
+      "gameId": "cs2_faceit",
+      "gameName": "CS2 (Faceit ELO)",
+      "serviceType": "rank_boost",
+      "title": "CS2 (Faceit ELO) Boost: Level 5 → Level 10",
+      "currentRank": "Level 5 (1055 Rating)",
+      "targetRank": "Level 10 (2100 Rating)",
+      "currentRankValue": 5,
+      "targetRankValue": 10,
+      "progressRank": "Level 5 (1055 Rating)",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 1,
+      "currency": "USD",
+      "priceUAH": 42,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "queueType": "solo",
+        "stream": false,
+        "priority": false,
+        "offlineMode": true,
+        "specificAgents": "Any",
+        "currentElo": 1055,
+        "targetElo": 2100,
+        "isCustomPrice": true,
+        "originalCalculatedPrice": 96.14,
+        "closedBy": "client"
+      },
+      "accountCredentials": {
+        "server": "EU West / Europe",
+        "login": "ddddd",
+        "discord": "AlexGamer#7721",
+        "notes": ""
+      },
+      "streamUrl": null,
+      "createdAt": "2026-11-09T13:01:48.631Z",
+      "updatedAt": "2026-11-09T13:02:02.891Z",
+      "acceptedAt": null,
+      "completedAt": "2026-11-09T13:02:02.890Z",
+      "timeline": [
+        {
+          "time": "2026-11-09T13:01:48.631Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T13:01:48.631Z",
+          "text": "Оплату підтверджено (card). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T13:01:48.631Z",
+          "text": "💰 Клієнт запропонував свою ціну: 1 (Рекомендована: 96.14). Очікується згода бустера."
+        },
+        {
+          "time": "2026-11-09T13:02:02.890Z",
+          "text": "✅ Замовник Alex_Gamer підтвердив повне виконання робіт та успішно закрив замовлення!"
+        }
+      ],
+      "isCustomPrice": true,
+      "originalCalculatedPrice": 96.14,
+      "boosterAgreedPrice": null,
+      "boosterAgreedAt": null,
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": "client"
+    },
+    {
+      "id": "ORD-7923",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "dota2",
+      "gameName": "Dota 2",
+      "serviceType": "rank_boost",
+      "title": "Herald to Archon",
+      "currentRank": "Herald",
+      "targetRank": "Archon",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "Herald",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 25,
+      "currency": "USD",
+      "priceUAH": 1037,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "isCustomPrice": false,
+        "originalCalculatedPrice": 25,
+        "boosterAgreedPrice": 25,
+        "boosterAgreedAt": "2026-11-09T12:59:01.032Z",
+        "closedBy": "booster"
+      },
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-11-09T12:59:01.026Z",
+      "updatedAt": "2026-11-09T12:59:01.039Z",
+      "acceptedAt": "2026-11-09T12:59:01.032Z",
+      "completedAt": "2026-11-09T12:59:01.038Z",
+      "timeline": [
+        {
+          "time": "2026-11-09T12:59:01.026Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T12:59:01.026Z",
+          "text": "Оплату підтверджено (Онлайн-оплата). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T12:59:01.032Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-11-09T12:59:01.038Z",
+          "text": "Оновлено прогрес:  (100%)"
+        },
+        {
+          "time": "2026-11-09T12:59:01.038Z",
+          "text": "🎉 Буст успішно виконано на 100% бустером ShadowStriker!"
+        }
+      ],
+      "isCustomPrice": false,
+      "originalCalculatedPrice": 25,
+      "boosterAgreedPrice": 25,
+      "boosterAgreedAt": "2026-11-09T12:59:01.032Z",
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": "booster"
+    },
+    {
+      "id": "ORD-3727",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "cs2_faceit",
+      "gameName": "Counter-Strike 2",
+      "serviceType": "rank_boost",
+      "title": "Faceit Level 3 to 5",
+      "currentRank": "Level 3",
+      "targetRank": "Level 5",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "Level 3",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 30,
+      "currency": "USD",
+      "priceUAH": 1245,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "isCustomPrice": false,
+        "originalCalculatedPrice": 30,
+        "boosterAgreedPrice": 30,
+        "boosterAgreedAt": "2026-11-09T12:59:01.016Z",
+        "closedBy": "client"
+      },
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-11-09T12:59:01.009Z",
+      "updatedAt": "2026-11-09T12:59:01.023Z",
+      "acceptedAt": "2026-11-09T12:59:01.016Z",
+      "completedAt": "2026-11-09T12:59:01.022Z",
+      "timeline": [
+        {
+          "time": "2026-11-09T12:59:01.009Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T12:59:01.009Z",
+          "text": "Оплату підтверджено (Онлайн-оплата). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T12:59:01.016Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-11-09T12:59:01.022Z",
+          "text": "✅ Замовник Alex_Gamer підтвердив повне виконання робіт та успішно закрив замовлення!"
+        }
+      ],
+      "isCustomPrice": false,
+      "originalCalculatedPrice": 30,
+      "boosterAgreedPrice": 30,
+      "boosterAgreedAt": "2026-11-09T12:59:01.016Z",
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": "client"
+    },
+    {
+      "id": "ORD-5319",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "valorant",
+      "gameName": "Valorant",
+      "serviceType": "rank_boost",
+      "title": "Silver 1 to Gold 1",
+      "currentRank": "Silver 1",
+      "targetRank": "Gold 1",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "Silver 1",
+      "progressRankValue": 0,
+      "progressPercent": 50,
+      "price": 20,
+      "currency": "USD",
+      "priceUAH": 830,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "isCustomPrice": false,
+        "originalCalculatedPrice": 40,
+        "boosterAgreedPrice": 40,
+        "boosterAgreedAt": "2026-11-09T12:59:00.982Z",
+        "partialClose": {
+          "status": "accepted",
+          "requestedBy": "usr_booster_1",
+          "requestedByName": "ShadowStriker",
+          "requestedAt": "2026-11-09T12:59:00.999Z",
+          "progressPercent": 50,
+          "originalPrice": 40,
+          "proposedPrice": 20,
+          "proposedPriceUAH": 830,
+          "note": "Бустер запропонував закрити замовлення на 50% за зменшеною ціною $20 (830 ₴).",
+          "resolvedAt": "2026-11-09T12:59:01.004Z",
+          "resolvedBy": "usr_client"
+        },
+        "closedBy": "client_partial_agreement"
+      },
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-11-09T12:59:00.972Z",
+      "updatedAt": "2026-11-09T12:59:01.005Z",
+      "acceptedAt": "2026-11-09T12:59:00.982Z",
+      "completedAt": "2026-11-09T12:59:01.004Z",
+      "timeline": [
+        {
+          "time": "2026-11-09T12:59:00.972Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T12:59:00.972Z",
+          "text": "Оплату підтверджено (Онлайн-оплата). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T12:59:00.982Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-11-09T12:59:00.989Z",
+          "text": "⏹️ Бустер ShadowStriker запропонував достроково завершити буст на 50% виконання. Запропонована нова ціна: $20 (830 ₴ замість $40). Очікується відповідь клієнта."
+        },
+        {
+          "time": "2026-11-09T12:59:00.994Z",
+          "text": "❌ Клієнт Alex_Gamer не погодився на дострокове закриття бусту. Буст продовжується у звичайному режимі."
+        },
+        {
+          "time": "2026-11-09T12:59:00.999Z",
+          "text": "⏹️ Бустер ShadowStriker запропонував достроково завершити буст на 50% виконання. Запропонована нова ціна: $20 (830 ₴ замість $40). Очікується відповідь клієнта."
+        },
+        {
+          "time": "2026-11-09T12:59:01.005Z",
+          "text": "🤝 Клієнт Alex_Gamer погодився на дострокове закриття бусту на 50% за зменшеною ціною $20 (830 ₴). Замовлення успішно завершено!"
+        }
+      ],
+      "isCustomPrice": false,
+      "originalCalculatedPrice": 40,
+      "boosterAgreedPrice": 40,
+      "boosterAgreedAt": "2026-11-09T12:59:00.982Z",
+      "declinedBoosters": [],
+      "partialClose": {
+        "status": "accepted",
+        "requestedBy": "usr_booster_1",
+        "requestedByName": "ShadowStriker",
+        "requestedAt": "2026-11-09T12:59:00.999Z",
+        "progressPercent": 50,
+        "originalPrice": 40,
+        "proposedPrice": 20,
+        "proposedPriceUAH": 830,
+        "note": "Бустер запропонував закрити замовлення на 50% за зменшеною ціною $20 (830 ₴).",
+        "resolvedAt": "2026-11-09T12:59:01.004Z",
+        "resolvedBy": "usr_client"
+      },
+      "closedBy": "client_partial_agreement"
+    },
+    {
+      "id": "ORD-3640",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "dota2",
+      "gameName": "Dota 2",
+      "serviceType": "rank_boost",
+      "title": "Herald to Archon",
+      "currentRank": "Herald",
+      "targetRank": "Archon",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "Herald",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 25,
+      "currency": "USD",
+      "priceUAH": 1037,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "isCustomPrice": false,
+        "originalCalculatedPrice": 25,
+        "boosterAgreedPrice": 25,
+        "boosterAgreedAt": "2026-11-09T12:48:35.463Z",
+        "closedBy": "booster"
+      },
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-11-09T12:48:35.458Z",
+      "updatedAt": "2026-11-09T12:48:35.468Z",
+      "acceptedAt": "2026-11-09T12:48:35.463Z",
+      "completedAt": "2026-11-09T12:48:35.468Z",
+      "timeline": [
+        {
+          "time": "2026-11-09T12:48:35.458Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T12:48:35.458Z",
+          "text": "Оплату підтверджено (Онлайн-оплата). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T12:48:35.463Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-11-09T12:48:35.468Z",
+          "text": "Оновлено прогрес:  (100%)"
+        },
+        {
+          "time": "2026-11-09T12:48:35.468Z",
+          "text": "🎉 Буст успішно виконано на 100% бустером ShadowStriker!"
+        }
+      ],
+      "isCustomPrice": false,
+      "originalCalculatedPrice": 25,
+      "boosterAgreedPrice": 25,
+      "boosterAgreedAt": "2026-11-09T12:48:35.463Z",
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": "booster"
+    },
+    {
+      "id": "ORD-1687",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "cs2_faceit",
+      "gameName": "Counter-Strike 2",
+      "serviceType": "rank_boost",
+      "title": "Faceit Level 3 to 5",
+      "currentRank": "Level 3",
+      "targetRank": "Level 5",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "Level 3",
+      "progressRankValue": 0,
+      "progressPercent": 100,
+      "price": 30,
+      "currency": "USD",
+      "priceUAH": 1245,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "isCustomPrice": false,
+        "originalCalculatedPrice": 30,
+        "boosterAgreedPrice": 30,
+        "boosterAgreedAt": "2026-11-09T12:48:35.448Z",
+        "closedBy": "client"
+      },
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-11-09T12:48:35.442Z",
+      "updatedAt": "2026-11-09T12:48:35.454Z",
+      "acceptedAt": "2026-11-09T12:48:35.448Z",
+      "completedAt": "2026-11-09T12:48:35.454Z",
+      "timeline": [
+        {
+          "time": "2026-11-09T12:48:35.442Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T12:48:35.442Z",
+          "text": "Оплату підтверджено (Онлайн-оплата). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T12:48:35.448Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-11-09T12:48:35.454Z",
+          "text": "✅ Замовник Alex_Gamer підтвердив повне виконання робіт та успішно закрив замовлення!"
+        }
+      ],
+      "isCustomPrice": false,
+      "originalCalculatedPrice": 30,
+      "boosterAgreedPrice": 30,
+      "boosterAgreedAt": "2026-11-09T12:48:35.448Z",
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": "client"
+    },
+    {
+      "id": "ORD-4803",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "valorant",
+      "gameName": "Valorant",
+      "serviceType": "rank_boost",
+      "title": "Silver 1 to Gold 1",
+      "currentRank": "Silver 1",
+      "targetRank": "Gold 1",
+      "currentRankValue": 0,
+      "targetRankValue": 0,
+      "progressRank": "Silver 1",
+      "progressRankValue": 0,
+      "progressPercent": 50,
+      "price": 20,
+      "currency": "USD",
+      "priceUAH": 830,
+      "status": "completed",
+      "paymentStatus": "verified",
+      "paymentMethod": "card",
+      "options": {
+        "isCustomPrice": false,
+        "originalCalculatedPrice": 40,
+        "boosterAgreedPrice": 40,
+        "boosterAgreedAt": "2026-11-09T12:48:35.419Z",
+        "partialClose": {
+          "status": "accepted",
+          "requestedBy": "usr_booster_1",
+          "requestedByName": "ShadowStriker",
+          "requestedAt": "2026-11-09T12:48:35.435Z",
+          "progressPercent": 50,
+          "originalPrice": 40,
+          "proposedPrice": 20,
+          "proposedPriceUAH": 830,
+          "note": "Бустер запропонував закрити замовлення на 50% за зменшеною ціною $20 (830 ₴).",
+          "resolvedAt": "2026-11-09T12:48:35.438Z",
+          "resolvedBy": "usr_client"
+        },
+        "closedBy": "client_partial_agreement"
+      },
+      "accountCredentials": {},
+      "streamUrl": null,
+      "createdAt": "2026-11-09T12:48:35.412Z",
+      "updatedAt": "2026-11-09T12:48:35.439Z",
+      "acceptedAt": "2026-11-09T12:48:35.419Z",
+      "completedAt": "2026-11-09T12:48:35.438Z",
+      "timeline": [
+        {
+          "time": "2026-11-09T12:48:35.412Z",
+          "text": "Замовлення створено клієнтом Alex_Gamer"
+        },
+        {
+          "time": "2026-11-09T12:48:35.412Z",
+          "text": "Оплату підтверджено (Онлайн-оплата). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T12:48:35.419Z",
+          "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-11-09T12:48:35.425Z",
+          "text": "⏹️ Бустер ShadowStriker запропонував достроково завершити буст на 50% виконання. Запропонована нова ціна: $20 (830 ₴ замість $40). Очікується відповідь клієнта."
+        },
+        {
+          "time": "2026-11-09T12:48:35.430Z",
+          "text": "❌ Клієнт Alex_Gamer не погодився на дострокове закриття бусту. Буст продовжується у звичайному режимі."
+        },
+        {
+          "time": "2026-11-09T12:48:35.435Z",
+          "text": "⏹️ Бустер ShadowStriker запропонував достроково завершити буст на 50% виконання. Запропонована нова ціна: $20 (830 ₴ замість $40). Очікується відповідь клієнта."
+        },
+        {
+          "time": "2026-11-09T12:48:35.438Z",
+          "text": "🤝 Клієнт Alex_Gamer погодився на дострокове закриття бусту на 50% за зменшеною ціною $20 (830 ₴). Замовлення успішно завершено!"
+        }
+      ],
+      "isCustomPrice": false,
+      "originalCalculatedPrice": 40,
+      "boosterAgreedPrice": 40,
+      "boosterAgreedAt": "2026-11-09T12:48:35.419Z",
+      "declinedBoosters": [],
+      "partialClose": {
+        "status": "accepted",
+        "requestedBy": "usr_booster_1",
+        "requestedByName": "ShadowStriker",
+        "requestedAt": "2026-11-09T12:48:35.435Z",
+        "progressPercent": 50,
+        "originalPrice": 40,
+        "proposedPrice": 20,
+        "proposedPriceUAH": 830,
+        "note": "Бустер запропонував закрити замовлення на 50% за зменшеною ціною $20 (830 ₴).",
+        "resolvedAt": "2026-11-09T12:48:35.438Z",
+        "resolvedBy": "usr_client"
+      },
+      "closedBy": "client_partial_agreement"
+    },
+    {
+      "id": "ORD-4824",
+      "clientId": "usr_client",
+      "clientName": "Alex_Gamer",
+      "clientDiscord": "AlexGamer#7721",
+      "boosterId": "usr_booster_1",
+      "boosterName": "ShadowStriker",
+      "gameId": "dota2",
+      "gameName": "Dota 2",
+      "serviceType": "rank_boost",
+      "title": "Dota 2 Boost: Архонт 2 → Легенда 1",
+      "currentRank": "Архонт 2 (2550 Rating)",
+      "targetRank": "Легенда 1 (3150 Rating)",
+      "currentRankValue": 17,
+      "targetRankValue": 21,
+      "progressRank": "Архонт 2 (2550 Rating)",
+      "progressRankValue": 0,
       "progressPercent": 0,
       "price": 21,
       "currency": "USD",
       "priceUAH": 872,
-      "status": "paid",
+      "status": "in_progress",
       "paymentStatus": "verified",
       "paymentMethod": "card",
       "options": {
@@ -1711,7 +2494,9 @@
         "currentElo": 2550,
         "targetElo": 3150,
         "isCustomPrice": false,
-        "originalCalculatedPrice": 21
+        "originalCalculatedPrice": 21,
+        "boosterAgreedPrice": 21,
+        "boosterAgreedAt": "2026-11-09T12:50:17.931Z"
       },
       "accountCredentials": {
         "server": "EU West / Europe",
@@ -1721,8 +2506,8 @@
       },
       "streamUrl": null,
       "createdAt": "2026-11-09T11:32:50.128Z",
-      "updatedAt": "2026-11-09T11:32:50.128Z",
-      "acceptedAt": null,
+      "updatedAt": "2026-11-09T12:50:17.932Z",
+      "acceptedAt": "2026-11-09T12:50:17.931Z",
       "completedAt": null,
       "timeline": [
         {
@@ -1732,13 +2517,19 @@
         {
           "time": "2026-11-09T11:32:50.128Z",
           "text": "Оплату підтверджено (card). Очікує бустера."
+        },
+        {
+          "time": "2026-11-09T12:50:17.931Z",
+          "text": "Призначено бустера: ShadowStriker"
         }
       ],
       "isCustomPrice": false,
       "originalCalculatedPrice": 21,
-      "boosterAgreedPrice": null,
-      "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "boosterAgreedPrice": 21,
+      "boosterAgreedAt": "2026-11-09T12:50:17.931Z",
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-7597",
@@ -1801,7 +2592,9 @@
       "boosterAgreedAt": null,
       "declinedBoosters": [
         "usr_booster_1"
-      ]
+      ],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-5341",
@@ -1820,11 +2613,11 @@
       "targetRankValue": 0,
       "progressRank": "Герой 1",
       "progressRankValue": 0,
-      "progressPercent": 0,
+      "progressPercent": 100,
       "price": 16,
       "currency": "USD",
       "priceUAH": 664,
-      "status": "in_progress",
+      "status": "completed",
       "paymentStatus": "verified",
       "paymentMethod": "card",
       "options": {
@@ -1836,9 +2629,9 @@
       "accountCredentials": {},
       "streamUrl": null,
       "createdAt": "2026-11-09T11:28:20.420Z",
-      "updatedAt": "2026-11-09T11:28:20.445Z",
+      "updatedAt": "2026-11-09T12:29:39.395Z",
       "acceptedAt": "2026-11-09T11:28:20.444Z",
-      "completedAt": null,
+      "completedAt": "2026-11-09T12:29:39.395Z",
       "timeline": [
         {
           "time": "2026-11-09T11:28:20.420Z",
@@ -1855,13 +2648,23 @@
         {
           "time": "2026-11-09T11:28:20.444Z",
           "text": "🤝 Бустер ShadowStriker погодився на запропоновану ціну 16 та взяв замовлення в роботу!"
+        },
+        {
+          "time": "2026-11-09T12:29:39.395Z",
+          "text": "Буст успішно завершено! Вітаємо з новим рангом."
+        },
+        {
+          "time": "2026-11-09T12:29:39.395Z",
+          "text": "🎉 Буст успішно виконано на 100%!"
         }
       ],
       "isCustomPrice": true,
       "originalCalculatedPrice": 32,
       "boosterAgreedPrice": 16,
       "boosterAgreedAt": "2026-11-09T11:28:20.444Z",
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-3312",
@@ -1880,11 +2683,11 @@
       "targetRankValue": 0,
       "progressRank": "10,000",
       "progressRankValue": 0,
-      "progressPercent": 0,
+      "progressPercent": 100,
       "price": 14,
       "currency": "USD",
       "priceUAH": 580,
-      "status": "in_progress",
+      "status": "completed",
       "paymentStatus": "verified",
       "paymentMethod": "card",
       "options": {
@@ -1897,9 +2700,9 @@
       },
       "streamUrl": null,
       "createdAt": "2026-11-09T10:48:47.788Z",
-      "updatedAt": "2026-11-09T10:48:47.803Z",
+      "updatedAt": "2026-11-09T12:29:35.816Z",
       "acceptedAt": "2026-11-09T10:48:47.803Z",
-      "completedAt": null,
+      "completedAt": "2026-11-09T12:29:35.816Z",
       "timeline": [
         {
           "time": "2026-11-09T10:48:47.788Z",
@@ -1916,13 +2719,23 @@
         {
           "time": "2026-11-09T10:48:47.803Z",
           "text": "Призначено бустера: ShadowStriker"
+        },
+        {
+          "time": "2026-11-09T12:29:35.816Z",
+          "text": "Буст успішно завершено! Вітаємо з новим рангом."
+        },
+        {
+          "time": "2026-11-09T12:29:35.816Z",
+          "text": "🎉 Буст успішно виконано на 100%!"
         }
       ],
       "isCustomPrice": true,
       "originalCalculatedPrice": 28,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-1476",
@@ -1983,7 +2796,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-1451",
@@ -2047,7 +2862,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-1168",
@@ -2102,7 +2919,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-4920",
@@ -2153,7 +2972,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-3819",
@@ -2209,7 +3030,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-2041",
@@ -2269,7 +3092,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-9101",
@@ -2320,7 +3145,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-5402",
@@ -2383,7 +3210,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-7821",
@@ -2452,7 +3281,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-8344",
@@ -2503,7 +3334,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-7120",
@@ -2554,7 +3387,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     },
     {
       "id": "ORD-6019",
@@ -2605,7 +3440,9 @@
       "originalCalculatedPrice": null,
       "boosterAgreedPrice": null,
       "boosterAgreedAt": null,
-      "declinedBoosters": []
+      "declinedBoosters": [],
+      "partialClose": null,
+      "closedBy": null
     }
   ],
   "messages": [
@@ -2842,6 +3679,177 @@
       "senderRole": "system",
       "text": "Замовлення ORD-4824 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
       "timestamp": "2026-11-09T11:32:50.130Z"
+    },
+    {
+      "id": "msg_1794228515415",
+      "orderId": "ORD-4803",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-4803 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-11-09T12:48:35.415Z"
+    },
+    {
+      "id": "msg_1794228515421",
+      "orderId": "ORD-4803",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-11-09T12:48:35.421Z"
+    },
+    {
+      "id": "msg_1794228515445",
+      "orderId": "ORD-1687",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-1687 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-11-09T12:48:35.445Z"
+    },
+    {
+      "id": "msg_1794228515451",
+      "orderId": "ORD-1687",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-11-09T12:48:35.451Z"
+    },
+    {
+      "id": "msg_1794228515460",
+      "orderId": "ORD-3640",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-3640 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-11-09T12:48:35.460Z"
+    },
+    {
+      "id": "msg_1794228515465",
+      "orderId": "ORD-3640",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-11-09T12:48:35.465Z"
+    },
+    {
+      "id": "msg_1794228617935",
+      "orderId": "ORD-4824",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-11-09T12:50:17.935Z"
+    },
+    {
+      "id": "msg_1794229140976",
+      "orderId": "ORD-5319",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-5319 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-11-09T12:59:00.976Z"
+    },
+    {
+      "id": "msg_1794229140985",
+      "orderId": "ORD-5319",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-11-09T12:59:00.985Z"
+    },
+    {
+      "id": "msg_1794229141011",
+      "orderId": "ORD-3727",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-3727 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-11-09T12:59:01.011Z"
+    },
+    {
+      "id": "msg_1794229141018",
+      "orderId": "ORD-3727",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-11-09T12:59:01.018Z"
+    },
+    {
+      "id": "msg_1794229141028",
+      "orderId": "ORD-7923",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-7923 успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.",
+      "timestamp": "2026-11-09T12:59:01.028Z"
+    },
+    {
+      "id": "msg_1794229141034",
+      "orderId": "ORD-7923",
+      "senderId": "usr_booster_1",
+      "senderName": "ShadowStriker",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер ShadowStriker. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-11-09T12:59:01.034Z"
+    },
+    {
+      "id": "msg_1794229308635",
+      "orderId": "ORD-1226",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-1226 успішно створено з вашою запропонованою ціною 1! Бустер розгляне вашу пропозицію при взятті в роботу.",
+      "timestamp": "2026-11-09T13:01:48.635Z"
+    },
+    {
+      "id": "msg_1794229338061",
+      "orderId": "ORD-5772",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-5772 успішно створено з вашою запропонованою ціною 12! Бустер розгляне вашу пропозицію при взятті в роботу.",
+      "timestamp": "2026-11-09T13:02:18.061Z"
+    },
+    {
+      "id": "msg_1794238634183",
+      "orderId": "ORD-2752",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-2752 успішно створено з вашою запропонованою ціною 199! Бустер розгляне вашу пропозицію при взятті в роботу.",
+      "timestamp": "2026-11-09T15:37:14.183Z"
+    },
+    {
+      "id": "msg_1794239363742",
+      "orderId": "ORD-1404",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "Замовлення ORD-1404 успішно створено з вашою запропонованою ціною 199! Бустер розгляне вашу пропозицію при взятті в роботу.",
+      "timestamp": "2026-11-09T15:49:23.742Z"
+    },
+    {
+      "id": "msg_agree_1794239708610",
+      "orderId": "ORD-2752",
+      "senderId": "system",
+      "senderName": "CyberBoost Bot",
+      "senderRole": "system",
+      "text": "🤝 Бустер lox погодився на вашу ціну (199) та розпочав виконання замовлення!",
+      "timestamp": "2026-11-09T15:55:08.610Z"
+    },
+    {
+      "id": "msg_1794239708612",
+      "orderId": "ORD-2752",
+      "senderId": "usr_1791640762166",
+      "senderName": "lox",
+      "senderRole": "booster",
+      "text": "Привіт! Я твій бустер lox. Я прийняв замовлення і незабаром розпочну гру!",
+      "timestamp": "2026-11-09T15:55:08.612Z"
     }
   ],
   "promoCodes": [

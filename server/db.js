@@ -871,6 +871,7 @@ class SqliteDatabase {
 
   formatOrder(row) {
     if (!row) return null;
+    const opts = safeJsonParse(row.options, {});
     return {
       ...row,
       currentRankValue: Number(row.currentRankValue || 0),
@@ -879,7 +880,12 @@ class SqliteDatabase {
       progressPercent: Number(row.progressPercent || 0),
       price: Number(row.price || 0),
       priceUAH: Number(row.priceUAH || 0),
-      options: safeJsonParse(row.options, {}),
+      isCustomPrice: Boolean(row.isCustomPrice || opts.isCustomPrice),
+      originalCalculatedPrice: opts.originalCalculatedPrice || row.originalCalculatedPrice || null,
+      boosterAgreedPrice: opts.boosterAgreedPrice || row.boosterAgreedPrice || null,
+      boosterAgreedAt: opts.boosterAgreedAt || row.boosterAgreedAt || null,
+      declinedBoosters: opts.declinedBoosters || [],
+      options: opts,
       accountCredentials: safeJsonParse(row.accountCredentials, {}),
       timeline: safeJsonParse(row.timeline, [])
     };
@@ -1148,7 +1154,11 @@ class SqliteDatabase {
       order.status || 'paid',
       order.paymentStatus || 'verified',
       order.paymentMethod || 'card',
-      JSON.stringify(order.options || {}),
+      JSON.stringify({
+        ...(order.options || {}),
+        isCustomPrice: Boolean(order.isCustomPrice || (order.options && order.options.isCustomPrice)),
+        originalCalculatedPrice: order.originalCalculatedPrice || (order.options && order.options.originalCalculatedPrice) || order.price
+      }),
       JSON.stringify(order.accountCredentials || {}),
       order.streamUrl || null,
       order.createdAt || now,
@@ -1166,7 +1176,17 @@ class SqliteDatabase {
     const existing = this.getOrderById(id);
     if (!existing) return null;
 
-    const merged = { ...existing, ...updates, updatedAt: new Date().toISOString() };
+    const mergedOptions = {
+      ...(existing.options || {}),
+      ...(updates.options || {})
+    };
+    if (updates.isCustomPrice !== undefined) mergedOptions.isCustomPrice = updates.isCustomPrice;
+    if (updates.originalCalculatedPrice !== undefined) mergedOptions.originalCalculatedPrice = updates.originalCalculatedPrice;
+    if (updates.boosterAgreedPrice !== undefined) mergedOptions.boosterAgreedPrice = updates.boosterAgreedPrice;
+    if (updates.boosterAgreedAt !== undefined) mergedOptions.boosterAgreedAt = updates.boosterAgreedAt;
+    if (updates.declinedBoosters !== undefined) mergedOptions.declinedBoosters = updates.declinedBoosters;
+
+    const merged = { ...existing, ...updates, options: mergedOptions, updatedAt: new Date().toISOString() };
 
     const stmt = this.sqlite.prepare(`
       UPDATE orders

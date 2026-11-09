@@ -13,8 +13,15 @@ router.get('/', authMiddleware, (req, res) => {
   }
 
   if (user.role === 'booster') {
-    // Boosters see their assigned orders + available paid orders that need a booster
-    const boosterOrders = allOrders.filter(o => o.boosterId === user.id || (o.status === 'paid' && !o.boosterId));
+    // Boosters see their assigned orders + available paid orders that need a booster (excluding ones this booster declined)
+    const boosterOrders = allOrders.filter(o => {
+      if (o.boosterId === user.id) return true;
+      if (o.status === 'paid' && !o.boosterId) {
+        if (Array.isArray(o.declinedBoosters) && o.declinedBoosters.includes(user.id)) return false;
+        return true;
+      }
+      return false;
+    });
     return res.json({ orders: boosterOrders });
   }
 
@@ -55,7 +62,9 @@ router.post('/', authMiddleware, (req, res) => {
     priceUAH,
     paymentMethod,
     options,
-    accountCredentials
+    accountCredentials,
+    isCustomPrice,
+    originalCalculatedPrice
   } = req.body;
 
   if (!gameId || !title || !price) {
@@ -87,14 +96,24 @@ router.post('/', authMiddleware, (req, res) => {
     status: 'paid', // Instant verification / ready for assignment in demo
     paymentStatus: 'verified',
     paymentMethod: paymentMethod || 'card',
-    options: options || {},
+    isCustomPrice: !!isCustomPrice,
+    originalCalculatedPrice: originalCalculatedPrice ? Number(originalCalculatedPrice) : Number(price),
+    options: {
+      ...(options || {}),
+      isCustomPrice: !!isCustomPrice,
+      originalCalculatedPrice: originalCalculatedPrice ? Number(originalCalculatedPrice) : Number(price)
+    },
     accountCredentials: accountCredentials || {},
     streamUrl: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     timeline: [
       { time: new Date().toISOString(), text: `Замовлення створено клієнтом ${user.name}` },
-      { time: new Date().toISOString(), text: `Оплату підтверджено (${paymentMethod || 'Онлайн-оплата'}). Очікує бустера.` }
+      { time: new Date().toISOString(), text: `Оплату підтверджено (${paymentMethod || 'Онлайн-оплата'}). Очікує бустера.` },
+      ...(isCustomPrice ? [{
+        time: new Date().toISOString(),
+        text: `💰 Клієнт запропонував свою ціну: ${price} (Рекомендована: ${originalCalculatedPrice || price}). Очікується згода бустера.`
+      }] : [])
     ]
   };
 
@@ -107,7 +126,9 @@ router.post('/', authMiddleware, (req, res) => {
     senderId: 'system',
     senderName: 'CyberBoost Bot',
     senderRole: 'system',
-    text: `Замовлення ${newOrder.id} успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.`,
+    text: isCustomPrice
+      ? `Замовлення ${newOrder.id} успішно створено з вашою запропонованою ціною ${newOrder.price}! Бустер розгляне вашу пропозицію при взятті в роботу.`
+      : `Замовлення ${newOrder.id} успішно створено! Бустера буде призначено протягом 10-15 хвилин. Ви можете залишати додаткові побажання тут.`,
     timestamp: new Date().toISOString()
   });
 
@@ -146,18 +167,37 @@ router.post('/:id/assign', authMiddleware, staffMiddleware, (req, res) => {
     boosterName = booster ? booster.name : 'Booster';
   }
 
+  const isCustom = Boolean(order.isCustomPrice || (order.options && order.options.isCustomPrice));
+  const agreeEventText = isCustom
+    ? `🤝 Бустер ${boosterName} погодився на запропоновану ціну ${order.price} та взяв замовлення в роботу!`
+    : `Призначено бустера: ${boosterName}`;
+
   const updatedTimeline = [
     ...order.timeline,
-    { time: new Date().toISOString(), text: `Призначено бустера: ${boosterName}` }
+    { time: new Date().toISOString(), text: agreeEventText }
   ];
 
   const updated = db.updateOrder(req.params.id, {
     boosterId,
     boosterName,
+    boosterAgreedPrice: Number(order.price),
+    boosterAgreedAt: new Date().toISOString(),
     status: 'in_progress',
     acceptedAt: order.acceptedAt || new Date().toISOString(),
     timeline: updatedTimeline
   });
+
+  if (isCustom) {
+    db.addMessage({
+      id: 'msg_agree_' + Date.now(),
+      orderId: order.id,
+      senderId: 'system',
+      senderName: 'CyberBoost Bot',
+      senderRole: 'system',
+      text: `🤝 Бустер ${boosterName} погодився на вашу ціну (${order.price}) та розпочав виконання замовлення!`,
+      timestamp: new Date().toISOString()
+    });
+  }
 
   // System message in chat
   db.addMessage({
@@ -226,6 +266,44 @@ router.post('/:id/verify-payment', authMiddleware, adminMiddleware, (req, res) =
   });
 
   res.json({ order: updated });
+});
+
+
+// POST /api/orders/:id/decline - Booster declines custom price offer
+router.post('/:id/decline', authMiddleware, staffMiddleware, (req, res) => {
+  const order = db.getOrderById(req.params.id);
+  if (!order) {
+    return res.status(404).json({ error: 'Замовлення не знайдено' });
+  }
+
+  const boosterId = req.user.id;
+  const boosterName = req.user.name || 'Booster';
+  const declinedList = Array.isArray(order.declinedBoosters) ? [...order.declinedBoosters] : [];
+  if (!declinedList.includes(boosterId)) {
+    declinedList.push(boosterId);
+  }
+
+  const updatedTimeline = [
+    ...order.timeline,
+    { time: new Date().toISOString(), text: `❌ Бустер ${boosterName} не погодився на запропоновану ціну ${order.price}.` }
+  ];
+
+  const updated = db.updateOrder(req.params.id, {
+    declinedBoosters: declinedList,
+    timeline: updatedTimeline
+  });
+
+  db.addMessage({
+    id: 'msg_decline_' + Date.now(),
+    orderId: order.id,
+    senderId: 'system',
+    senderName: 'CyberBoost Bot',
+    senderRole: 'system',
+    text: `❌ Бустер ${boosterName} відхилив цінову пропозицію (${order.price}). Очікується згода іншого бустера.`,
+    timestamp: new Date().toISOString()
+  });
+
+  res.json({ success: true, order: updated });
 });
 
 module.exports = router;

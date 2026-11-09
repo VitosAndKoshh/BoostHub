@@ -211,7 +211,9 @@ function openCheckoutModal(orderItem, fromCart = false) {
 
   if (titleEl) titleEl.textContent = orderItem.title;
   if (priceEl) priceEl.textContent = `$${orderItem.price}`;
-  if (uahEl) uahEl.textContent = `${orderItem.priceUAH || Math.round(orderItem.price * 41.5)} ₴`;
+  if (uahEl) uahEl.textContent = `(${orderItem.priceUAH || Math.round(orderItem.price * 41.5)} ₴)`;
+  const customPriceInput = document.getElementById('checkout-custom-price-input');
+  if (customPriceInput) customPriceInput.value = orderItem.price;
 
   modal.classList.add('open');
 }
@@ -222,10 +224,40 @@ function closeCheckoutModal() {
   pendingCheckoutItem = null;
 }
 
+function onCheckoutCustomPriceChange(val) {
+  const num = parseInt(val, 10);
+  const uahEl = document.getElementById('checkout-summary-uah');
+  const priceEl = document.getElementById('checkout-summary-price');
+  if (!pendingCheckoutItem) return;
+
+  if (!isNaN(num) && num > 0) {
+    if (pendingCheckoutItem.originalCalculatedPrice && pendingCheckoutItem.originalCalculatedPrice !== num) {
+      pendingCheckoutItem.isCustomPrice = true;
+    }
+    pendingCheckoutItem.price = num;
+    pendingCheckoutItem.priceUAH = Math.round(num * 41.5);
+    if (priceEl) priceEl.textContent = `${num}`;
+    if (uahEl) uahEl.textContent = `(${Math.round(num * 41.5)} ₴)`;
+  }
+}
+window.onCheckoutCustomPriceChange = onCheckoutCustomPriceChange;
+
 // Submit Checkout Order
 async function submitCheckoutOrder(event) {
   if (event) event.preventDefault();
   if (!pendingCheckoutItem) return;
+
+  const customInput = document.getElementById('checkout-custom-price-input');
+  if (customInput && customInput.value) {
+    const customNum = parseInt(customInput.value, 10);
+    if (!isNaN(customNum) && customNum > 0) {
+      if (pendingCheckoutItem.originalCalculatedPrice && pendingCheckoutItem.originalCalculatedPrice !== customNum) {
+        pendingCheckoutItem.isCustomPrice = true;
+      }
+      pendingCheckoutItem.price = customNum;
+      pendingCheckoutItem.priceUAH = Math.round(customNum * 41.5);
+    }
+  }
 
   const serverRegion = document.getElementById('checkout-server')?.value || 'EU';
   const loginAccount = document.getElementById('checkout-login')?.value || 'Guest';

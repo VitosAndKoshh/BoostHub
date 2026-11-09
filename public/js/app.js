@@ -144,7 +144,7 @@ function updateUserAuthUI() {
       roleSpecificNav = `<button class="btn btn-outline-cyan btn-sm" onclick="openAdminDashboard()">⚡ Панель адміна</button>`;
     } else if (currentUser.role === 'booster') {
       roleSpecificNav = `
-        <button class="btn btn-primary btn-sm btn-claim-order-nav" onclick="openBoosterDashboard('available')" title="Біржа замовлень - прийняти в роботу">
+        <button class="btn btn-primary btn-sm btn-claim-order-nav" onclick="openBoosterDashboard('available')" title="Буст замовлення - прийняти в роботу">
           ⚡ Прийняти замовлення <span id="nav-booster-avail-badge" class="badge badge-warning ml-1" style="display:none;">0</span>
         </button>
       `;
@@ -168,7 +168,7 @@ function updateUserAuthUI() {
           <span class="profile-nav-tag">${profileTagLabel}</span>
         </button>
         ${roleSpecificNav}
-        <button class="btn btn-icon-sm btn-logout" onclick="logoutUser()" title="Вийти з акаунту">🚪 Вийти</button>
+        <button class="btn-logout" onclick="logoutUser()" title="Вийти з акаунту">🚪 Вийти</button>
       </div>
     `;
 
@@ -329,7 +329,16 @@ function renderOrderDetailsView(order) {
 
         <div class="tracker-info-item">
           <div class="info-label">Вартість:</div>
-          <div class="info-val">$${order.price} (${order.priceUAH} ₴)</div>
+          <div class="info-val">
+            ${order.price} (${order.priceUAH} ₴)
+            ${(order.isCustomPrice || order.options?.isCustomPrice) ? `
+              <div class="mt-1">
+                <span class="custom-price-badge-tag">
+                  💰 ${order.boosterName ? '✓ Бустер погодився на вашу ціну' : '⏳ Очікує згоди бустера'}
+                </span>
+              </div>
+            ` : ''}
+          </div>
         </div>
 
         <div class="tracker-info-item">
@@ -650,7 +659,10 @@ async function renderClientOrdersInProfile() {
           </div>
           <h4 style="margin-bottom: 4px;">${order.title}</h4>
           <div class="text-xs text-muted mb-2">
-            Гра: <strong>${order.gameName}</strong> | Вартість: <strong class="text-success">$${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</strong>
+            Гра: <strong>${order.gameName}</strong> | Вартість: <strong class="text-success">${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</strong>
+            ${(order.isCustomPrice || order.options?.isCustomPrice) ? `
+              <span class="custom-price-badge-tag ml-1">💰 Ваша ціна: ${order.boosterName ? '✓ Бустер погодився' : '⏳ Очікує згоди'}</span>
+            ` : ''}
           </div>
 
           <div class="p-2 cyber-box mb-2 text-xs">
@@ -1163,7 +1175,7 @@ function renderBoosterVerificationUI() {
       verifyBtn.textContent = '⏳ На розгляді у Admin';
     }
   } else if (status === 'Verified') {
-    if (hint) hint.innerHTML = '✅ <strong>Verification status: Verified</strong>. Вітаємо! Ваш акаунт верифіковано. Ви маєте повний доступ до взяття замовлень на біржі.';
+    if (hint) hint.innerHTML = '✅ <strong>Verification status: Verified</strong>. Вітаємо! Ваш акаунт верифіковано. Ви маєте повний доступ до взяття буст замовлень.';
     if (verifyBtn) {
       verifyBtn.disabled = true;
       verifyBtn.textContent = '✅ Верифіковано';
@@ -2188,7 +2200,7 @@ async function quickVerifyBoosterSelf() {
       if (typeof loadBoosterData === 'function') loadBoosterData();
       notify.show({
         title: 'Верифікацію активовано! ⚡',
-        message: 'Ваш акаунт підтверджено. Тепер ви можете вільно приймати замовлення на біржі!',
+        message: 'Ваш акаунт підтверджено. Тепер ви можете вільно приймати буст замовлення!',
         type: 'success',
         sound: 'rankup'
       });

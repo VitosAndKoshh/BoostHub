@@ -78,6 +78,11 @@ function switchCalcGame(gameId) {
 
   renderGameTabs();
   loadGameCalculator(gameId);
+
+  const customHintEl = document.getElementById('calc-custom-game-hint');
+  if (customHintEl && game) {
+    customHintEl.textContent = `Для гри ${game.name}: вкажіть вашу бажану суму:`;
+  }
 }
 
 // ---------------- SVG BADGE GENERATOR FOR ALL GAMES ----------------
@@ -503,13 +508,56 @@ async function recalculateBoostPrice() {
   }
 }
 
+function handleCalculatorCustomPrice(val) {
+  const num = parseFloat(val);
+  const badge = document.getElementById('calc-price-mode-badge');
+  const resetBtn = document.getElementById('btn-reset-calc-custom-price');
+
+  if (!isNaN(num) && num > 0) {
+    currentCalculatorState.isCustomPrice = true;
+    currentCalculatorState.customPriceUSD = Math.round(num);
+    currentCalculatorState.customPriceUAH = Math.round(num * 41.5);
+    if (badge) {
+      badge.textContent = 'Ваша ціна 💰';
+      badge.className = 'badge badge-warning text-xs';
+    }
+    if (resetBtn) resetBtn.style.display = 'inline-block';
+  } else {
+    currentCalculatorState.isCustomPrice = false;
+    currentCalculatorState.customPriceUSD = null;
+    currentCalculatorState.customPriceUAH = null;
+    if (badge) {
+      badge.textContent = 'Стандартна ціна';
+      badge.className = 'badge badge-info text-xs';
+    }
+    if (resetBtn) resetBtn.style.display = 'none';
+  }
+  updateCalculatorSummaryUI();
+}
+
+function resetCalculatorCustomPrice() {
+  const input = document.getElementById('calc-custom-price-input');
+  if (input) input.value = '';
+  handleCalculatorCustomPrice('');
+}
+
+window.handleCalculatorCustomPrice = handleCalculatorCustomPrice;
+window.resetCalculatorCustomPrice = resetCalculatorCustomPrice;
+
 function updateCalculatorSummaryUI() {
   const usdEl = document.getElementById('calc-summary-usd');
   const uahEl = document.getElementById('calc-summary-uah');
   const timeEl = document.getElementById('calc-summary-time');
 
-  if (usdEl) usdEl.textContent = `$${currentCalculatorState.priceUSD}`;
-  if (uahEl) uahEl.textContent = `${currentCalculatorState.priceUAH} ₴`;
+  if (currentCalculatorState.isCustomPrice && currentCalculatorState.customPriceUSD) {
+    if (usdEl) usdEl.innerHTML = `$${currentCalculatorState.customPriceUSD} <small class="text-warning" style="font-size:0.75rem;">(Ваша ціна)</small>`;
+    if (uahEl) uahEl.textContent = `${currentCalculatorState.customPriceUAH} ₴`;
+  } else {
+    if (usdEl) usdEl.textContent = `$${currentCalculatorState.priceUSD}`;
+    if (uahEl) uahEl.textContent = `${currentCalculatorState.priceUAH} ₴`;
+  
+  }
+
   if (timeEl) timeEl.textContent = currentCalculatorState.estimatedHours;
 }
 
@@ -517,6 +565,13 @@ function orderCalculatorBoost() {
   const game = cachedGames.find(g => g.id === currentCalculatorState.gameId);
   const curRank = game.ranks.find(r => r.id === currentCalculatorState.currentRankId) || game.ranks[0];
   const tarRank = game.ranks.find(r => r.id === currentCalculatorState.targetRankId) || game.ranks[game.ranks.length - 1];
+
+  const finalUSD = (currentCalculatorState.isCustomPrice && currentCalculatorState.customPriceUSD)
+    ? currentCalculatorState.customPriceUSD
+    : currentCalculatorState.priceUSD;
+  const finalUAH = (currentCalculatorState.isCustomPrice && currentCalculatorState.customPriceUAH)
+    ? currentCalculatorState.customPriceUAH
+    : currentCalculatorState.priceUAH;
 
   const orderItem = {
     gameId: game.id,
@@ -527,15 +582,20 @@ function orderCalculatorBoost() {
     targetRank: `${tarRank.name} (${currentCalculatorState.targetElo} Rating)`,
     currentRankValue: curRank.value,
     targetRankValue: tarRank.value,
-    price: currentCalculatorState.priceUSD,
-    priceUAH: currentCalculatorState.priceUAH,
+    price: finalUSD,
+    priceUAH: finalUAH,
+    isCustomPrice: Boolean(currentCalculatorState.isCustomPrice),
+    originalCalculatedPrice: currentCalculatorState.priceUSD,
     options: {
       ...currentCalculatorState.options,
       currentElo: currentCalculatorState.currentElo,
-      targetElo: currentCalculatorState.targetElo
+      targetElo: currentCalculatorState.targetElo,
+      isCustomPrice: Boolean(currentCalculatorState.isCustomPrice),
+      originalCalculatedPrice: currentCalculatorState.priceUSD
     },
     icon: game.icon
   };
+
 
   openCheckoutModal(orderItem);
 }
@@ -544,6 +604,13 @@ function addCalculatorBoostToCart() {
   const game = cachedGames.find(g => g.id === currentCalculatorState.gameId);
   const curRank = game.ranks.find(r => r.id === currentCalculatorState.currentRankId) || game.ranks[0];
   const tarRank = game.ranks.find(r => r.id === currentCalculatorState.targetRankId) || game.ranks[game.ranks.length - 1];
+
+  const finalUSD = (currentCalculatorState.isCustomPrice && currentCalculatorState.customPriceUSD)
+    ? currentCalculatorState.customPriceUSD
+    : currentCalculatorState.priceUSD;
+  const finalUAH = (currentCalculatorState.isCustomPrice && currentCalculatorState.customPriceUAH)
+    ? currentCalculatorState.customPriceUAH
+    : currentCalculatorState.priceUAH;
 
   const cartItem = {
     id: 'boost_' + Date.now(),
@@ -555,12 +622,16 @@ function addCalculatorBoostToCart() {
     targetRank: `${tarRank.name} (${currentCalculatorState.targetElo})`,
     currentRankValue: curRank.value,
     targetRankValue: tarRank.value,
-    price: currentCalculatorState.priceUSD,
-    priceUAH: currentCalculatorState.priceUAH,
+    price: finalUSD,
+    priceUAH: finalUAH,
+    isCustomPrice: Boolean(currentCalculatorState.isCustomPrice),
+    originalCalculatedPrice: currentCalculatorState.priceUSD,
     options: {
       ...currentCalculatorState.options,
       currentElo: currentCalculatorState.currentElo,
-      targetElo: currentCalculatorState.targetElo
+      targetElo: currentCalculatorState.targetElo,
+      isCustomPrice: Boolean(currentCalculatorState.isCustomPrice),
+      originalCalculatedPrice: currentCalculatorState.priceUSD
     },
     icon: game.icon
   };

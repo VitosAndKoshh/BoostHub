@@ -734,6 +734,8 @@ function renderBoosterAvailableOrders() {
   const ordersHtml = verificationBanner + boosterAvailableOrders.map(order => {
     const payoutUSD = Math.round((order.price || 0) * 0.8);
     const payoutUAH = Math.round((order.priceUAH || (order.price || 0) * 41.5) * 0.8);
+    const isCustom = !!(order.isCustomPrice || order.options?.isCustomPrice);
+    const origPrice = order.originalCalculatedPrice || order.options?.originalCalculatedPrice;
 
     return `
       <div class="booster-order-card cyber-card border-warning">
@@ -751,20 +753,32 @@ function renderBoosterAvailableOrders() {
           ${order.options?.offlineMode ? '<span class="tag">Offline Steam</span>' : ''}
         </div>
 
+        ${isCustom ? `
+          <div class="booster-price-agree-card mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="custom-price-badge-tag">💰 Пропозиція клієнта</span>
+              ${origPrice ? `<span class="text-xs text-muted">Каталог: ${origPrice}</span>` : ''}
+            </div>
+            <div class="text-xs text-warning">
+              Клієнт запропонував свою ціну: <strong class="text-gold">${order.price}</strong> (${order.priceUAH || Math.round(order.price * 41.5)} ₴). Чи згодні ви взятися за таке замовлення?
+            </div>
+          </div>
+        ` : ''}
+
         <div class="p-2 cyber-box mb-3 d-flex justify-content-between align-items-center">
           <div>
-            <span class="text-xs text-muted">Вартість замовлення:</span>
-            <div class="text-sm fw-bold">$${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</div>
+            <span class="text-xs text-muted">${isCustom ? 'Запропоновано клієнтом:' : 'Вартість замовлення:'}</span>
+            <div class="text-sm fw-bold">${order.price} (${order.priceUAH || Math.round(order.price * 41.5)} ₴)</div>
           </div>
           <div class="text-end">
             <span class="text-xs text-success fw-bold">💰 Ваша виплата (80%):</span>
-            <div class="text-lg text-success fw-bold">+$${payoutUSD} (${payoutUAH} ₴)</div>
+            <div class="text-lg text-success fw-bold">+${payoutUSD} (${payoutUAH} ₴)</div>
           </div>
         </div>
 
         <div class="d-flex gap-2">
-          <button class="btn ${isVerified ? 'btn-primary' : 'btn-outline'} btn-sm flex-grow-1" onclick="claimBoosterOrder('${order.id}')" ${!isVerified ? 'style="opacity: 0.6;" title="Потрібна верифікація акаунту"' : ''}>
-            ${isVerified ? '⚡ Прийняти замовлення' : '🔒 Потрібна верифікація'}
+          <button class="btn ${isVerified ? (isCustom ? 'btn-success' : 'btn-primary') : 'btn-outline'} btn-sm flex-grow-1" onclick="claimBoosterOrder('${order.id}')" ${!isVerified ? 'style="opacity: 0.6;" title="Потрібна верифікація акаунту"' : ''}>
+            ${isVerified ? (isCustom ? `🤝 Згоден взятися за ${order.price} (Прийняти)` : '⚡ Прийняти замовлення') : '🔒 Потрібна верифікація'}
           </button>
           <button class="btn btn-outline btn-sm" onclick="openLiveChat('${order.id}', '${order.title}')">
             💬 Чат
@@ -862,6 +876,9 @@ async function claimBoosterOrder(orderId) {
     return;
   }
 
+  const targetOrder = (boosterAvailableOrders || []).find(o => o.id === orderId);
+  const isCustom = targetOrder && (targetOrder.isCustomPrice || targetOrder.options?.isCustomPrice);
+
   try {
     const res = await fetch(`/api/orders/${orderId}/assign`, {
       method: 'POST',
@@ -874,8 +891,10 @@ async function claimBoosterOrder(orderId) {
 
     if (res.ok) {
       notify.show({
-        title: 'Замовлення успішно прийнято! ⚡',
-        message: 'Ви закріплені за замовленням. Перейдіть до "Мої замовлення" для старту.',
+        title: isCustom ? 'Ціну погоджено! 🤝' : 'Замовлення успішно прийнято! ⚡',
+        message: isCustom
+          ? `Ви погодилися на запропоновану ціну ${targetOrder?.price || ''} та взяли замовлення в роботу!`
+          : 'Ви закріплені за замовленням. Перейдіть до "Замовлення в роботі" для старту.',
         type: 'success',
         sound: 'rankup'
       });
@@ -1074,6 +1093,42 @@ window.openBoosterDashboard = openBoosterDashboard;
 window.closeBoosterDashboard = closeBoosterDashboard;
 window.switchBoosterTab = switchBoosterTab;
 window.claimBoosterOrder = claimBoosterOrder;
+
+async function declineBoosterOrder(orderId) {
+  if (!currentUser || (currentUser.role !== 'booster' && currentUser.role !== 'admin')) {
+    return;
+  }
+
+  const targetOrder = (boosterAvailableOrders || []).find(o => o.id === orderId);
+  const conf = confirm(`Ви дійсно не згодні взятися за замовлення ${targetOrder?.title || orderId} за ціною ${targetOrder?.price || ''}?`);
+  if (!conf) return;
+
+  try {
+    const res = await fetch(`/api/orders/${orderId}/decline`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      }
+    });
+
+    if (res.ok) {
+      notify.show({
+        title: 'Пропозицію відхилено ❌',
+        message: 'Ви відхилили ціну замовлення. Його приховано з вашого списку.',
+        type: 'info'
+      });
+      await loadBoosterData();
+    } else {
+      const data = await res.json();
+      notify.show({ title: 'Помилка', message: data.error || 'Не вдалося відхилити замовлення', type: 'warning' });
+    }
+  } catch (err) {
+    console.error('Decline error:', err);
+  }
+}
+window.declineBoosterOrder = declineBoosterOrder;
+
 window.submitBoosterProgress = submitBoosterProgress;
 window.completeBoosterOrder = completeBoosterOrder;
 window.loadBoosterData = loadBoosterData;

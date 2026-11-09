@@ -18,7 +18,9 @@
       "createdAt": "2026-11-09T16:01:00.634Z",
       "updatedAt": "2026-11-09T16:01:00.634Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1793451959078",
@@ -38,7 +40,9 @@
       "createdAt": "2026-10-31T13:05:59.152Z",
       "updatedAt": "2026-10-31T13:05:59.152Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1793287717708",
@@ -58,7 +62,9 @@
       "createdAt": "2026-10-29T15:28:37.784Z",
       "updatedAt": "2026-10-29T15:28:37.784Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1792666395509",
@@ -78,7 +84,9 @@
       "createdAt": "2026-10-22T10:53:15.581Z",
       "updatedAt": "2026-10-22T10:53:15.581Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1791656208253",
@@ -98,7 +106,9 @@
       "createdAt": "2026-10-10T18:16:48.329Z",
       "updatedAt": "2026-10-10T18:16:48.329Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1791655603018",
@@ -129,7 +139,9 @@
       "createdAt": "2026-10-10T18:06:43.098Z",
       "updatedAt": "2026-10-29T16:00:34.051Z",
       "steamId": "76561198012345678",
-      "boosterVerification": "Verified"
+      "boosterVerification": "Verified",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1791655582197",
@@ -160,7 +172,9 @@
       "createdAt": "2026-10-10T18:06:22.282Z",
       "updatedAt": "2026-10-29T16:00:34.057Z",
       "steamId": "76561198012345678",
-      "boosterVerification": "Verified"
+      "boosterVerification": "Verified",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1791655568897",
@@ -191,7 +205,9 @@
       "createdAt": "2026-10-10T18:06:08.976Z",
       "updatedAt": "2026-10-29T16:00:34.059Z",
       "steamId": "76561198012345678",
-      "boosterVerification": "Verified"
+      "boosterVerification": "Verified",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1791640762166",
@@ -222,7 +238,9 @@
       "createdAt": "2026-10-10T13:59:22.242Z",
       "updatedAt": "2026-10-29T16:00:34.061Z",
       "steamId": "",
-      "boosterVerification": "Verified"
+      "boosterVerification": "Verified",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1791622935701",
@@ -242,7 +260,9 @@
       "createdAt": "2026-10-10T09:02:15.780Z",
       "updatedAt": "2026-10-10T09:02:15.780Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1791571110799",
@@ -273,7 +293,9 @@
       "createdAt": "2026-10-09T18:38:30.873Z",
       "updatedAt": "2026-10-29T16:00:34.063Z",
       "steamId": "",
-      "boosterVerification": "Verified"
+      "boosterVerification": "Verified",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1791569551085",
@@ -293,7 +315,9 @@
       "createdAt": "2026-10-09T18:12:31.160Z",
       "updatedAt": "2026-10-09T18:12:31.160Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1789296833903",
@@ -313,7 +337,9 @@
       "createdAt": "2026-09-13T10:53:53.976Z",
       "updatedAt": "2026-09-13T10:53:53.977Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1789046235389",
@@ -333,7 +359,9 @@
       "createdAt": "2026-09-10T13:17:15.464Z",
       "updatedAt": "2026-09-13T10:50:51.900Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1789044696651",
@@ -353,7 +381,9 @@
       "createdAt": "2026-09-10T12:51:36.730Z",
       "updatedAt": "2026-09-13T10:50:51.900Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_1788958155346",
@@ -373,7 +403,9 @@
       "createdAt": "2026-09-09T12:49:15.426Z",
       "updatedAt": "2026-09-13T10:50:51.900Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_client",
@@ -407,9 +439,31 @@
         }
       ],
       "createdAt": "2026-09-02T13:49:14.581Z",
-      "updatedAt": "2026-11-09T09:00:30.286Z",
+      "updatedAt": "2026-11-09T17:38:36.510Z",
       "steamId": "https://steamcommunity.com/id/sanya_pro_player",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 150,
+      "transactions": [
+        {
+          "id": "tx_1794245916510_dsb3",
+          "type": "topup",
+          "amount": 50,
+          "description": "Поповнення гаманця (Monobank)",
+          "meta": {
+            "method": "Monobank"
+          },
+          "date": "2026-11-09T17:38:36.510Z",
+          "balanceAfter": 150
+        },
+        {
+          "id": "tx_init_1",
+          "type": "topup",
+          "amount": 100,
+          "description": "Поповнення балансу (Visa / Mastercard)",
+          "date": "2026-11-08T17:33:44.868Z",
+          "balanceAfter": 100
+        }
+      ]
     },
     {
       "id": "usr_booster_2",
@@ -440,7 +494,9 @@
       "createdAt": "2026-08-23T13:49:14.508Z",
       "updatedAt": "2026-10-29T16:00:34.065Z",
       "steamId": "",
-      "boosterVerification": "Verified"
+      "boosterVerification": "Verified",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_booster_1",
@@ -476,7 +532,9 @@
       "createdAt": "2026-08-18T13:49:14.437Z",
       "updatedAt": "2026-10-30T18:19:46.632Z",
       "steamId": "",
-      "boosterVerification": "Verified"
+      "boosterVerification": "Verified",
+      "balance": 0,
+      "transactions": []
     },
     {
       "id": "usr_admin",
@@ -502,7 +560,9 @@
       "createdAt": "2026-08-08T13:49:14.362Z",
       "updatedAt": "2026-10-29T16:39:10.648Z",
       "steamId": "",
-      "boosterVerification": "None"
+      "boosterVerification": "None",
+      "balance": 0,
+      "transactions": []
     }
   ],
   "games": [

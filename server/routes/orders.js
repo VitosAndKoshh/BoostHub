@@ -71,7 +71,22 @@ router.post('/', authMiddleware, (req, res) => {
     return res.status(400).json({ error: 'Неповні дані замовлення' });
   }
 
+  const numPrice = Number(price);
+
+  if (paymentMethod === 'wallet') {
+    const userFresh = db.getUserById(user.id);
+    if (!userFresh || Number(userFresh.balance || 0) < numPrice) {
+      return res.status(400).json({
+        error: `Недостатньо коштів на балансі гаманця. До сплати: $${numPrice}, ваш баланс: $${userFresh ? userFresh.balance : 0}`
+      });
+    }
+  }
+
   const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+
+  if (paymentMethod === 'wallet') {
+    db.updateUserBalance(user.id, -numPrice, 'payment', `Оплата замовлення ${orderId} (${title})`, { orderId });
+  }
 
   const newOrder = {
     id: orderId,

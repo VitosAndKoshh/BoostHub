@@ -603,6 +603,21 @@ class SqliteDatabase {
         comment TEXT,
         date TEXT
       );
+
+      CREATE TABLE IF NOT EXISTS booster_applications (
+        id TEXT PRIMARY KEY,
+        userId TEXT,
+        name TEXT NOT NULL,
+        contact TEXT NOT NULL,
+        steamUrl TEXT NOT NULL,
+        game TEXT NOT NULL,
+        rank TEXT NOT NULL,
+        note TEXT DEFAULT '',
+        status TEXT DEFAULT 'pending',
+        createdAt TEXT,
+        reviewedAt TEXT,
+        reviewedBy TEXT
+      );
     `);
 
     // Safe column migrations for existing SQLite database
@@ -611,6 +626,30 @@ class SqliteDatabase {
     } catch (e) {}
     try {
       this.sqlite.exec(`ALTER TABLE users ADD COLUMN boosterVerification TEXT DEFAULT 'None'`);
+    } catch (e) {}
+    try {
+      this.sqlite.exec(`ALTER TABLE users ADD COLUMN balance REAL DEFAULT 0`);
+    } catch (e) {}
+    try {
+      this.sqlite.exec(`ALTER TABLE users ADD COLUMN transactions TEXT DEFAULT '[]'`);
+    } catch (e) {}
+
+    // Initialize initial balance for Alex_Gamer if 0 or null
+    try {
+      const clientUser = this.sqlite.prepare("SELECT * FROM users WHERE id = 'usr_client'").get();
+      if (clientUser && (!clientUser.balance || Number(clientUser.balance) === 0)) {
+        const initialTx = JSON.stringify([
+          {
+            id: 'tx_init_1',
+            type: 'topup',
+            amount: 100,
+            description: 'Поповнення балансу (Visa / Mastercard)',
+            date: new Date(Date.now() - 24 * 3600000).toISOString(),
+            balanceAfter: 100
+          }
+        ]);
+        this.sqlite.prepare("UPDATE users SET balance = 100, transactions = ? WHERE id = 'usr_client'").run(initialTx);
+      }
     } catch (e) {}
   }
 
@@ -865,7 +904,9 @@ class SqliteDatabase {
       boosterVerification: row.boosterVerification || (row.role === 'booster' ? 'Verified' : 'None'),
       games: parsedGames,
       rating: Number(row.rating || 5.0),
-      completedOrders: Number(row.completedOrders || 0)
+      completedOrders: Number(row.completedOrders || 0),
+      balance: row.balance !== undefined && row.balance !== null ? Number(row.balance) : 0,
+      transactions: safeJsonParse(row.transactions, [])
     };
   }
 
@@ -986,7 +1027,7 @@ class SqliteDatabase {
       UPDATE users
       SET name = ?, email = ?, passwordHash = ?, role = ?, status = ?, statusMessage = ?,
           avatar = ?, discord = ?, telegram = ?, steamId = ?, boosterVerification = ?,
-          rating = ?, completedOrders = ?, rankTitle = ?, games = ?, updatedAt = ?
+          rating = ?, completedOrders = ?, rankTitle = ?, games = ?, balance = ?, transactions = ?, updatedAt = ?
       WHERE id = ?
     `);
 
@@ -1006,6 +1047,8 @@ class SqliteDatabase {
       Number(merged.completedOrders || 0),
       merged.rankTitle || '',
       JSON.stringify(merged.games || []),
+      merged.balance !== undefined ? Number(merged.balance) : 0,
+      typeof merged.transactions === 'string' ? merged.transactions : JSON.stringify(merged.transactions || []),
       merged.updatedAt,
       id
     );
@@ -1296,6 +1339,87 @@ class SqliteDatabase {
 
     this.syncBackupJson();
     return review;
+  }
+
+  // ---------------- USER BALANCE & WALLET OPERATIONS ----------------
+
+  updateUserBalance(userId, amount, type = 'topup', description = '', meta = {}) {
+    const user = this.getUserById(userId);
+    if (!user) return null;
+    const currentBalance = Number(user.balance || 0);
+    const newBalance = Math.max(0, Math.round((currentBalance + Number(amount)) * 100) / 100);
+    const currentTxs = Array.isArray(user.transactions) ? user.transactions : [];
+    const txId = 'tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+    const newTx = {
+      id: txId,
+      type,
+      amount: Number(amount),
+      description: description || (Number(amount) >= 0 ? 'Поповнення балансу' : 'Списання коштів'),
+      meta,
+      date: new Date().toISOString(),
+      balanceAfter: newBalance
+    };
+    const updatedTxs = [newTx, ...currentTxs];
+
+    this.sqlite.prepare(`
+      UPDATE users SET balance = ?, transactions = ?, updatedAt = ? WHERE id = ?
+    `).run(newBalance, JSON.stringify(updatedTxs), new Date().toISOString(), userId);
+
+    this.syncBackupJson();
+    return this.getUserById(userId);
+  }
+
+  // ---------------- BOOSTER APPLICATION OPERATIONS ----------------
+
+  getBoosterApplications() {
+    return this.sqlite.prepare('SELECT * FROM booster_applications ORDER BY createdAt DESC').all();
+  }
+
+  getBoosterApplicationById(id) {
+    return this.sqlite.prepare('SELECT * FROM booster_applications WHERE id = ?').get(id);
+  }
+
+  createBoosterApplication(data) {
+    const id = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+    const stmt = this.sqlite.prepare(`
+      INSERT INTO booster_applications (id, userId, name, contact, steamUrl, game, rank, note, status, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const createdAt = new Date().toISOString();
+    stmt.run(
+      id,
+      data.userId || null,
+      data.name,
+      data.contact,
+      data.steamUrl,
+      data.game,
+      data.rank,
+      data.note || '',
+      'pending',
+      createdAt
+    );
+    this.syncBackupJson();
+    return this.getBoosterApplicationById(id);
+  }
+
+  updateBoosterApplication(id, updates) {
+    const existing = this.getBoosterApplicationById(id);
+    if (!existing) return null;
+    const merged = { ...existing, ...updates };
+    const stmt = this.sqlite.prepare(`
+      UPDATE booster_applications
+      SET status = ?, reviewedAt = ?, reviewedBy = ?, note = ?
+      WHERE id = ?
+    `);
+    stmt.run(
+      merged.status,
+      merged.reviewedAt || new Date().toISOString(),
+      merged.reviewedBy || null,
+      merged.note || '',
+      id
+    );
+    this.syncBackupJson();
+    return this.getBoosterApplicationById(id);
   }
 }
 

@@ -133,6 +133,7 @@
       <nav class="nav-links" id="main-nav-links">
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
+        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openBoosterApplicationModal()">⚡ Стати бустером</a>
       </nav>
 
       <div class="nav-actions">
@@ -640,6 +641,9 @@
           <button class="btn btn-outline-cyan btn-sm admin-tab-btn active" data-tab="orders" onclick="switchAdminTab('orders')">📦 Замовлення</button>
           <button class="btn btn-outline-cyan btn-sm admin-tab-btn" data-tab="services" onclick="switchAdminTab('services')">➕ Додати послугу</button>
           <button class="btn btn-outline-cyan btn-sm admin-tab-btn" data-tab="users" onclick="switchAdminTab('users')">👥 Користувачі та бустери</button>
+          <button class="btn btn-outline-cyan btn-sm admin-tab-btn" data-tab="applications" id="admin-tab-btn-apps" onclick="switchAdminTab('applications')">
+            ⚡ Заявки бустерів <span id="admin-apps-badge" class="badge badge-warning ml-1" style="display:none;">0</span>
+          </button>
         </div>
 
         <!-- Tab 1: Orders -->
@@ -751,6 +755,17 @@
               <!-- Rendered by dashboard.js -->
             </tbody>
           </table>
+        </div>
+
+        <!-- Tab 4: Booster Applications -->
+        <div id="admin-tab-applications" class="admin-tab-content" style="display: none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-cyan mb-0">⚡ Заявки на бустерів платформи</h4>
+            <button class="btn btn-outline btn-sm" onclick="loadAdminData()">🔄 Оновити</button>
+          </div>
+          <div id="admin-applications-list">
+            <!-- Rendered by dashboard.js renderAdminBoosterApplications() -->
+          </div>
         </div>
       </div>
     </div>
@@ -1043,6 +1058,9 @@
           <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="orders" id="profile-tab-client-orders" onclick="switchClientTab('orders')">
             📦 Мої замовлення <span id="client-orders-badge" class="badge badge-info ml-1" style="display:none;">0</span>
           </button>
+          <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="client-wallet" id="profile-tab-client-wallet" onclick="switchClientTab('client-wallet')" style="display:none;">
+            💳 Мій гаманець <span id="profile-client-wallet-badge" class="badge badge-success ml-1">$0</span>
+          </button>
           <button class="btn btn-outline-cyan btn-sm client-tab-btn" data-tab="booster-avail" id="profile-tab-booster-avail" onclick="switchClientTab('booster-avail')" style="display:none;">
             ⚡ Буст замовлення <span id="profile-booster-avail-count" class="badge badge-warning ml-1">0</span>
           </button>
@@ -1059,6 +1077,9 @@
 
         <!-- Tab 1: Account / Profile Page -->
         <div id="client-tab-settings" class="client-tab-content">
+          <!-- Client Wallet Quick Widget (Shown for clients) -->
+          <div id="profile-client-wallet-banner" class="mb-4" style="display: none;"></div>
+
           <!-- Booster Wallet Quick Widget (Shown only for boosters) -->
           <div id="profile-booster-wallet-banner" class="mb-4" style="display: none;"></div>
 
@@ -1245,6 +1266,13 @@
             <!-- Rendered dynamically by dashboard.js renderBoosterWalletUI() -->
           </div>
         </div>
+
+        <!-- Tab 7: Client Wallet & Balance -->
+        <div id="client-tab-client-wallet" class="client-tab-content" style="display: none;">
+          <div id="profile-client-wallet-content">
+            <!-- Rendered dynamically by dashboard.js renderClientWalletUI() -->
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1364,6 +1392,104 @@
       </div>
       <div class="modal-body" id="public-user-modal-body">
         <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Booster Application Modal ("Стати бустером") -->
+  <div id="booster-application-modal" class="modal">
+    <div class="modal-backdrop" onclick="closeBoosterApplicationModal()"></div>
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <span style="font-size: 1.6rem;">⚡</span>
+          <div>
+            <h4 style="margin: 0;" class="text-gold">Стати бустером CyberBoost</h4>
+            <div class="text-xs text-muted">Заповніть анкету кандидата для вступу в команду бустерів</div>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeBoosterApplicationModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Perks info banner -->
+        <div class="cyber-box p-3 mb-3" style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(14, 18, 34, 0.9)); border: 1px solid rgba(234, 179, 8, 0.35);">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="text-gold fw-bold text-sm">💰 Чому варто бути бустером у CyberBoost?</span>
+          </div>
+          <div class="text-xs text-muted">
+            Виплати 80% від суми кожного замовлення • Постійний потік клієнтів • Гнучкий графік • Швидкий вивід коштів на картку або крипту.
+          </div>
+        </div>
+
+        <form onsubmit="submitBoosterApplication(event)" id="booster-app-form">
+          <!-- 1. Discord or Telegram contact -->
+          <div class="mb-3">
+            <label class="form-label text-xs fw-bold text-cyan">
+              1) Нік у Discord або Telegram <span class="text-danger">*</span>:
+            </label>
+            <input type="text" id="booster-app-contact" class="form-control" placeholder="@username_tg або DiscordNick#1234" required />
+            <div class="form-help-text">Контакт для зв'язку з адміністратором та проходження перевірки.</div>
+          </div>
+
+          <!-- 2. Candidate's Name -->
+          <div class="mb-3">
+            <label class="form-label text-xs fw-bold text-cyan">
+              2) Своє ім'я <span class="text-danger">*</span>:
+            </label>
+            <input type="text" id="booster-app-name" class="form-control" placeholder="Олександр / Alex" required />
+            <div class="form-help-text">Реальне ім'я кандидата.</div>
+          </div>
+
+          <!-- 3. Steam profile link -->
+          <div class="mb-3">
+            <label class="form-label text-xs fw-bold text-cyan">
+              3) Посилання на Steam <span class="text-danger">*</span>:
+            </label>
+            <input type="url" id="booster-app-steam" class="form-control" placeholder="https://steamcommunity.com/id/your_profile" required />
+            <div class="form-help-text" style="color: #fbbf24;">⚠️ Пряме посилання на відкритий профіль Steam для перевірки годин та відсутності VAC-банів.</div>
+          </div>
+
+          <!-- 4. Main Game & Current Rank / ELO -->
+          <div class="row-2-col mb-3">
+            <div>
+              <label class="form-label text-xs fw-bold text-cyan">
+                4) Основна гра <span class="text-danger">*</span>:
+              </label>
+              <select id="booster-app-game" class="form-select" required>
+                <option value="CS2 Faceit / Premier">CS2 (Faceit / Premier)</option>
+                <option value="Valorant">Valorant</option>
+                <option value="Dota 2">Dota 2</option>
+                <option value="League of Legends">League of Legends</option>
+                <option value="Fortnite">Fortnite</option>
+                <option value="Apex Legends">Apex Legends</option>
+                <option value="Rocket League">Rocket League</option>
+                <option value="World of Warcraft">World of Warcraft</option>
+                <option value="Інша гра">Інша гра</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label text-xs fw-bold text-cyan">
+                Поточний ранг / ELO <span class="text-danger">*</span>:
+              </label>
+              <input type="text" id="booster-app-rank" class="form-control" placeholder="напр. Faceit 10 (2950 ELO) або Radiant" required />
+            </div>
+          </div>
+
+          <!-- 5. Additional info / Tracker.gg -->
+          <div class="mb-4">
+            <label class="form-label text-xs fw-bold text-cyan">
+              (Додатково) Посилання на Tracker.gg чи опис досвіду:
+            </label>
+            <textarea id="booster-app-note" class="form-control text-xs" rows="3" placeholder="Посилання на Tracker.gg / Faceit, попередній досвід бустингу, доступні години для гри тощо..."></textarea>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeBoosterApplicationModal()">Скасувати</button>
+            <button type="submit" id="booster-app-submit-btn" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #f59e0b, #ef4444); border-color: #f59e0b; font-weight: 700;">
+              ⚡ Надіслати заявку
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

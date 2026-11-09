@@ -4,6 +4,7 @@ let adminAllOrders = [];
 let boosterAvailableOrders = [];
 let boosterMyOrders = [];
 let allUsersList = [];
+let adminBoosterApplications = [];
 
 // Switch Role Demo Quick Bar
 async function switchDemoRole(role) {
@@ -82,6 +83,26 @@ async function loadAdminData() {
     renderAdminStats();
     renderAdminOrders();
     renderAdminUsers();
+
+    // 3. Load Booster Applications
+    try {
+      const appsRes = await fetch('/api/auth/booster-applications', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      if (appsRes.ok) {
+        const appsData = await appsRes.json();
+        adminBoosterApplications = appsData.applications || [];
+        const pendingCount = adminBoosterApplications.filter(a => a.status === 'pending').length;
+        const appsBadge = document.getElementById('admin-apps-badge');
+        if (appsBadge) {
+          appsBadge.textContent = pendingCount;
+          appsBadge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+        }
+        renderAdminBoosterApplications();
+      }
+    } catch (e) {
+      console.warn('Could not load booster applications:', e);
+    }
   } catch (err) {
     console.error('Failed to load admin data:', err);
   }
@@ -1562,3 +1583,366 @@ window.updateBoosterSliderDisplay = updateBoosterSliderDisplay;
 window.requestBoosterPartialClose = requestBoosterPartialClose;
 window.renderCompletedBoosterCards = renderCompletedBoosterCards;
 window.renderBoosterMyOrders = renderBoosterMyOrders;
+
+// ---------------- CLIENT WALLET UI & TOP-UP ----------------
+
+async function renderClientWalletUI() {
+  if (!currentUser) return;
+
+  // Refresh user wallet data from server if logged in
+  if (authToken) {
+    try {
+      const res = await fetch('/api/auth/wallet', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        currentUser.balance = data.balance;
+        currentUser.transactions = data.transactions;
+      }
+    } catch (e) {}
+  }
+
+  const balanceUSD = Number(currentUser.balance || 0);
+  const balanceUAH = Math.round(balanceUSD * 41.5);
+  const transactions = Array.isArray(currentUser.transactions) ? currentUser.transactions : [];
+
+  // 1. Update Badge in Profile Nav Tabs
+  const walletBadge = document.getElementById('profile-client-wallet-badge');
+  if (walletBadge) {
+    walletBadge.textContent = `$${balanceUSD}`;
+  }
+
+  // 2. Update Navbar balance pill
+  const navBalance = document.getElementById('nav-client-balance');
+  if (navBalance) {
+    navBalance.textContent = `$${balanceUSD}`;
+  }
+
+  // 3. Update Quick Banner in Tab 1 (Settings)
+  const quickBanner = document.getElementById('profile-client-wallet-banner');
+  if (quickBanner) {
+    quickBanner.innerHTML = `
+      <div class="cyber-box p-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(14, 18, 34, 0.9)); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-md);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div style="font-size: 2rem; background: rgba(16, 185, 129, 0.2); border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+              💳
+            </div>
+            <div>
+              <div class="text-xs text-muted">Особистий баланс клієнта CyberBoost:</div>
+              <div class="d-flex align-items-baseline gap-2">
+                <span class="text-xl fw-bold text-success">$${balanceUSD}</span>
+                <span class="text-sm text-muted">(${balanceUAH} ₴)</span>
+                <span class="badge badge-success text-xs">Доступно для покупок</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-success btn-sm" onclick="switchClientTab('client-wallet')">
+              ⚡ Швидке поповнення
+            </button>
+            <button type="button" class="btn btn-outline-cyan btn-sm" onclick="switchClientTab('orders')">
+              📦 Мої замовлення
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 4. Update full wallet container in Tab 7
+  const walletContainer = document.getElementById('profile-client-wallet-content');
+  if (walletContainer) {
+    const txRows = transactions.length > 0 ? transactions.map(tx => {
+      const isPositive = Number(tx.amount) >= 0;
+      const typeBadge = tx.type === 'topup' 
+        ? '<span class="badge badge-success text-xs">Поповнення</span>'
+        : (tx.type === 'payment' ? '<span class="badge badge-warning text-xs">Оплата бусту</span>' : '<span class="badge badge-info text-xs">Операція</span>');
+      const dateStr = tx.date ? new Date(tx.date).toLocaleString('uk-UA', { dateStyle: 'short', timeStyle: 'short' }) : 'Нещодавно';
+      return `
+        <tr>
+          <td class="text-xs text-muted">${dateStr}</td>
+          <td>${typeBadge}</td>
+          <td class="text-xs text-dim">${tx.description || '-'}</td>
+          <td class="fw-bold ${isPositive ? 'text-success' : 'text-danger'}">${isPositive ? '+' : ''}$${Math.abs(tx.amount)}</td>
+          <td class="text-xs text-muted">$${tx.balanceAfter !== undefined ? tx.balanceAfter : balanceUSD}</td>
+        </tr>
+      `;
+    }).join('') : `
+      <tr>
+        <td colspan="5" class="text-center text-muted p-4">Історія транзакцій порожня. Поповніть баланс, щоб оплачувати замовлення в 1 клік!</td>
+      </tr>
+    `;
+
+    walletContainer.innerHTML = `
+      <div class="client-wallet-view">
+        <!-- Virtual Cyber Card & Quick Stats Grid -->
+        <div class="row g-3 mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <!-- Card 1: Virtual Card -->
+          <div class="client-virtual-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="virtual-card-chip">💳 CHIP</span>
+              <span class="virtual-card-brand text-gold fw-bold">CyberBoost Pay</span>
+            </div>
+            <div class="text-xs text-muted mb-1">Поточний баланс клієнта:</div>
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+              <span class="text-3xl fw-bold text-white">$${balanceUSD}</span>
+              <span class="text-md text-cyan">(${balanceUAH} ₴)</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center text-xs text-muted">
+              <span>ВЛАСНИК: <strong class="text-white">${currentUser.name}</strong></span>
+              <span>СТАТУС: <span class="text-success fw-bold">АКТИВНИЙ</span></span>
+            </div>
+          </div>
+
+          <!-- Card 2: Quick Top-Up Form -->
+          <div class="cyber-card p-4" style="background: rgba(14, 18, 34, 0.85); border: 1px solid rgba(0, 240, 255, 0.25);">
+            <h5 class="text-cyan mb-2" style="font-size: 1.05rem;">⚡ Швидке поповнення гаманця</h5>
+            <p class="text-xs text-muted mb-3">Оберіть суму та платіжну систему для миттєвого зарахування коштів:</p>
+
+            <!-- Preset amount pills -->
+            <div class="d-flex gap-2 flex-wrap mb-3">
+              <button type="button" class="btn btn-outline-cyan btn-xs" onclick="setTopupAmount(10)">+$10 (415 ₴)</button>
+              <button type="button" class="btn btn-outline-cyan btn-xs" onclick="setTopupAmount(25)">+$25 (1,038 ₴)</button>
+              <button type="button" class="btn btn-outline-cyan btn-xs" onclick="setTopupAmount(50)">+$50 (2,075 ₴)</button>
+              <button type="button" class="btn btn-outline-cyan btn-xs" onclick="setTopupAmount(100)">+$100 (4,150 ₴)</button>
+              <button type="button" class="btn btn-outline-cyan btn-xs" onclick="setTopupAmount(200)">+$200 (8,300 ₴)</button>
+            </div>
+
+            <form onsubmit="handleClientTopupSubmit(event)">
+              <div class="mb-3">
+                <label class="form-label text-xs">Сума поповнення ($ USD):</label>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="text-gold fw-bold">$</span>
+                  <input type="number" id="client-topup-amount" class="form-control text-sm fw-bold text-success" min="1" max="10000" value="50" oninput="updateTopupUAHDisplay(this.value)" required />
+                  <span id="client-topup-uah-preview" class="text-xs text-muted" style="white-space: nowrap;">(2,075 ₴)</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label text-xs">Спосіб оплати:</label>
+                <select id="client-topup-method" class="form-select text-xs">
+                  <option value="Visa / Mastercard">💳 Банківська картка (Visa / Mastercard)</option>
+                  <option value="Monobank / Приват24">📱 Monobank / Приват24</option>
+                  <option value="Apple Pay / Google Pay">🍏 Apple Pay / Google Pay</option>
+                  <option value="USDT TRC20 / Crypto">💎 Криптовалюта (USDT TRC20 / TON / BTC)</option>
+                </select>
+              </div>
+
+              <button type="submit" id="client-topup-btn" class="btn btn-success btn-sm w-100" style="font-weight: 700;">
+                💳 Поповнити гаманець
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Transactions History -->
+        <div class="cyber-box p-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-cyan mb-0" style="font-size: 1rem;">📜 Історія операцій гаманця</h5>
+            <span class="text-xs text-muted">Всього операцій: ${transactions.length}</span>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="cyber-table text-xs">
+              <thead>
+                <tr>
+                  <th>Дата та час</th>
+                  <th>Тип</th>
+                  <th>Опис операції</th>
+                  <th>Сума</th>
+                  <th>Баланс після</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${txRows}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function setTopupAmount(amount) {
+  const input = document.getElementById('client-topup-amount');
+  if (input) {
+    input.value = amount;
+    updateTopupUAHDisplay(amount);
+  }
+}
+
+function updateTopupUAHDisplay(val) {
+  const preview = document.getElementById('client-topup-uah-preview');
+  if (preview) {
+    const num = Number(val) || 0;
+    preview.textContent = `(${Math.round(num * 41.5)} ₴)`;
+  }
+}
+
+async function handleClientTopupSubmit(event) {
+  if (event) event.preventDefault();
+  const amount = parseFloat(document.getElementById('client-topup-amount')?.value);
+  const method = document.getElementById('client-topup-method')?.value || 'Банківська картка';
+
+  if (isNaN(amount) || amount <= 0) {
+    if (typeof notify !== 'undefined') notify.show({ title: 'Помилка', message: 'Вкажіть коректну суму поповнення (від $1)!', type: 'warning' });
+    return;
+  }
+
+  const btn = document.getElementById('client-topup-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Обробка платежу...';
+  }
+
+  try {
+    const res = await fetch('/api/auth/wallet/topup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({ amount, method })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Помилка поповнення');
+
+    currentUser.balance = data.balance;
+    currentUser.transactions = data.transactions;
+
+    if (typeof notify !== 'undefined') {
+      notify.show({
+        title: 'Баланс поповнено! 💳',
+        message: `Успішно зараховано +$${amount} (${Math.round(amount * 41.5)} ₴) через ${method}. Поточний баланс: $${data.balance}`,
+        type: 'success',
+        sound: 'rankup'
+      });
+    }
+
+    renderClientWalletUI();
+    if (typeof updateUserAuthUI === 'function') updateUserAuthUI();
+  } catch (err) {
+    if (typeof notify !== 'undefined') notify.show({ title: 'Помилка', message: err.message, type: 'error' });
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '💳 Поповнити гаманець';
+    }
+  }
+}
+
+// ---------------- ADMIN BOOSTER APPLICATIONS ----------------
+
+function renderAdminBoosterApplications() {
+  const container = document.getElementById('admin-applications-list');
+  if (!container) return;
+
+  if (adminBoosterApplications.length === 0) {
+    container.innerHTML = `
+      <div class="cyber-box p-4 text-center text-muted">
+        Немає нових заявок на бустера. Коли кандидат заповнить анкету, вона з'явиться тут.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      ${adminBoosterApplications.map(app => {
+        const isPending = app.status === 'pending';
+        const isApproved = app.status === 'approved';
+        const statusBadge = isPending 
+          ? '<span class="badge badge-warning">⏳ Очікує розгляду</span>'
+          : (isApproved ? '<span class="badge badge-success">✅ Схвалено (Бустер)</span>' : '<span class="badge badge-danger">❌ Відхилено</span>');
+        const createdDate = app.createdAt ? new Date(app.createdAt).toLocaleString('uk-UA', { dateStyle: 'short', timeStyle: 'short' }) : 'Нещодавно';
+
+        return `
+          <div class="cyber-card p-3" style="border-left: 4px solid ${isPending ? '#f59e0b' : (isApproved ? '#10b981' : '#ef4444')}; background: rgba(14, 18, 34, 0.85);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <span style="font-size: 1.3rem;">🎮</span>
+                <span class="text-md fw-bold text-white">${app.name}</span>
+                ${statusBadge}
+              </div>
+              <div class="text-xs text-muted">Подано: ${createdDate}</div>
+            </div>
+
+            <div class="row g-2 mb-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+              <div class="cyber-box p-2">
+                <div class="text-xs text-muted">📱 Контакт (Discord/TG):</div>
+                <div class="text-sm fw-bold text-gold">${app.contact}</div>
+              </div>
+              <div class="cyber-box p-2">
+                <div class="text-xs text-muted">🎯 Основна гра & Ранг:</div>
+                <div class="text-sm fw-bold text-cyan">${app.game} • <span class="text-white">${app.rank}</span></div>
+              </div>
+              <div class="cyber-box p-2">
+                <div class="text-xs text-muted">🌐 Steam профіль:</div>
+                <a href="${app.steamUrl}" target="_blank" rel="noopener noreferrer" class="text-xs text-info text-truncate d-block" style="max-width: 260px;" title="${app.steamUrl}">
+                  🔗 Відкрити Steam профіль ↗
+                </a>
+              </div>
+            </div>
+
+            ${app.note ? `
+              <div class="cyber-box p-2 mb-3" style="background: rgba(255,255,255,0.03);">
+                <div class="text-xs text-muted mb-1">📝 Tracker.gg / Досвід бустингу:</div>
+                <div class="text-xs text-white" style="white-space: pre-line;">${app.note}</div>
+              </div>
+            ` : ''}
+
+            ${isPending ? `
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="reviewBoosterApplication('${app.id}', 'rejected')">
+                  ❌ Відхилити
+                </button>
+                <button type="button" class="btn btn-success btn-sm" onclick="reviewBoosterApplication('${app.id}', 'approved')">
+                  ✅ Схвалити та призначити бустером
+                </button>
+              </div>
+            ` : (app.reviewedBy ? `<div class="text-xs text-muted text-end">Перевірив: ${app.reviewedBy} (${app.reviewedAt ? new Date(app.reviewedAt).toLocaleDateString('uk-UA') : ''})</div>` : '')}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+async function reviewBoosterApplication(id, status) {
+  try {
+    const res = await fetch(`/api/auth/booster-applications/${id}/review`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Помилка оновлення');
+
+    if (typeof notify !== 'undefined') {
+      notify.show({
+        title: status === 'approved' ? 'Заявку схвалено! ✅' : 'Заявку відхилено ❌',
+        message: data.message,
+        type: status === 'approved' ? 'success' : 'info'
+      });
+    }
+
+    loadAdminData();
+  } catch (err) {
+    if (typeof notify !== 'undefined') notify.show({ title: 'Помилка', message: err.message, type: 'error' });
+  }
+}
+
+window.renderClientWalletUI = renderClientWalletUI;
+window.setTopupAmount = setTopupAmount;
+window.updateTopupUAHDisplay = updateTopupUAHDisplay;
+window.handleClientTopupSubmit = handleClientTopupSubmit;
+window.renderAdminBoosterApplications = renderAdminBoosterApplications;
+window.reviewBoosterApplication = reviewBoosterApplication;

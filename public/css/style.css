@@ -3377,3 +3377,54 @@ a:hover {
   color: #ffffff !important;
   box-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important;
 }
+
+/* ================= CLIENT WALLET STYLES ================= */
+.client-virtual-card {
+  background: linear-gradient(135deg, #0d1b2a, #1b263b, #001220) !important;
+  border: 1px solid rgba(0, 240, 255, 0.45) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 8px 32px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(0, 240, 255, 0.05) !important;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.client-virtual-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0, 240, 255, 0.25) !important;
+}
+
+.virtual-card-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #d4af37, #fef08a);
+  color: #1a120b;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-wallet-nav {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  color: #34d399 !important;
+  font-weight: 700 !important;
+  padding: 5px 12px !important;
+  border-radius: var(--radius-full) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-wallet-nav:hover {
+  background: rgba(16, 185, 129, 0.25) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4) !important;
+  transform: translateY(-1px);
+}

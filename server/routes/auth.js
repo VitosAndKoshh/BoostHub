@@ -281,4 +281,134 @@ router.get('/boosters', (req, res) => {
   res.json({ boosters });
 });
 
+// ---------------- CLIENT WALLET ENDPOINTS ----------------
+
+// GET /api/auth/wallet - Get current balance & transaction history
+router.get('/wallet', authMiddleware, (req, res) => {
+  const user = db.getUserById(req.user.id);
+  if (!user) {
+    return res.status(404).json({ error: 'Користувача не знайдено' });
+  }
+  res.json({
+    balance: user.balance !== undefined ? Number(user.balance) : 0,
+    balanceUAH: Math.round((Number(user.balance || 0)) * 41.5),
+    transactions: user.transactions || []
+  });
+});
+
+// POST /api/auth/wallet/topup - Top up client balance
+router.post('/wallet/topup', authMiddleware, (req, res) => {
+  const { amount, method } = req.body;
+  const numAmount = Number(amount);
+  if (isNaN(numAmount) || numAmount <= 0) {
+    return res.status(400).json({ error: 'Вкажіть коректну суму поповнення (більше 0)' });
+  }
+
+  const methodName = method || 'Банківська картка';
+  const updatedUser = db.updateUserBalance(
+    req.user.id,
+    numAmount,
+    'topup',
+    `Поповнення гаманця (${methodName})`,
+    { method: methodName }
+  );
+
+  if (!updatedUser) {
+    return res.status(500).json({ error: 'Не вдалося оновити баланс' });
+  }
+
+  res.json({
+    success: true,
+    message: `Гаманець успішно поповнено на $${numAmount}!`,
+    balance: updatedUser.balance,
+    balanceUAH: Math.round(Number(updatedUser.balance) * 41.5),
+    transactions: updatedUser.transactions || []
+  });
+});
+
+// ---------------- BOOSTER APPLICATION ENDPOINTS ----------------
+
+// POST /api/auth/booster-application - Submit application to become a booster
+router.post('/booster-application', (req, res) => {
+  const { name, contact, steamUrl, game, rank, note, userId } = req.body;
+
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'Вкажіть ваше ім\'я' });
+  }
+  if (!contact || !contact.trim()) {
+    return res.status(400).json({ error: 'Вкажіть нік у Discord або Telegram для зв\'язку' });
+  }
+  if (!steamUrl || !steamUrl.trim()) {
+    return res.status(400).json({ error: 'Вкажіть посилання на відкритий профіль Steam' });
+  }
+  if (!game || !game.trim()) {
+    return res.status(400).json({ error: 'Оберіть основну гру' });
+  }
+  if (!rank || !rank.trim()) {
+    return res.status(400).json({ error: 'Вкажіть поточний ранг або ELO' });
+  }
+
+  const appData = {
+    userId: userId || null,
+    name: name.trim(),
+    contact: contact.trim(),
+    steamUrl: steamUrl.trim(),
+    game: game.trim(),
+    rank: rank.trim(),
+    note: (note || '').trim()
+  };
+
+  const created = db.createBoosterApplication(appData);
+  res.json({
+    success: true,
+    message: 'Заявку успішно надіслано! Наш адміністратор зв\'яжеться з вами найближчим часом.',
+    application: created
+  });
+});
+
+// GET /api/auth/booster-applications - Admin view all applications
+router.get('/booster-applications', authMiddleware, adminMiddleware, (req, res) => {
+  const applications = db.getBoosterApplications();
+  res.json({ applications });
+});
+
+// PUT /api/auth/booster-applications/:id/review - Admin approve or reject application
+router.put('/booster-applications/:id/review', authMiddleware, adminMiddleware, (req, res) => {
+  const { status, note } = req.body; // 'approved' | 'rejected'
+  if (!['approved', 'rejected', 'pending'].includes(status)) {
+    return res.status(400).json({ error: 'Некоректний статус заявки' });
+  }
+
+  const app = db.getBoosterApplicationById(req.params.id);
+  if (!app) {
+    return res.status(404).json({ error: 'Заявку не знайдено' });
+  }
+
+  const updated = db.updateBoosterApplication(app.id, {
+    status,
+    note: note !== undefined ? note : app.note,
+    reviewedBy: req.user.name
+  });
+
+  // If approved and the candidate has a user account, upgrade role to booster
+  if (status === 'approved' && app.userId) {
+    const candidateUser = db.getUserById(app.userId);
+    if (candidateUser && candidateUser.role !== 'admin') {
+      db.updateUser(candidateUser.id, {
+        role: 'booster',
+        boosterVerification: 'Verified',
+        rankTitle: `${app.game} • ${app.rank}`,
+        status: 'ready',
+        statusMessage: '🟢 Вільний • Готовий до бусту'
+      });
+    }
+  }
+
+  res.json({
+    success: true,
+    message: status === 'approved' ? 'Заявку схвалено! Користувача переведено в статус бустера.' : 'Заявку відхилено.',
+    application: updated
+  });
+});
+
 module.exports = { router, authMiddleware, adminMiddleware, staffMiddleware };

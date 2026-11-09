@@ -107,7 +107,7 @@ function updateUserAuthUI() {
     if (catalogSection) catalogSection.style.display = 'none';
   }
 
-  // Update navbar links: only show Бустинг, Акаунти, Скіни CS2, Мій профіль AFTER registration and login!
+  // Update navbar links: only show Бустинг, Акаунти, Скіни CS2, Стати бустером
   if (navLinksContainer) {
     if (currentUser) {
       navLinksContainer.innerHTML = `
@@ -116,12 +116,13 @@ function updateUserAuthUI() {
         <a class="nav-link" href="#catalog" onclick="filterHeroCatalog('skins')">🗡️ Скіни CS2</a>
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
-        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openUserProfileModal('settings')">👤 Мій профіль</a>
+        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openBoosterApplicationModal()">⚡ Стати бустером</a>
       `;
     } else {
       navLinksContainer.innerHTML = `
         <a class="nav-link" href="#guarantees" data-i18n="nav_guarantee">Гарантії</a>
         <a class="nav-link" href="#reviews" data-i18n="nav_reviews">Відгуки</a>
+        <a class="nav-link text-gold fw-bold" href="javascript:void(0)" onclick="openBoosterApplicationModal()">⚡ Стати бустером</a>
       `;
     }
   }
@@ -149,7 +150,13 @@ function updateUserAuthUI() {
         </button>
       `;
     } else {
-      roleSpecificNav = `<button class="btn btn-outline-cyan btn-sm" onclick="openClientOrdersTab()">📦 Мої замовлення</button>`;
+      const clientBal = currentUser.balance !== undefined ? currentUser.balance : 0;
+      roleSpecificNav = `
+        <button class="btn btn-outline-cyan btn-sm" onclick="openClientOrdersTab()">📦 Мої замовлення</button>
+        <button class="btn btn-outline-success btn-sm btn-wallet-nav" onclick="openUserProfileModal('client-wallet')" title="Мій гаманець (Баланс клієнта)">
+          💳 <span id="nav-client-balance" class="fw-bold text-success">$${clientBal}</span>
+        </button>
+      `;
     }
 
     const profileTagLabel = currentUser.role === 'booster' ? '🎮 Акаунт бустера' : (currentUser.role === 'admin' ? '🛡️ Акаунт адміна' : '👤 Мій акаунт');
@@ -756,6 +763,8 @@ function switchClientTab(tabName) {
     if (typeof loadBoosterData === 'function') loadBoosterData();
   } else if (tabName === 'booster-wallet') {
     if (typeof renderBoosterWalletUI === 'function') renderBoosterWalletUI();
+  } else if (tabName === 'client-wallet') {
+    if (typeof renderClientWalletUI === 'function') renderClientWalletUI();
   }
 }
 
@@ -1066,17 +1075,25 @@ async function openUserProfileModal(defaultTab = 'settings') {
   const tabBoosterMy = document.getElementById('profile-tab-booster-my');
   const tabBoosterWallet = document.getElementById('profile-tab-booster-wallet');
   const tabClientOrders = document.getElementById('profile-tab-client-orders');
+  const tabClientWallet = document.getElementById('profile-tab-client-wallet');
   const tabNewBoost = document.getElementById('profile-tab-newboost');
   const boosterSection = document.getElementById('profile-booster-section');
   const boosterWalletBanner = document.getElementById('profile-booster-wallet-banner');
+  const clientWalletBanner = document.getElementById('profile-client-wallet-banner');
 
   if (tabBoosterAvail) tabBoosterAvail.style.display = isBooster ? 'inline-block' : 'none';
   if (tabBoosterMy) tabBoosterMy.style.display = isBooster ? 'inline-block' : 'none';
   if (tabBoosterWallet) tabBoosterWallet.style.display = isBooster ? 'inline-block' : 'none';
   if (tabClientOrders) tabClientOrders.style.display = !isBooster ? 'inline-block' : 'none';
+  if (tabClientWallet) tabClientWallet.style.display = !isBooster ? 'inline-block' : 'none';
   if (tabNewBoost) tabNewBoost.style.display = !isBooster ? 'inline-block' : 'none';
   if (boosterSection) boosterSection.style.display = isBooster ? 'block' : 'none';
   if (boosterWalletBanner) boosterWalletBanner.style.display = isBooster ? 'block' : 'none';
+  if (clientWalletBanner) clientWalletBanner.style.display = !isBooster ? 'block' : 'none';
+
+  if (!isBooster && typeof renderClientWalletUI === 'function') {
+    renderClientWalletUI();
+  }
 
   const heroRightBadge = document.getElementById('profile-hero-right-badge');
   if (heroRightBadge) heroRightBadge.style.display = 'none';
@@ -2455,3 +2472,110 @@ function checkUrlAuthTriggers() {
 window.addEventListener('popstate', checkUrlAuthTriggers);
 window.addEventListener('hashchange', checkUrlAuthTriggers);
 checkUrlAuthTriggers();
+
+// ---------------- BOOSTER APPLICATION FUNCTIONS ----------------
+
+function openBoosterApplicationModal() {
+  const modal = document.getElementById('booster-application-modal');
+  if (!modal) return;
+
+  // Pre-fill user data if available
+  if (currentUser) {
+    const nameInput = document.getElementById('booster-app-name');
+    if (nameInput && !nameInput.value) nameInput.value = currentUser.name || '';
+
+    const contactInput = document.getElementById('booster-app-contact');
+    if (contactInput && !contactInput.value) {
+      contactInput.value = currentUser.discord || currentUser.telegram || '';
+    }
+
+    const steamInput = document.getElementById('booster-app-steam');
+    if (steamInput && !steamInput.value && currentUser.steamId) {
+      steamInput.value = currentUser.steamId.startsWith('http') ? currentUser.steamId : `https://steamcommunity.com/id/${currentUser.steamId}`;
+    }
+  }
+
+  modal.classList.add('open');
+}
+
+function closeBoosterApplicationModal() {
+  const modal = document.getElementById('booster-application-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+async function submitBoosterApplication(event) {
+  if (event) event.preventDefault();
+
+  const name = document.getElementById('booster-app-name')?.value?.trim();
+  const contact = document.getElementById('booster-app-contact')?.value?.trim();
+  const steamUrl = document.getElementById('booster-app-steam')?.value?.trim();
+  const game = document.getElementById('booster-app-game')?.value;
+  const rank = document.getElementById('booster-app-rank')?.value?.trim();
+  const note = document.getElementById('booster-app-note')?.value?.trim() || '';
+
+  if (!name || !contact || !steamUrl || !game || !rank) {
+    if (typeof notify !== 'undefined' && notify.show) {
+      notify.show({ title: 'Помилка', message: 'Будь ласка, заповніть всі обов\'язкові поля!', type: 'warning' });
+    } else {
+      alert('Будь ласка, заповніть всі обов\'язкові поля!');
+    }
+    return;
+  }
+
+  const submitBtn = document.getElementById('booster-app-submit-btn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Відправка...';
+  }
+
+  try {
+    const res = await fetch('/api/auth/booster-application', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        contact,
+        steamUrl,
+        game,
+        rank,
+        note,
+        userId: currentUser ? currentUser.id : null
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Помилка надсилання заявки');
+    }
+
+    closeBoosterApplicationModal();
+    const form = document.getElementById('booster-app-form');
+    if (form) form.reset();
+
+    if (typeof notify !== 'undefined' && notify.show) {
+      notify.show({
+        title: 'Заявку успішно прийнято! ⚡',
+        message: 'Дякуємо! Наш адміністратор зв\'яжеться з вами в Discord або Telegram для співбесіди.',
+        type: 'success',
+        sound: 'rankup'
+      });
+    } else {
+      alert('Заявку успішно надіслано!');
+    }
+  } catch (err) {
+    if (typeof notify !== 'undefined' && notify.show) {
+      notify.show({ title: 'Помилка', message: err.message, type: 'error' });
+    } else {
+      alert(err.message);
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '⚡ Надіслати заявку';
+    }
+  }
+}
+
+window.openBoosterApplicationModal = openBoosterApplicationModal;
+window.closeBoosterApplicationModal = closeBoosterApplicationModal;
+window.submitBoosterApplication = submitBoosterApplication;

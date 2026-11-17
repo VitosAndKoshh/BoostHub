@@ -852,7 +852,11 @@ class SqliteDatabase {
         return {
           id: g.id || ('gm_' + (idx + 1)),
           game: g.game || g.name || 'Game',
-          mmr: g.mmr || g.rank || '100'
+          mmr: g.level || g.rank || g.mmr || '100',
+          level: g.level || g.rank || g.mmr || '100',
+          rank: g.rank || '',
+          role: g.role || '',
+          steamUrl: g.steamUrl || g.steam || ''
         };
       });
     } else {

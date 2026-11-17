@@ -1194,6 +1194,155 @@ async function submitUserProfileUpdate(event) {
 
 // ---------------- 2. GAME INFORMATION (MY GAMES) ----------------
 
+const GAME_LEVEL_PRESETS = {
+  'Dota 2': [
+    { label: '🛡️ Рекрут (Herald 1-5, 0 - 760 MMR)', value: 'Рекрут (Herald 100-750 MMR)' },
+    { label: '🛡️ Вартовий (Guardian 1-5, 770 - 1530 MMR)', value: 'Вартовий (Guardian 1200 MMR)' },
+    { label: '🛡️ Лицар (Crusader 1-5, 1540 - 2300 MMR)', value: 'Лицар (Crusader 1900 MMR)' },
+    { label: '🛡️ Архонт (Archon 1-5, 2310 - 3070 MMR)', value: 'Архонт (Archon 2700 MMR)' },
+    { label: '🛡️ Легенда (Legend 1-5, 3080 - 3840 MMR)', value: 'Легенда (Legend 3500 MMR)' },
+    { label: '🛡️ Володар (Ancient 1-5, 3850 - 4610 MMR)', value: 'Володар (Ancient 4200 MMR)' },
+    { label: '🛡️ Божество (Divine 1-5, 4620 - 5420 MMR)', value: 'Божество (Divine 5000 MMR)' },
+    { label: '👑 Титан (Immortal / Топ MMR, 5600+ MMR)', value: 'Титан (Immortal 6500 MMR)' }
+  ],
+  'CS2': [
+    { label: '⚡ Faceit Level 1-3 (500 - 950 ELO)', value: 'Faceit Level 3 (850 ELO)' },
+    { label: '⚡ Faceit Level 4-6 (951 - 1500 ELO)', value: 'Faceit Level 5 (1250 ELO)' },
+    { label: '⚡ Faceit Level 7-9 (1501 - 2000 ELO)', value: 'Faceit Level 8 (1750 ELO)' },
+    { label: '⚡ Faceit Level 10 (2001 - 2999 ELO)', value: 'Faceit Level 10 (2400 ELO)' },
+    { label: '👑 Faceit Level 10 Pro (3000+ ELO)', value: 'Faceit Level 10 (3100+ ELO)' },
+    { label: '💣 Premier Rating (1,000 - 4,999 ELO)', value: 'Premier 4,500 ELO' },
+    { label: '💣 Premier Rating (5,000 - 9,999 ELO)', value: 'Premier 8,200 ELO' },
+    { label: '💣 Premier Rating (10,000 - 14,999 ELO)', value: 'Premier 12,500 ELO' },
+    { label: '💣 Premier Rating (15,000 - 19,999 ELO)', value: 'Premier 17,800 ELO' },
+    { label: '👑 Premier Rating (20,000+ ELO / Топ)', value: 'Premier 22,000+ ELO' }
+  ],
+  'Valorant': [
+    { label: '🎯 Iron (Залізо I - III)', value: 'Iron 3 (75 RR)' },
+    { label: '🎯 Bronze (Бронза I - III)', value: 'Bronze 2 (50 RR)' },
+    { label: '🎯 Silver (Срібло I - III)', value: 'Silver 2 (60 RR)' },
+    { label: '🎯 Gold (Золото I - III)', value: 'Gold 3 (80 RR)' },
+    { label: '🎯 Platinum (Платина I - III)', value: 'Platinum 2 (50 RR)' },
+    { label: '🎯 Diamond (Діамант I - III)', value: 'Diamond 3 (70 RR)' },
+    { label: '🎯 Ascendant (Розквіт I - III)', value: 'Ascendant 2 (40 RR)' },
+    { label: '🎯 Immortal (Безсмертний I - III)', value: 'Immortal 2 (150 RR)' },
+    { label: '👑 Radiant (Радіант / Топ 500)', value: 'Radiant (450 RR)' }
+  ],
+  'Apex': [
+    { label: '🔥 Rookie / Bronze', value: 'Bronze 2 (1200 RP)' },
+    { label: '🔥 Silver / Gold', value: 'Gold 3 (4500 RP)' },
+    { label: '🔥 Platinum', value: 'Platinum 2 (8200 RP)' },
+    { label: '🔥 Diamond', value: 'Diamond 4 (11400 RP)' },
+    { label: '👑 Master / Apex Predator', value: 'Master (15000+ RP)' }
+  ],
+  'League of Legends': [
+    { label: '⚔️ Iron / Bronze', value: 'Bronze 1 (50 LP)' },
+    { label: '⚔️ Silver / Gold', value: 'Gold 2 (60 LP)' },
+    { label: '⚔️ Platinum / Emerald', value: 'Emerald 3 (45 LP)' },
+    { label: '⚔️ Diamond', value: 'Diamond 2 (70 LP)' },
+    { label: '👑 Master / Grandmaster / Challenger', value: 'Master (200 LP)' }
+  ],
+  'Fortnite': [
+    { label: '🏹 Bronze / Silver', value: 'Silver III' },
+    { label: '🏹 Gold / Platinum', value: 'Platinum II' },
+    { label: '🏹 Diamond', value: 'Diamond III' },
+    { label: '🏹 Elite / Champion', value: 'Champion (78%)' },
+    { label: '👑 Unreal (Топ рейтинг)', value: 'Unreal (#1420)' }
+  ],
+  'Rocket League': [
+    { label: '🏎️ Bronze / Silver', value: 'Silver III' },
+    { label: '🏎️ Gold / Platinum', value: 'Platinum II' },
+    { label: '🏎️ Diamond', value: 'Diamond III (Div 3)' },
+    { label: '🏎️ Champion I - III', value: 'Champion II (Div 2)' },
+    { label: '👑 Grand Champion / Supersonic Legend', value: 'Grand Champion I' }
+  ],
+  'Overwatch 2': [
+    { label: '🔫 Bronze / Silver', value: 'Silver 2' },
+    { label: '🔫 Gold / Platinum', value: 'Platinum 3' },
+    { label: '🔫 Diamond', value: 'Diamond 1' },
+    { label: '🔫 Master', value: 'Master 3' },
+    { label: '👑 Grandmaster / Top 500', value: 'Grandmaster 1' }
+  ],
+  'World of Warcraft': [
+    { label: '🐉 1-70 Level (Leveling)', value: 'Рівень 70 (Heroic)' },
+    { label: '🐉 Mythic+ Score 1500-2500+', value: 'Mythic+ 2500 Score' },
+    { label: '🐉 Arena 2v2/3v3 (1800-2400+ Rating)', value: 'Arena 2100 Rating' },
+    { label: '👑 Gladiator / Mythic Raid Cleared', value: 'Gladiator (2400+)' }
+  ],
+  'PUBG': [
+    { label: '📱 Bronze / Silver / Gold', value: 'Gold II' },
+    { label: '📱 Platinum / Diamond', value: 'Diamond I' },
+    { label: '👑 Master / Grandmaster', value: 'Master (3800 pts)' }
+  ],
+  'Brawl Stars': [
+    { label: '⭐ 0 - 10,000 Трофеїв', value: '7,500 Трофеїв' },
+    { label: '⭐ 10,000 - 30,000 Трофеїв', value: '22,000 Трофеїв' },
+    { label: '⭐ 30,000+ Трофеїв / Master Rank', value: '38,000 Трофеїв (Master)' }
+  ]
+};
+
+const GAME_ROLE_PRESETS = {
+  'Dota 2': ['Будь-яка позиція (Any)', 'Позиція 1 • Carry', 'Позиція 2 • Mid', 'Позиція 3 • Offlane', 'Позиція 4 • Soft Support', 'Позиція 5 • Hard Support'],
+  'CS2': ['Універсал (All-Rounder)', 'Снайпер (AWP Main)', 'Рифлер / Ентрі (Rifler / Entry)', 'Капітан / Координатор (IGL)', 'Люркер / Опора (Lurker / Anchor)'],
+  'Valorant': ['Будь-який агент (Flex)', 'Дуелянт (Duelist: Jett, Reyna...)', 'Ініціатор (Initiator: Sova, Fade...)', 'Спеціаліст (Controller: Omen, Viper...)', 'Вартовий (Sentinel: Killjoy, Cypher...)'],
+  'League of Legends': ['Будь-яка лінія (Fill)', 'Top Lane', 'Jungle', 'Mid Lane', 'Bot (ADC)', 'Support'],
+  'Apex': ['Універсал (Flex)', 'Fragger / Assault', 'Recon / Scout', 'Support / Anchor'],
+  'Overwatch 2': ['Всі ролі (Flex)', 'Танк (Tank)', 'Шкода (DPS)', 'Підтримка (Support)'],
+  'World of Warcraft': ['DPS (Ближній / Дальній бій)', 'Tank', 'Healer (Цілитель)'],
+  'default': ['Універсал (Any / Flex)', 'Атака / DPS', 'Захист / Саппорт', 'Капітан / Лідер']
+};
+
+function populateGamePresets(gameName, currentRankVal = '', currentRoleVal = '') {
+  const presetSelect = document.getElementById('add-game-rank-preset');
+  const roleSelect = document.getElementById('add-game-role-select');
+  const presetRow = document.getElementById('add-game-preset-row');
+
+  // 1. Populate Ranks
+  if (presetSelect) {
+    const list = GAME_LEVEL_PRESETS[gameName] || [
+      { label: '⭐ Початківець (Рівень 1-20)', value: 'Рівень 1-20' },
+      { label: '⭐ Середній рівень (Рівень 21-50)', value: 'Рівень 35' },
+      { label: '⭐ Досвідчений (Рівень 51-80)', value: 'Рівень 65' },
+      { label: '👑 Професіонал / Максимальний рівень (80+)', value: 'Рівень 80+' }
+    ];
+
+    presetSelect.innerHTML = list.map(item => `
+      <option value="${item.value}">${item.label}</option>
+    `).join('') + `<option value="custom">✏️ Власний рівень (вказати вручну)...</option>`;
+
+    if (currentRankVal) {
+      const match = list.find(it => it.value === currentRankVal);
+      if (match) {
+        presetSelect.value = currentRankVal;
+      } else {
+        presetSelect.value = 'custom';
+      }
+    } else {
+      presetSelect.selectedIndex = 0;
+    }
+  }
+
+  // 2. Populate Roles
+  if (roleSelect) {
+    const roles = GAME_ROLE_PRESETS[gameName] || GAME_ROLE_PRESETS['default'];
+    roleSelect.innerHTML = roles.map(r => `
+      <option value="${r}">${r}</option>
+    `).join('');
+
+    if (currentRoleVal) {
+      roleSelect.value = currentRoleVal;
+    }
+  }
+}
+
+function handleRankPresetChange(val) {
+  const mmrInput = document.getElementById('add-game-mmr-input');
+  if (!mmrInput) return;
+  if (val && val !== 'custom') {
+    mmrInput.value = val;
+  }
+}
+
 function renderUserGamesList() {
   const container = document.getElementById('profile-my-games-list');
   if (!container) return;
@@ -1202,27 +1351,48 @@ function renderUserGamesList() {
   if (games.length === 0) {
     container.innerHTML = `
       <div class="text-xs text-muted p-3 text-center border rounded" style="border-color: rgba(255,255,255,0.08) !important;">
-        🎮 Ігор поки не додано. Натисніть <strong>[+ Add Game]</strong>, щоб додати гру та MMR.
+        🎮 Ігор поки не додано. Натисніть <strong>[+ Add Game]</strong>, щоб обрати гру та вказати ваш рівень!
       </div>
     `;
     return;
   }
 
-  container.innerHTML = games.map(g => `
-    <div class="my-game-card">
-      <div class="my-game-info">
-        <div class="my-game-title">
-          <span>${getGameIcon(g.game, g.id)}</span>
-          <span>${g.game}</span>
+  container.innerHTML = games.map(g => {
+    const gameTitle = g.game || 'Game';
+    const levelDisplay = g.level || g.rank || g.mmr || '100';
+    const roleBadge = g.role && !g.role.includes('Any') && !g.role.includes('Будь-яка')
+      ? `<span class="badge badge-outline-cyan text-xs" style="font-size: 0.72rem; padding: 2px 7px; border: 1px solid rgba(0,240,255,0.4); border-radius: 4px; color: #00f0ff;">${g.role}</span>`
+      : '';
+    const steamBadge = g.steamUrl
+      ? `<a href="${g.steamUrl}" target="_blank" rel="noopener noreferrer" class="badge" style="display:inline-flex; align-items:center; gap:5px; text-decoration:none; padding: 3px 8px; border: 1px solid rgba(0, 240, 255, 0.45); background: rgba(0, 240, 255, 0.1); color: #00f0ff; border-radius: 4px; font-size: 0.75rem; font-weight: 600;" title="Відкрити Steam профіль" onclick="event.stopPropagation();">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5l2.77-3.96a3.5 3.5 0 0 1-.22-.38l-3.33 1.37a.64.64 0 0 1-.61-.08.64.64 0 0 1-.23-.58l.78-4.67a3.5 3.5 0 0 1 1.76-2.58l2.46-4.92a.64.64 0 0 1 .57-.35c.24 0 .47.14.58.35l2.45 4.92a3.5 3.5 0 0 1 1.77 2.58l.78 4.67a.64.64 0 0 1-.23.58.64.64 0 0 1-.61.08l-3.33-1.37c-.07.13-.15.26-.22.38l2.77 3.96C19.13 20.17 22 16.42 22 12c0-5.52-4.48-10-10-10z"/></svg>
+          <span>Steam профіль ↗</span>
+        </a>`
+      : '';
+
+    return `
+      <div class="my-game-card">
+        <div class="my-game-info">
+          <div class="my-game-title d-flex align-items-center flex-wrap gap-2">
+            <span style="font-size: 1.25rem;">${getGameIcon(gameTitle, g.id)}</span>
+            <span class="fw-bold text-white">${gameTitle}</span>
+            ${roleBadge}
+            ${steamBadge}
+          </div>
+          <div class="my-game-mmr d-flex align-items-center flex-wrap gap-2 mt-1">
+            <span class="text-xs text-muted">⭐ Ваш точний рівень, ранг або MMR:</span>
+            <span class="badge badge-info" style="font-size: 0.82rem; font-weight: 700; background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.45); color: #00f0ff;">
+              ${levelDisplay}
+            </span>
+          </div>
         </div>
-        <div class="my-game-mmr">MMR: ${g.mmr}</div>
+        <div class="my-game-actions">
+          <button type="button" class="btn-game-edit" onclick="openAddGameModal('${g.id}')">✏️ Edit</button>
+          <button type="button" class="btn-game-remove" onclick="removeUserGame('${g.id}')">🗑️ Remove</button>
+        </div>
       </div>
-      <div class="my-game-actions">
-        <button type="button" class="btn-game-edit" onclick="openAddGameModal('${g.id}')">Edit</button>
-        <button type="button" class="btn-game-remove" onclick="removeUserGame('${g.id}')">Remove</button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function openAddGameModal(editId = null) {
@@ -1233,34 +1403,46 @@ function openAddGameModal(editId = null) {
   const customRow = document.getElementById('add-game-custom-row');
   const customInput = document.getElementById('add-game-custom-input');
   const mmrInput = document.getElementById('add-game-mmr-input');
+  const steamInput = document.getElementById('add-game-steam-input');
 
   if (!modal) return;
 
   if (editId) {
     const existing = (currentUser.games || []).find(g => g.id === editId);
     if (existing) {
-      if (title) title.textContent = '✏️ Редагувати гру (Edit Game)';
+      if (title) title.textContent = '✏️ Редагувати рівень гри (Edit Game Level)';
       if (idInput) idInput.value = editId;
-      if (mmrInput) mmrInput.value = existing.mmr;
 
-      const knownOptions = ['Dota 2', 'CS2', 'Valorant', 'Apex', 'League of Legends', 'Rocket League', 'Overwatch 2'];
-      if (knownOptions.includes(existing.game)) {
-        if (select) select.value = existing.game;
+      const knownOptions = ['Dota 2', 'CS2', 'Valorant', 'Apex', 'League of Legends', 'Fortnite', 'Rocket League', 'Overwatch 2', 'World of Warcraft', 'PUBG', 'Brawl Stars'];
+      const matchedGame = knownOptions.find(opt => opt.toLowerCase() === (existing.game || '').toLowerCase()) || (knownOptions.includes(existing.game) ? existing.game : null);
+
+      if (matchedGame) {
+        if (select) select.value = matchedGame;
         if (customRow) customRow.style.display = 'none';
         if (customInput) customInput.value = '';
+        populateGamePresets(matchedGame, existing.rank || existing.level || existing.mmr, existing.role);
       } else {
         if (select) select.value = 'custom';
         if (customRow) customRow.style.display = 'block';
         if (customInput) customInput.value = existing.game;
+        populateGamePresets('custom', existing.rank || existing.level || existing.mmr, existing.role);
       }
+
+      if (mmrInput) mmrInput.value = existing.level || existing.rank || existing.mmr || '100';
+      if (steamInput) steamInput.value = existing.steamUrl || existing.steam || '';
     }
   } else {
-    if (title) title.textContent = '🎮 Додати гру (+ Add Game)';
+    if (title) title.textContent = '🎮 Додати гру та рівень (+ Add Game Level)';
     if (idInput) idInput.value = '';
     if (select) select.value = 'Dota 2';
     if (customRow) customRow.style.display = 'none';
     if (customInput) customInput.value = '';
-    if (mmrInput) mmrInput.value = '100';
+    populateGamePresets('Dota 2');
+    const firstVal = GAME_LEVEL_PRESETS['Dota 2'][0]?.value || 'Рекрут (Herald 100-750 MMR)';
+    if (mmrInput) mmrInput.value = firstVal;
+    if (steamInput) {
+      steamInput.value = (currentUser && currentUser.steamId && currentUser.steamId.startsWith('http')) ? currentUser.steamId : '';
+    }
   }
 
   modal.classList.add('open');
@@ -1276,6 +1458,14 @@ function handleGameSelectChange(val) {
   if (customRow) {
     customRow.style.display = val === 'custom' ? 'block' : 'none';
   }
+
+  populateGamePresets(val);
+
+  const presetSelect = document.getElementById('add-game-rank-preset');
+  const mmrInput = document.getElementById('add-game-mmr-input');
+  if (presetSelect && mmrInput && presetSelect.value && presetSelect.value !== 'custom') {
+    mmrInput.value = presetSelect.value;
+  }
 }
 
 async function handleSaveGameSubmit(event) {
@@ -1285,23 +1475,32 @@ async function handleSaveGameSubmit(event) {
   const editId = document.getElementById('add-game-edit-id')?.value;
   const selectVal = document.getElementById('add-game-select')?.value;
   const customVal = document.getElementById('add-game-custom-input')?.value?.trim();
+  const rankPreset = document.getElementById('add-game-rank-preset')?.value || '';
   const mmrVal = document.getElementById('add-game-mmr-input')?.value?.trim() || '100';
+  const roleVal = document.getElementById('add-game-role-select')?.value || '';
+  const steamUrlVal = document.getElementById('add-game-steam-input')?.value?.trim() || '';
 
   const gameTitle = selectVal === 'custom' ? (customVal || 'Game') : selectVal;
 
   let updatedGames = Array.isArray(currentUser.games) ? [...currentUser.games] : [];
 
+  const gameObj = {
+    id: editId || ('gm_' + Date.now()),
+    game: gameTitle,
+    rank: rankPreset !== 'custom' ? rankPreset : mmrVal,
+    level: mmrVal,
+    mmr: mmrVal,
+    role: roleVal,
+    steamUrl: steamUrlVal
+  };
+
   if (editId) {
     const idx = updatedGames.findIndex(g => g.id === editId);
     if (idx !== -1) {
-      updatedGames[idx] = { id: editId, game: gameTitle, mmr: mmrVal };
+      updatedGames[idx] = gameObj;
     }
   } else {
-    updatedGames.push({
-      id: 'gm_' + Date.now(),
-      game: gameTitle,
-      mmr: mmrVal
-    });
+    updatedGames.push(gameObj);
   }
 
   try {
@@ -1320,8 +1519,8 @@ async function handleSaveGameSubmit(event) {
       renderUserGamesList();
       closeAddGameModal();
       notify.show({
-        title: editId ? 'Гру оновлено!' : 'Гру додано в My Games! 🎮',
-        message: `${gameTitle} — MMR: ${mmrVal}`,
+        title: editId ? 'Рівень гри оновлено!' : 'Гру та рівень додано! 🎮',
+        message: `${gameTitle} — Рівень: ${mmrVal}`,
         type: 'success',
         sound: 'success'
       });
@@ -1637,7 +1836,12 @@ function renderAllUsersGrid() {
     } else {
       // Client
       const clientGamesHtml = Array.isArray(user.games) && user.games.length > 0
-        ? `<div class="user-game-tags">${user.games.map(g => `<span class="user-game-tag">🎮 ${typeof g === 'object' ? `${g.game} (${g.mmr})` : g}</span>`).join('')}</div>`
+        ? `<div class="user-game-tags">${user.games.map(g => {
+            const name = typeof g === 'object' ? g.game : g;
+            const lvl = typeof g === 'object' ? (g.level || g.rank || g.mmr || '') : '';
+            const st = typeof g === 'object' && g.steamUrl ? ' 🔗 Steam' : '';
+            return `<span class="user-game-tag">🎮 ${name}${lvl ? ' (' + lvl + ')' : ''}${st}</span>`;
+          }).join('')}</div>`
         : '<div class="text-xs text-muted">Ігри клієнта: Dota 2, CS2</div>';
 
       const statusClass = user.status === 'in_boost' ? 'text-info' : (user.status === 'searching' ? 'text-warning' : 'text-success');
@@ -1757,12 +1961,19 @@ async function viewPublicUserProfile(userId) {
   } else {
     // Client
     const clientGamesList = Array.isArray(user.games) && user.games.length > 0
-      ? user.games.map(g => `
-          <div class="p-2 cyber-box d-flex justify-content-between align-items-center mb-1">
-            <span>🎮 <strong>${typeof g === 'object' ? g.game : g}</strong></span>
-            <span class="badge badge-info">MMR / Ранг: ${typeof g === 'object' ? g.mmr : '100'}</span>
-          </div>
-        `).join('')
+      ? user.games.map(g => {
+          const gameTitle = typeof g === 'object' ? g.game : g;
+          const levelVal = typeof g === 'object' ? (g.level || g.rank || g.mmr || '100') : '100';
+          const steamLink = (typeof g === 'object' && g.steamUrl)
+            ? `<a href="${g.steamUrl}" target="_blank" rel="noopener noreferrer" class="badge" style="border:1px solid rgba(0,240,255,0.4); color:#00f0ff; text-decoration:none; padding:2px 7px; margin-left:6px; font-size:0.75rem;">🔗 Steam профіль ↗</a>`
+            : '';
+          return `
+            <div class="p-2 cyber-box d-flex justify-content-between align-items-center mb-1">
+              <span class="d-flex align-items-center gap-1">🎮 <strong>${gameTitle}</strong> ${steamLink}</span>
+              <span class="badge badge-info" style="color:#00f0ff; background:rgba(0,240,255,0.12); border:1px solid rgba(0,240,255,0.4);">⭐ ${levelVal}</span>
+            </div>
+          `;
+        }).join('')
       : '<div class="text-xs text-muted">Ігри ще не додані в профіль</div>';
 
     extraSections = `
@@ -2337,6 +2548,7 @@ window.filterHeroCatalog = filterHeroCatalog;
 window.openAddGameModal = openAddGameModal;
 window.closeAddGameModal = closeAddGameModal;
 window.handleGameSelectChange = handleGameSelectChange;
+window.handleRankPresetChange = handleRankPresetChange;
 window.handleSaveGameSubmit = handleSaveGameSubmit;
 window.removeUserGame = removeUserGame;
 window.renderUserGamesList = renderUserGamesList;

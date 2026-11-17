@@ -1252,7 +1252,7 @@
   <!-- Add / Edit Game Modal (My Games) -->
   <div id="add-game-modal" class="modal">
     <div class="modal-backdrop" onclick="closeAddGameModal()"></div>
-    <div class="modal-content" style="max-width: 440px;">
+    <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
         <h4 id="add-game-modal-title">🎮 Додати гру (+ Add Game)</h4>
         <button class="close-btn" onclick="closeAddGameModal()">✕</button>
@@ -1260,31 +1260,74 @@
       <div class="modal-body">
         <form onsubmit="handleSaveGameSubmit(event)">
           <input type="hidden" id="add-game-edit-id" value="" />
+          
+          <!-- 1. Game Selection -->
           <div class="mb-3">
-            <label class="form-label">Game:</label>
+            <label class="form-label text-xs fw-bold text-cyan">🎮 Оберіть гру (Game):</label>
             <select id="add-game-select" class="form-select" onchange="handleGameSelectChange(this.value)" required>
-              <option value="Dota 2">Dota 2</option>
-              <option value="CS2">CS2</option>
-              <option value="Valorant">Valorant</option>
-              <option value="Apex">Apex</option>
-              <option value="League of Legends">League of Legends</option>
-              <option value="Rocket League">Rocket League</option>
-              <option value="Overwatch 2">Overwatch 2</option>
-              <option value="custom">Інша гра (Вказати свою)...</option>
+              <option value="Dota 2">🛡️ Dota 2</option>
+              <option value="CS2">💣 Counter-Strike 2 (CS2)</option>
+              <option value="Valorant">🎯 Valorant</option>
+              <option value="Apex">🔥 Apex Legends</option>
+              <option value="League of Legends">⚔️ League of Legends</option>
+              <option value="Fortnite">🏹 Fortnite</option>
+              <option value="Rocket League">🏎️ Rocket League</option>
+              <option value="Overwatch 2">🔫 Overwatch 2</option>
+              <option value="World of Warcraft">🐉 World of Warcraft</option>
+              <option value="PUBG">📱 PUBG / PUBG Mobile</option>
+              <option value="Brawl Stars">⭐ Brawl Stars</option>
+              <option value="custom">🎮 Інша гра (Вказати свою)...</option>
             </select>
           </div>
+
+          <!-- 1b. Custom Game Name -->
           <div class="mb-3" id="add-game-custom-row" style="display: none;">
-            <label class="form-label">Вкажіть назву гри:</label>
-            <input type="text" id="add-game-custom-input" class="form-control" placeholder="Назва гри..." />
+            <label class="form-label text-xs fw-bold text-cyan">Вкажіть назву гри:</label>
+            <input type="text" id="add-game-custom-input" class="form-control" placeholder="Наприклад: Deadlock, Rainbow Six Siege..." />
           </div>
+
+          <!-- 2. Rank / Level Preset Selector -->
+          <div class="mb-3" id="add-game-preset-row">
+            <label class="form-label text-xs fw-bold text-cyan d-flex justify-content-between align-items-center">
+              <span>🏆 Рівень / Ранг для обраної гри:</span>
+              <span class="text-xs text-muted">Швидкий вибір</span>
+            </label>
+            <select id="add-game-rank-preset" class="form-select" onchange="handleRankPresetChange(this.value)">
+              <!-- Populated dynamically by app.js -->
+            </select>
+          </div>
+
+          <!-- 3. Exact Level / Rank / MMR input -->
+          <div class="mb-3">
+            <label class="form-label text-xs fw-bold text-cyan">
+              ⭐ Ваш точний рівень, ранг або MMR:
+            </label>
+            <input type="text" id="add-game-mmr-input" class="form-control" placeholder="напр: 100 або 3500 MMR або Faceit 10 (2950 ELO)..." required />
+            <div class="form-help-text">Вкажіть ваш рівень, ранг чи числове значення MMR / ELO (підтягується з вибору вище або введіть власне).</div>
+          </div>
+
+          <!-- 4. Game Role / Position (optional) -->
+          <div class="mb-3">
+            <label class="form-label text-xs fw-bold text-cyan">
+              🎯 Ваша основна роль або позиція (опціонально):
+            </label>
+            <select id="add-game-role-select" class="form-select">
+              <!-- Populated dynamically by app.js -->
+            </select>
+          </div>
+
+          <!-- 5. Steam Profile Link for Game -->
           <div class="mb-4">
-            <label class="form-label">MMR / rank:</label>
-            <input type="text" id="add-game-mmr-input" class="form-control" placeholder="100 або Immortal / Faceit 10" required />
-            <div class="form-help-text">Вкажіть ваш ранг або числове значення MMR (напр: 100, 3500, Radiant).</div>
+            <label class="form-label text-xs fw-bold text-cyan">
+              🔗 Посилання на Steam (Steam профіль для гри):
+            </label>
+            <input type="url" id="add-game-steam-input" class="form-control" placeholder="https://steamcommunity.com/id/your_profile" />
+            <div class="form-help-text">Вкажіть посилання на відкритий профіль Steam для перевірки рангу, годин та відсутності VAC-банів.</div>
           </div>
+
           <div class="d-flex justify-content-end gap-2">
             <button type="button" class="btn btn-outline btn-sm" onclick="closeAddGameModal()">Скасувати</button>
-            <button type="submit" class="btn btn-primary btn-sm">Зберегти гру</button>
+            <button type="submit" class="btn btn-primary btn-sm">💾 Зберегти гру</button>
           </div>
         </form>
       </div>

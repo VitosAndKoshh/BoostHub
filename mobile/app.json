@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "CyberBoost",
+    "slug": "cyberboost-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0a0b10",
+    "primaryColor": "#00f0ff",
+    "splash": {
+      "backgroundColor": "#0a0b10"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0b10",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
